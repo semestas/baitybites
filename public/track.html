@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Pesanan - BaityBites</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .track-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--neutral-50);
+            padding: var(--spacing-md);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .track-container {
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .track-card {
+            background: white;
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .status-timeline {
+            margin-top: var(--spacing-2xl);
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--neutral-200);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -38px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--neutral-300);
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px var(--neutral-200);
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: var(--primary-500);
+            box-shadow: 0 0 0 2px var(--primary-200);
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: var(--success);
+            box-shadow: 0 0 0 2px #d1fae5;
+        }
+
+        .timeline-content {
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+        }
+
+        .order-details {
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--neutral-300);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="track-page">
+        <div class="track-container">
+            <div class="track-card">
+                <div class="text-center mb-4">
+                    <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 60px; margin-bottom: 1rem;">
+                    <h1>Lacak Pesanan</h1>
+                    <p class="text-muted">Masukkan Nomor Order atau Nomor Invoice untuk melihat progress PO Anda.</p>
+                </div>
+
+                <form id="trackForm" class="flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="trackNumber" class="form-input"
+                            placeholder="Contoh: PO-2026... atau INV-2026..." required style="flex: 1;">
+                        <button type="submit" class="btn btn-primary">
+                            <span id="btnText">Lacak</span>
+                            <div id="btnSpinner" class="spinner"
+                                style="width: 20px; height: 20px; border-width: 2px; display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="errorArea" class="text-danger mt-3 text-center" style="display: none;"></div>
+
+                <div id="resultArea" style="display: none;">
+                    <div class="order-details">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 id="resOrderNumber">PO-XXXX</h3>
+                            <span id="resBadge" class="badge">Status</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem;">
+                            Pelanggan: <span id="resCustomerName" class="text-dark"
+                                style="font-weight: 600;">-</span><br>
+                            Tanggal Order: <span id="resDate">-</span><br>
+                            Invoice: <span id="resInvoiceNumber" style="font-weight: 600;">-</span>
+                        </p>
+                    </div>
+
+                    <div class="status-timeline">
+                        <div class="timeline-item" id="step-pending">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Pesanan Diterima</div>
+                                <div class="timeline-date">Pencatatan PO Berhasil</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" id="step-paid">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Pembayaran & Invoice</div>
+                                <div class="timeline-date">Verifikasi Pembayaran</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" id="step-production">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Proses Produksi</div>
+                                <div class="timeline-date">Risol Mayo sedang dibuat</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" id="step-packaging">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Pengemasan</div>
+                                <div class="timeline-date">Pesanan sedang dikemas rapi</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" id="step-shipping">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Pengiriman</div>
+                                <div class="timeline-date" id="resShippingText">Menunggu kurir</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item" id="step-completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Selesai</div>
+                                <div class="timeline-date">Pesanan telah sampai tujuan</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a href="/" class="btn btn-outline btn-sm">Kembali ke Beranda</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const { apiCall, formatCurrency, formatDate, getStatusBadgeClass, getStatusLabel } = window.app;
+
+        document.getElementById('trackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const number = document.getElementById('trackNumber').value.trim();
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const resultArea = document.getElementById('resultArea');
+            const errorArea = document.getElementById('errorArea');
+
+            // Reset UI
+            resultArea.style.display = 'none';
+            errorArea.style.display = 'none';
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+
+            try {
+                // Public track endpoint (tidak butuh auth token karena invoice id adalah kodenya)
+                const response = await fetch(`/api/public/track/${number}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    updateUI(data);
+                    resultArea.style.display = 'block';
+                } else {
+                    errorArea.textContent = result.message || 'Data tidak ditemukan';
+                    errorArea.style.display = 'block';
+                }
+            } catch (error) {
+                errorArea.textContent = 'Gagal menghubungkan ke server';
+                errorArea.style.display = 'block';
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+            }
+        });
+
+        function updateUI(data) {
+            document.getElementById('resOrderNumber').textContent = data.order_number;
+            document.getElementById('resCustomerName').textContent = data.customer_name;
+            document.getElementById('resDate').textContent = new Date(data.order_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('resInvoiceNumber').textContent = data.invoice_number || '-';
+
+            const badge = document.getElementById('resBadge');
+            badge.textContent = getStatusLabel(data.status);
+            badge.className = 'badge ' + getStatusBadgeClass(data.status);
+
+            // Update Timeline
+            const steps = ['pending', 'paid', 'production', 'packaging', 'shipping', 'completed'];
+            const currentStatus = data.status;
+
+            // Map status to timeline index
+            const statusMap = {
+                'pending': 0,
+                'confirmed': 0,
+                'invoiced': 1,
+                'paid': 1,
+                'production': 2,
+                'packaging': 3,
+                'shipping': 4,
+                'completed': 5
+            };
+
+            const currentIndex = statusMap[currentStatus] ?? -1;
+
+            steps.forEach((step, index) => {
+                const el = document.getElementById('step-' + step);
+                el.classList.remove('active', 'completed');
+
+                if (index < currentIndex) {
+                    el.classList.add('completed');
+                } else if (index === currentIndex) {
+                    el.classList.add('active');
+                }
+            });
+
+            // Shipping details
+            if (data.tracking_number) {
+                document.getElementById('resShippingText').textContent = `Kurir: ${data.courier} (${data.tracking_number})`;
+            }
+        }
+    </script>
+</body>
+
+</html>

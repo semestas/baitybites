@@ -1,0 +1,25 @@
+{
+  "name": "baitybites",
+  "version": "1.0.0",
+  "description": "Order Management System for BaityBites",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "$env:Path += \";$env:USERPROFILE\\.bun\\bin\"; bun --watch index.ts",
+    "start": "$env:Path += \";$env:USERPROFILE\\.bun\\bin\"; bun index.ts",
+    "build": "$env:Path += \";$env:USERPROFILE\\.bun\\bin\"; bun build index.ts --outdir ./dist --target bun"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/jwt": "^1.4.0",
+    "@elysiajs/static": "^1.4.7",
+    "elysia": "^1.4.22"
+  }
+}

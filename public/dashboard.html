@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaityBites - Order Management System</title>
+  <meta name="description" content="Sistem manajemen order untuk BaityBites - dari pemesanan hingga pengiriman">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <a href="/" class="logo">
+            <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+          </a>
+          <nav class="nav" id="mainNav">
+            <a href="/dashboard" class="nav-link active">Dashboard</a>
+            <a href="/orders.html" class="nav-link">Orders</a>
+            <a href="/customers.html" class="nav-link">Customers</a>
+            <a href="/products.html" class="nav-link">Products</a>
+            <a href="/production.html" class="nav-link">Production</a>
+            <button class="btn btn-primary btn-sm" onclick="logout()">Logout</button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Page Header -->
+        <div class="mb-4">
+          <h1 class="animate-fade-in">Dashboard</h1>
+          <p class="text-muted">Selamat datang di BaityBites Order Management System</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-4 mb-4 animate-fade-in">
+          <div class="stat-card" style="border-left-color: #f59638;">
+            <div style="position: relative;">
+              <div class="stat-label">Total Orders</div>
+              <div class="stat-value" id="totalOrders">0</div>
+              <div class="stat-icon">📦</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="border-left-color: #4caf50;">
+            <div style="position: relative;">
+              <div class="stat-label">Completed</div>
+              <div class="stat-value" id="completedOrders">0</div>
+              <div class="stat-icon">✅</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="border-left-color: #3b82f6;">
+            <div style="position: relative;">
+              <div class="stat-label">In Progress</div>
+              <div class="stat-value" id="inProgressOrders">0</div>
+              <div class="stat-icon">⚙️</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="border-left-color: #f59e0b;">
+            <div style="position: relative;">
+              <div class="stat-label">Revenue</div>
+              <div class="stat-value" id="totalRevenue">Rp 0</div>
+              <div class="stat-icon">💰</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Flow Visualization -->
+        <div class="card mb-4 animate-fade-in">
+          <div class="card-header">
+            <h2 class="card-title">Order Flow Status</h2>
+          </div>
+          <div class="card-body">
+            <div class="grid grid-4" id="orderFlowStats">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="card animate-fade-in">
+          <div class="card-header flex justify-between items-center">
+            <h2 class="card-title">Recent Orders</h2>
+            <a href="/orders.html" class="btn btn-primary btn-sm">View All Orders</a>
+          </div>
+          <div class="card-body">
+            <div class="table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrdersTable">
+                  <tr>
+                    <td colspan="6" class="text-center">
+                      <div class="spinner" style="margin: 20px auto;"></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-3 mt-4 animate-fade-in">
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">📝</div>
+            <h3>New Order</h3>
+            <p class="text-muted">Create a new customer order</p>
+            <button class="btn btn-primary" onclick="window.location.href='/orders.html?action=new'">
+              Create Order
+            </button>
+          </div>
+
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">👥</div>
+            <h3>Manage Customers</h3>
+            <p class="text-muted">View and manage customer data</p>
+            <button class="btn btn-secondary" onclick="window.location.href='/customers.html'">
+              View Customers
+            </button>
+          </div>
+
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">🏭</div>
+            <h3>Production</h3>
+            <p class="text-muted">Monitor production status</p>
+            <button class="btn btn-outline" onclick="window.location.href='/production.html'">
+              View Production
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+      <div class="container">
+        <p>&copy; 2026 BaityBites. All rights reserved.</p>
+        <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
+          Order Management System v1.0
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

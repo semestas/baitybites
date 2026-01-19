@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - BaityBites OMS</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+                    </a>
+                    <nav class="nav" id="mainNav">
+                        <a href="/dashboard" class="nav-link">Dashboard</a>
+                        <a href="/orders.html" class="nav-link">Orders</a>
+                        <a href="/customers.html" class="nav-link">Customers</a>
+                        <a href="/products.html" class="nav-link active">Products</a>
+                        <a href="/production.html" class="nav-link">Production</a>
+                        <button class="btn btn-primary btn-sm" onclick="logout()">Logout</button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 class="animate-fade-in">Products</h1>
+                        <p class="text-muted">Katalog produk dan stok BaityBites</p>
+                    </div>
+                    <button class="btn btn-primary">+ Add Product</button>
+                </div>
+
+                <div class="grid grid-3 animate-fade-in" id="productGrid">
+                    <div class="card" style="text-align: center; padding: 2rem;">
+                        <div class="spinner" style="margin: 0 auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+            <div class="container">
+                <p>&copy; 2026 BaityBites. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const { apiCall, formatCurrency } = window.app;
+
+        async function loadProducts() {
+            try {
+                const response = await apiCall('/public/products'); // Using public endpoint for now
+                if (response.success) {
+                    renderProducts(response.data);
+                }
+            } catch (e) {
+                document.getElementById('productGrid').innerHTML = '<p class="text-danger">Gagal memuat produk.</p>';
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            if (products.length === 0) {
+                grid.innerHTML = '<p class="text-muted">Tidak ada produk.</p>';
+                return;
+            }
+            grid.className = "grid grid-3 animate-fade-in";
+            grid.innerHTML = products.map(p => `
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h3 class="mb-1">${p.name}</h3>
+                    <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'}">Stok: ${p.stock}</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">${p.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-primary font-bold" style="font-size: 1.25rem;">${formatCurrency(p.price)}</span>
+                        <button class="btn btn-outline btn-sm">Edit</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+
+</html>

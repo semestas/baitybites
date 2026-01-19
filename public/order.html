@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Risol Mayo - BaityBites</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body style="background: var(--neutral-50);">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px;">
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container" style="max-width: 800px;">
+                <div class="card animate-fade-in">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">Form Pemesanan Risol Mayo</h2>
+                        <p class="text-muted">Nikmati kelezatan Risol Mayo Premium kami langsung di rumah Anda.</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="orderForm">
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nomor WhatsApp</label>
+                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea id="address" class="form-textarea"
+                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <h3 class="mb-2">Pilih Produk</h3>
+                                <div id="productList" class="flex flex-col gap-2">
+                                    <div class="spinner" style="margin: 20px auto;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Catatan Tambahan (Opsional)</label>
+                                <input type="text" id="notes" class="form-input" placeholder="Contoh: Sambal dipisah">
+                            </div>
+
+                            <div class="mt-4 p-3 bg-neutral-100 rounded-lg text-right">
+                                <h3 style="margin: 0;">Total Pembayaran: <span id="totalText" class="text-primary">Rp
+                                        0</span></h3>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                    <span id="btnText">Konfirmasi Pesanan</span>
+                                    <div id="btnSpinner" class="spinner"
+                                        style="width: 30px; height: 30px; display: none; border-top-color: white;">
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Success Modal -->
+                <div id="successModal" class="modal-overlay" style="display: none;">
+                    <div class="modal text-center p-5">
+                        <div style="font-size: 5rem; margin-bottom: 1rem;">🎉</div>
+                        <h2>Pesanan Berhasil!</h2>
+                        <p class="mb-3">Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.</p>
+                        <div class="p-3 bg-neutral-100 rounded-lg mb-4">
+                            <h4 class="text-muted mb-1">Nomor Order</h4>
+                            <h2 id="successOrderNumber" class="text-primary mb-2">PO-XXXX</h2>
+                            <h4 class="text-muted mb-1">Nomor Invoice</h4>
+                            <h3 id="successInvoiceNumber" class="text-dark">INV-XXXX</h3>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button id="btnCopy" class="btn btn-secondary">Salin Nomor Order</button>
+                            <a id="btnTrackLink" href="#" class="btn btn-primary">Lacak Sekarang</a>
+                            <a href="/" class="btn btn-outline">Kembali ke Beranda</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const { formatCurrency } = window.app;
+        let products = [];
+        let quantities = {};
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/public/products');
+                const result = await response.json();
+                if (result.success) {
+                    products = result.data;
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Load products error:', error);
+            }
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('productList');
+            if (products.length === 0) {
+                list.innerHTML = '<p class="text-center p-3 text-muted">Produk tidak tersedia.</p>';
+                return;
+            }
+
+            list.innerHTML = products.map(p => `
+                <div class="card flex justify-between items-center p-3" style="margin-bottom: 0.5rem; transition: none;">
+                    <div>
+                        <h4 style="margin: 0;">${p.name}</h4>
+                        <p class="text-muted" style="margin:0; font-size: 0.85rem;">${p.description} - <strong>${formatCurrency(p.price)}</strong></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="changeQty(${p.id}, -1)">-</button>
+                        <span id="qty-${p.id}" style="width: 20px; text-align: center; font-weight: 700;">0</span>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="changeQty(${p.id}, 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function changeQty(id, delta) {
+            const current = quantities[id] || 0;
+            const newVal = Math.max(0, current + delta);
+            quantities[id] = newVal;
+            document.getElementById('qty-' + id).textContent = newVal;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            products.forEach(p => {
+                total += (quantities[p.id] || 0) * p.price;
+            });
+            document.getElementById('totalText').textContent = formatCurrency(total);
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const items = products
+                .filter(p => (quantities[p.id] || 0) > 0)
+                .map(p => ({
+                    product_id: p.id,
+                    quantity: quantities[p.id],
+                    price: p.price
+                }));
+
+            if (items.length === 0) {
+                alert('Tolong pilih minimal satu produk.');
+                return;
+            }
+
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+
+            const payload = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                notes: document.getElementById('notes').value,
+                items
+            };
+
+            try {
+                const response = await fetch('/api/public/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('successOrderNumber').textContent = result.data.order_number;
+                    document.getElementById('successInvoiceNumber').textContent = result.data.invoice_number;
+                    document.getElementById('btnTrackLink').href = '/track.html?number=' + result.data.invoice_number;
+
+                    document.getElementById('btnCopy').onclick = () => {
+                        navigator.clipboard.writeText(result.data.order_number);
+                        alert('Nomor order berhasil dicopy!');
+                    };
+
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    alert('Gagal membuat pesanan: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi.');
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+            }
+        });
+
+        loadProducts();
+    </script>
+</body>
+
+</html>

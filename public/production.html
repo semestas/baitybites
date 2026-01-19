@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production - BaityBites OMS</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+                    </a>
+                    <nav class="nav" id="mainNav">
+                        <a href="/dashboard" class="nav-link">Dashboard</a>
+                        <a href="/orders.html" class="nav-link">Orders</a>
+                        <a href="/customers.html" class="nav-link">Customers</a>
+                        <a href="/products.html" class="nav-link">Products</a>
+                        <a href="/production.html" class="nav-link active">Production</a>
+                        <button class="btn btn-primary btn-sm" onclick="logout()">Logout</button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="mb-4">
+                    <h1 class="animate-fade-in">Production</h1>
+                    <p class="text-muted">Pantau status produksi Risol Mayo</p>
+                </div>
+
+                <div class="grid grid-3 mb-4 animate-fade-in">
+                    <div class="stat-card" style="border-left-color: #3b82f6;">
+                        <div class="stat-label">In Production</div>
+                        <div class="stat-value">0</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                        <div class="stat-label">Wait for Packing</div>
+                        <div class="stat-value">0</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #10b981;">
+                        <div class="stat-label">Ready to Ship</div>
+                        <div class="stat-value">0</div>
+                    </div>
+                </div>
+
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">Antrean Produksi</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Status</th>
+                                        <th>Update Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productionTableBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <div class="spinner" style="margin: 20px auto;"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+            <div class="container">
+                <p>&copy; 2026 BaityBites. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('productionTableBody').innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center text-muted">Belum ada antrean produksi.</td>
+          </tr>
+        `;
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
