@@ -1,0 +1,269 @@
+@use '../abstracts/variables' as *;
+
+.hero-section {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    @include flex-center;
+    background: $black;
+    color: $white;
+    overflow: hidden;
+
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('/assets/risol_mayo.png');
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+        transform: scale(1.1);
+        animation: slowZoom 20s infinite alternate;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 800px;
+        padding: 2rem;
+        animation: fadeInUp 1.2s ease-out;
+
+        .hero-logo {
+            margin-bottom: 2rem;
+            animation: float 4s ease-in-out infinite;
+
+            img {
+                height: 100px;
+                filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+            }
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(to right, #fff, $primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-description {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        animation: bounce 2s infinite;
+    }
+}
+
+.gallery-section {
+    @include section-padding;
+    background: radial-gradient(circle at 10% 20%, rgba($primary, 0.03) 0%, transparent 50%), $white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+        font-size: 3rem;
+        color: $text-dark;
+        margin-bottom: 50px;
+        text-align: center;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        width: 100%;
+        max-width: 1200px;
+
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: $radius-sm;
+            overflow: hidden;
+            box-shadow: $shadow-sm;
+            background: #f0f0f0;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+
+    footer-text {
+        margin-top: 50px;
+        font-size: 1.2rem;
+        color: $text-muted;
+        max-width: 600px;
+        text-align: center;
+    }
+}
+
+.testimony-section {
+    @include section-padding;
+    background: radial-gradient(circle at 90% 80%, rgba($secondary, 0.04) 0%, transparent 50%), $gray-light;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+
+    h2 {
+        font-size: 3rem;
+        color: $text-dark;
+        margin-bottom: 60px;
+        text-align: center;
+    }
+
+    .testimony-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 40px;
+        width: 100%;
+        max-width: 1200px;
+
+        .testimony-card {
+            background: $white;
+            padding: 40px;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-md;
+            border: 1px solid $gray-border;
+            transition: transform 0.3s ease;
+
+            &.offset {
+                transform: translateY(20px);
+            }
+
+            .user-info {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                margin-bottom: 25px;
+
+                img {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: $radius-full;
+                    object-fit: cover;
+                }
+
+                h4 {
+                    margin: 0;
+                    font-size: 1.25rem;
+                }
+
+                p {
+                    margin: 0;
+                    color: $primary;
+                    font-size: 0.9rem;
+                }
+            }
+
+            .quote {
+                font-style: italic;
+                color: $text-body;
+                line-height: 1.8;
+                font-size: 1.1rem;
+                position: relative;
+
+                &::before {
+                    content: '"';
+                    font-size: 4rem;
+                    position: absolute;
+                    top: -20px;
+                    left: -10px;
+                    opacity: 0.1;
+                    font-family: serif;
+                }
+            }
+        }
+    }
+}
+
+@keyframes slowZoom {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.15);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        .hero-content {
+            .hero-title {
+                font-size: 2.75rem;
+            }
+
+            .hero-description {
+                font-size: 1.125rem;
+            }
+        }
+    }
+
+    .testimony-section .testimony-grid .testimony-card.offset {
+        transform: translateY(0);
+    }
+}

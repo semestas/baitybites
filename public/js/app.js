@@ -1,5 +1,5 @@
 // Global API configuration
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = window.location.origin + '/api';
 
 // Utility functions
 function formatCurrency(amount) {
@@ -72,8 +72,10 @@ function getStatusLabel(status) {
 async function apiCall(endpoint, options = {}) {
     try {
         const token = localStorage.getItem('token');
+        const isFormData = options.body instanceof FormData;
+
         const headers = {
-            'Content-Type': 'application/json',
+            ...(!isFormData && { 'Content-Type': 'application/json' }),
             ...(token && { 'Authorization': `Bearer ${token}` }),
             ...options.headers
         };

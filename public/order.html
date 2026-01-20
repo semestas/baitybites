@@ -108,14 +108,36 @@
 
     <script src="/js/app.js"></script>
     <script>
-        const { formatCurrency } = window.app;
+        // const { apiCall, formatCurrency } = window.app; // Already global
+
         let products = [];
         let quantities = {};
 
+        // Auto-fill from local storage if logged in
+        function autoFillUser() {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    if (user.role === 'customer') {
+                        if (user.name) document.getElementById('name').value = user.name;
+                        if (user.email) document.getElementById('email').value = user.email;
+                        if (user.phone) document.getElementById('phone').value = user.phone;
+                        if (user.address) document.getElementById('address').value = user.address;
+
+                        // Disable email if logged in with Google to maintain consistency
+                        if (user.email) document.getElementById('email').disabled = true;
+                    }
+                } catch (e) {
+                    console.error('Failed to parse user for auto-fill');
+                }
+            }
+        }
+
         async function loadProducts() {
+            autoFillUser();
             try {
-                const response = await fetch('/api/public/products');
-                const result = await response.json();
+                const result = await apiCall('/public/products');
                 if (result.success) {
                     products = result.data;
                     renderProducts();
@@ -151,7 +173,8 @@
             const current = quantities[id] || 0;
             const newVal = Math.max(0, current + delta);
             quantities[id] = newVal;
-            document.getElementById('qty-' + id).textContent = newVal;
+            const qtyEl = document.getElementById('qty-' + id);
+            if (qtyEl) qtyEl.textContent = newVal;
             updateTotal();
         }
 
@@ -194,12 +217,10 @@
             };
 
             try {
-                const response = await fetch('/api/public/order', {
+                const result = await apiCall('/public/order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
 
                 if (result.success) {
                     document.getElementById('successOrderNumber').textContent = result.data.order_number;
@@ -212,11 +233,10 @@
                     };
 
                     document.getElementById('successModal').style.display = 'flex';
-                } else {
-                    alert('Gagal membuat pesanan: ' + result.message);
                 }
             } catch (error) {
-                alert('Terjadi kesalahan koneksi.');
+                // apiCall handles error notification
+                console.error('Order submission failed:', error);
             } finally {
                 btnText.style.display = 'inline-block';
                 btnSpinner.style.display = 'none';

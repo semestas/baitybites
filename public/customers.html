@@ -81,15 +81,76 @@
 
     <script src="/js/app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
+        const { apiCall, formatDate, formatDateTime } = window.app;
+
+        async function loadCustomers() {
+            try {
+                const response = await apiCall('/cms/customers');
+                if (response.success) {
+                    renderCustomers(response.data);
+                } else {
+                    document.getElementById('customersTableBody').innerHTML = `
+                        <tr><td colspan="6" class="text-center text-danger">Gagal memuat data pelanggan.</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
                 document.getElementById('customersTableBody').innerHTML = `
-          <tr>
-            <td colspan="6" class="text-center text-muted">Belum ada data pelanggan.</td>
-          </tr>
-        `;
-            }, 1000);
-        });
+                    <tr><td colspan="6" class="text-center text-danger">Terjadi kesalahan sistem.</td></tr>
+                `;
+            }
+        }
+
+        function renderCustomers(customers) {
+            const tbody = document.getElementById('customersTableBody');
+
+            if (customers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum ada data pelanggan.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = customers.map(c => `
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar placeholder">
+                                <div class="bg-neutral-focus text-neutral-content rounded-full w-8 h-8 flex items-center justify-center bg-gray-200">
+                                    <span class="text-xs font-bold">${getInitials(c.name)}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-bold">${c.name}</div>
+                                <div class="text-xs opacity-50 text-muted">${c.address || 'Alamat tidak tersedia'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${c.email}</td>
+                    <td>${c.phone || '-'}</td>
+                    <td class="text-center"><span class="badge badge-ghost badge-sm">${c.total_orders} Orders</span></td>
+                    <td>${c.last_order ? formatDateTime(c.last_order) : '-'}</td>
+                    <td>
+                        <button class="btn btn-ghost btn-xs">Details</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(n => n[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+        }
+
+        // Check if DOM is already loaded, otherwise wait for it
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadCustomers);
+        } else {
+            // DOM is already loaded, call immediately
+            loadCustomers();
+        }
     </script>
 </body>
 

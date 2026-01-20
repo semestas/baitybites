@@ -1,0 +1,4 @@
+public/**/*.html
+public/assets/**
+public/css/**
+public/js/**

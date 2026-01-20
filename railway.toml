@@ -1,0 +1,17 @@
+# Railway Deployment Configuration
+# Deploy backend to Railway.app
+
+[build]
+  builder = "NIXPACKS"
+  buildCommand = "bun install"
+
+[deploy]
+  startCommand = "bun run index.ts"
+  healthcheckPath = "/api/health"
+  healthcheckTimeout = 100
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 10
+
+[env]
+  PORT = "9876"
+  NODE_ENV = "production"

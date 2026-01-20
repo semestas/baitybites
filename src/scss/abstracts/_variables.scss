@@ -1,0 +1,32 @@
+// SCSS Variables & Design Tokens
+$primary: #f59638;
+$secondary: #ec6817;
+$white: #ffffff;
+$black: #000000;
+$gray-light: #fdfdfd;
+$gray-border: #f0f0f0;
+$text-dark: #333333;
+$text-muted: #666666;
+$text-body: #555555;
+
+$font-display: 'Outfit', sans-serif;
+$font-primary: 'Inter', sans-serif;
+
+$shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 15px 40px rgba(0, 0, 0, 0.05);
+
+$radius-sm: 20px;
+$radius-lg: 30px;
+$radius-full: 50%;
+$radius-button: 50px;
+
+// Mixins
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin section-padding {
+    padding: 80px 20px;
+}

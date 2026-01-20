@@ -7,236 +7,7 @@
     <title>BaityBites - Risol Mayo Premium</title>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        :root {
-            --primary-accent: #f59638;
-            --secondary-accent: #ec6817;
-        }
-
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow-x: hidden;
-        }
-
-        .hero-section {
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            color: white;
-            overflow: hidden;
-        }
-
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('/assets/risol_mayo.png');
-            background-size: cover;
-            background-position: center;
-            z-index: 1;
-            transform: scale(1.1);
-            animation: slowZoom 20s infinite alternate;
-        }
-
-        @keyframes slowZoom {
-            from {
-                transform: scale(1);
-            }
-
-            to {
-                transform: scale(1.15);
-            }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 800px;
-            padding: 2rem;
-            animation: fadeInUp 1.2s ease-out;
-        }
-
-        .hero-logo {
-            margin-bottom: 2rem;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .hero-logo img {
-            height: 100px;
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: 4.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            line-height: 1.1;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            background: linear-gradient(to right, #fff, #f59638);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-description {
-            font-size: 1.5rem;
-            margin-bottom: 3rem;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            font-weight: 400;
-        }
-
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.25rem 3rem;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: white;
-            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(245, 150, 56, 0.4);
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-button:hover {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 15px 40px rgba(245, 150, 56, 0.6);
-        }
-
-        .cta-button:active {
-            transform: scale(0.95);
-        }
-
-        .cta-button::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
-            transform: scale(0);
-            transition: transform 0.6s ease-out;
-            pointer-events: none;
-        }
-
-        .cta-button:hover::after {
-            transform: scale(1);
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateX(-50%) translateY(0);
-            }
-
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.75rem;
-            }
-
-            .hero-description {
-                font-size: 1.125rem;
-            }
-
-            .cta-button {
-                padding: 1rem 2rem;
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Assistive Animation Elements */
-        .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 2;
-        }
-
-        @keyframes sparkle-anim {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-
-            50% {
-                opacity: 0.8;
-            }
-
-            100% {
-                transform: scale(1.5) rotate(180deg);
-                opacity: 0;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 
 <body>
@@ -254,7 +25,7 @@
                 meleleh di mulut. Dibuat dengan bahan pilihan untuk gigitan yang tak terlupakan.
             </p>
 
-            <div
+            <div class="button-group"
                 style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out 0.3s both;">
                 <a href="/order.html" class="cta-button">
                     <span>Pesan Sekarang</span>
@@ -265,8 +36,7 @@
                     </svg>
                 </a>
 
-                <a href="/track.html" class="cta-button"
-                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 2px solid white; box-shadow: none;">
+                <a href="/track.html" class="cta-button secondary">
                     <span>Lihat Pesanan Saya</span>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -277,7 +47,7 @@
             </div>
         </div>
 
-        <a href="/dashboard" class="scroll-indicator" title="Ke Dashboard Admin">
+        <a href="#gallery" class="scroll-indicator" title="Lihat Galeri">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
@@ -285,14 +55,128 @@
         </a>
     </div>
 
-    <script>
-        // Assistive Animation: Magic Sparkles on cursor move over button
-        const button = document.querySelector('.cta-button');
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery-section">
+        <h2>Galeri Kelezatan</h2>
+        <div class="gallery-grid" id="gallery-container">
+            <!-- Dynamic Content -->
+        </div>
+        <p class="footer-text">
+            Setiap gigitan adalah perpaduan sempurna antara kerenyahan dan kelembutan.
+        </p>
+    </section>
 
-        button.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.8) {
-                createSparkle(e.clientX, e.clientY);
+    <!-- Testimony Section -->
+    <section id="testimony" class="testimony-section">
+        <h2>Apa Kata Mereka?</h2>
+        <div class="testimony-grid" id="testimony-container">
+            <!-- Dynamic Content -->
+        </div>
+
+        <!-- Add Testimony Section -->
+        <div class="testimony-form-card"
+            style="max-width: 600px; margin: 4rem auto 0; padding: 2rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center;">
+            <h3>Punya Cerita Kelezatan?</h3>
+            <p style="margin-bottom: 1.5rem; color: rgba(255,255,255,0.8);">Bagikan pengalaman Anda menikmati Risol Mayo
+                BaityBites.</p>
+            <button onclick="showTestimonyForm()" class="cta-button secondary" style="transform: scale(0.9);">
+                <span>Tulis Testimoni</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Testimony Modal -->
+    <div id="testimonyModal" class="modal-overlay" style="display: none;">
+        <div class="modal p-5" style="max-width: 500px;">
+            <h2>Kirim Testimoni</h2>
+            <p class="text-muted mb-4">Testimoni Anda akan ditampilkan setelah dimoderasi oleh admin.</p>
+            <form id="testimonyForm">
+                <div class="form-group">
+                    <label class="form-label">Nama Anda</label>
+                    <input type="text" id="testName" class="form-input" placeholder="Nama Anda" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Testimoni</label>
+                    <textarea id="testContent" class="form-textarea" placeholder="Bagikan pengalaman Anda..." required
+                        style="height: 120px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <select id="testRating" class="form-input">
+                        <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
+                        <option value="4">⭐⭐⭐⭐ (Puas)</option>
+                        <option value="3">⭐⭐⭐ (Biasa Saja)</option>
+                        <option value="2">⭐⭐ (Kurang Puas)</option>
+                        <option value="1">⭐ (Kecewa)</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button type="button" onclick="hideTestimonyForm()" class="btn btn-outline"
+                        style="flex: 1;">Batal</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Kirim Testimoni</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        function showTestimonyForm() {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.getElementById('testName').value = user.name || '';
             }
+            document.getElementById('testimonyModal').style.display = 'flex';
+        }
+
+        function hideTestimonyForm() {
+            document.getElementById('testimonyModal').style.display = 'none';
+        }
+
+        async function loadContent() {
+            try {
+                // Load Gallery
+                const resGal = await fetch('/api/public/gallery');
+                const galJson = await resGal.json();
+                const galContainer = document.getElementById('gallery-container');
+                if (galJson.success) {
+                    galContainer.innerHTML = galJson.data.map(item => `
+                        <div class="gallery-item">
+                            <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
+                        </div>
+                    `).join('');
+                }
+
+                // Load Testimonials
+                const resTest = await fetch('/api/public/testimonials');
+                const testJson = await resTest.json();
+                const testContainer = document.getElementById('testimony-container');
+                if (testJson.success) {
+                    testContainer.innerHTML = testJson.data.map((t, idx) => `
+                        <div class="testimony-card ${idx === 1 ? 'offset' : ''}">
+                            <div class="user-info">
+                                <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}">
+                                <div>
+                                    <h4>${t.name}</h4>
+                                    <p>${t.role || 'Pelanggan'}</p>
+                                </div>
+                            </div>
+                            <p class="quote">"${t.content}"</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Gagal memuat konten:', e);
+            }
+        }
+
+        loadContent();
+
+        // Magic Sparkles Animation
+        const button = document.querySelector('.cta-button');
+        button.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.8) createSparkle(e.clientX, e.clientY);
         });
 
         function createSparkle(x, y) {
@@ -303,24 +187,50 @@
             sparkle.style.height = size + 'px';
             sparkle.style.left = x + 'px';
             sparkle.style.top = y + 'px';
-
             const color = ['#f59638', '#fff', '#ec6817'][Math.floor(Math.random() * 3)];
             sparkle.style.background = color;
             sparkle.style.boxShadow = `0 0 10px ${color}`;
-            sparkle.style.animation = 'sparkle-anim 0.8s ease-out forwards';
-
             document.body.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 800);
         }
 
-        // Automatic random sparkles around the content
         setInterval(() => {
             const content = document.querySelector('.hero-content');
-            const rect = content.getBoundingClientRect();
-            const x = rect.left + Math.random() * rect.width;
-            const y = rect.top + Math.random() * rect.height;
-            createSparkle(x, y);
+            if (content) {
+                const rect = content.getBoundingClientRect();
+                createSparkle(rect.left + Math.random() * rect.width, rect.top + Math.random() * rect.height);
+            }
         }, 1500);
+
+        // Testimony Form Submission
+        document.getElementById('testimonyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { apiCall, showNotification } = window.app;
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+
+            const payload = {
+                name: document.getElementById('testName').value,
+                content: document.getElementById('testContent').value,
+                rating: parseInt(document.getElementById('testRating').value),
+                avatar_url: user?.avatar_url || null,
+                role: user?.is_google ? 'Verified Customer' : 'Pelanggan'
+            };
+
+            try {
+                const result = await apiCall('/customer/testimony', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                if (result.success) {
+                    showNotification('Terima kasih! Testimoni Anda sedang dimoderasi.', 'success');
+                    hideTestimonyForm();
+                }
+            } catch (error) {
+                console.error('Testimony submit error:', error);
+            }
+        });
     </script>
 </body>
 

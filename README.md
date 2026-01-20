@@ -1,185 +1,60 @@
-# 🍪 BaityBites - Order Management System
+# BaityBites Order Management System
 
-Sistem manajemen order lengkap untuk BaityBites, dari pemesanan pelanggan hingga pengiriman produk.
+## 🚀 Deployment Configuration
 
-## 📋 Fitur Utama
+### Netlify (Frontend Only)
+Domain: https://baitybites.netlify.app
 
-### Workflow Lengkap
+**Note**: Netlify hanya untuk static files. Backend API harus di-deploy terpisah.
+
+### Backend Options
+- Railway.app (Recommended)
+- Render.com
+- Fly.io
+
+## Environment Variables Required
+
+### Backend (.env)
 ```
-Customer Order → PO Recording → Invoice & Payment → Production → Packaging → Shipping → Completed
-```
-
-### Modul Sistem
-- **Dashboard** - Overview statistik dan recent orders
-- **Customer Management** - Kelola data pelanggan
-- **Product Management** - Kelola produk dan stok
-- **Order Management** - Pencatatan dan tracking order
-- **Invoice & Payment** - Pengelolaan invoice dan pembayaran
-- **Production** - Monitor proses produksi
-- **Packaging** - Tracking pengemasan
-- **Shipping** - Manajemen pengiriman
-
-## 🛠️ Tech Stack
-
-- **Runtime**: Bun (Fast JavaScript runtime)
-- **Backend Framework**: Elysia (High-performance web framework)
-- **Database**: SQLite (via Bun:sqlite)
-- **Frontend**: HTML5 + Vanilla CSS + JavaScript
-- **Authentication**: JWT
-- **Styling**: Custom Design System with Premium UI
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Bun installed (v1.3.6 or higher)
-- Windows/Linux/macOS
-
-### Installation
-
-1. **Clone atau navigate ke project directory**
-```bash
-cd c:\Users\guest1\Documents\__BAITYBITES__\baitybites
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=your-super-secret-jwt-key-here
+NODE_ENV=production
+PORT=9876
+FRONTEND_URL=https://baitybites.netlify.app
 ```
 
-2. **Install dependencies**
+### Netlify (.env or netlify.toml)
+```
+VITE_API_URL=https://your-backend-url.railway.app/api
+```
+
+## Local Development
 ```bash
 bun install
-```
-
-3. **Run development server**
-```bash
 bun run dev
 ```
 
-4. **Access the application**
-```
-http://localhost:3000
-```
-
-### Default Login
-- **Username**: `admin`
-- **Password**: `admin123`
-
-## 📁 Project Structure
-
-```
-baitybites/
-├── src/
-│   ├── db/
-│   │   └── schema.ts          # Database schema & initialization
-│   ├── routes/                # API routes (to be implemented)
-│   ├── middleware/            # Authentication & validation
-│   └── utils/
-│       └── helpers.ts         # Utility functions
-├── public/
-│   ├── css/
-│   │   └── style.css          # Premium design system
-│   ├── js/
-│   │   ├── app.js             # Core utilities
-│   │   └── dashboard.js       # Dashboard logic
-│   ├── index.html             # Dashboard page
-│   └── assets/                # Images, icons, etc.
-├── index.ts                   # Main server file
-├── package.json
-└── README.md
-```
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Orange gradient (#f59638 → #ec6817)
-- **Secondary**: Green gradient (#4caf50 → #2e7d32)
-- **Neutral**: Gray scale for text and backgrounds
-- **Status Colors**: Success, Warning, Error, Info
-
-### Typography
-- **Primary Font**: Inter (body text)
-- **Display Font**: Outfit (headings)
-
-### Components
-- Cards with hover effects
-- Animated buttons with ripple effect
-- Premium badges for status
-- Responsive tables
-- Modal dialogs
-- Form inputs with focus states
-
-## 📊 Database Schema
-
-### Tables
-- **customers** - Customer information
-- **products** - Product catalog
-- **orders** - Order records
-- **order_items** - Order line items
-- **invoices** - Invoice records
-- **payments** - Payment transactions
-- **production** - Production tracking
-- **packaging** - Packaging status
-- **shipping** - Shipping information
-- **users** - System users
-
-## 🔐 Authentication
-
-The system uses JWT (JSON Web Tokens) for authentication:
-- Token stored in localStorage
-- Auto-redirect to login if not authenticated
-- Role-based access control (admin, staff, production, shipping)
-
-## 📝 Scripts
-
+## Production Build
 ```bash
-# Development with hot reload
-bun run dev
-
-# Production start
-bun run start
-
-# Build for production
 bun run build
 ```
 
-## 🎯 Roadmap
+## Database Setup
+1. Create PostgreSQL database (Neon, Supabase, or Railway)
+2. Run migrations: `bun run migrate`
+3. Seed data: `bun run seed`
 
-### Phase 1: Core Features ✅
-- [x] Project setup
-- [x] Database schema
-- [x] Premium UI design system
-- [x] Dashboard layout
-- [ ] Authentication system
-- [ ] API endpoints
+## Features
+- 🛒 Order Management
+- 👥 Customer Management
+- 📦 Product Catalog
+- 🏭 Production Tracking
+- 📊 Dashboard Analytics
+- 🔐 JWT Authentication
 
-### Phase 2: Order Management
-- [ ] Customer CRUD
-- [ ] Product CRUD
-- [ ] Order creation & tracking
-- [ ] Invoice generation
-- [ ] Payment recording
-
-### Phase 3: Production & Fulfillment
-- [ ] Production workflow
-- [ ] Packaging tracking
-- [ ] Shipping management
-- [ ] Status updates
-
-### Phase 4: Advanced Features
-- [ ] PDF invoice generation
-- [ ] Email notifications
-- [ ] WhatsApp integration
-- [ ] Analytics & reports
-- [ ] Export data (Excel/CSV)
-
-## 🤝 Contributing
-
-This is a private project for BaityBites internal use.
-
-## 📄 License
-
-Proprietary - BaityBites © 2026
-
-## 📞 Support
-
-For support, contact the development team.
-
----
-
-**Built with ❤️ using Bun and Elysia**
+## Tech Stack
+- **Runtime**: Bun
+- **Backend**: ElysiaJS
+- **Database**: PostgreSQL (Neon)
+- **Frontend**: Vanilla JS + HTML + CSS
+- **Deployment**: Netlify (Frontend) + Railway (Backend)

@@ -36,13 +36,75 @@
                         <h1 class="animate-fade-in">Products</h1>
                         <p class="text-muted">Katalog produk dan stok BaityBites</p>
                     </div>
-                    <button class="btn btn-primary">+ Add Product</button>
+                    <!-- Added ID for easier selection -->
+                    <button id="btnAddProduct" class="btn btn-primary">+ Add Product</button>
                 </div>
 
                 <div class="grid grid-3 animate-fade-in" id="productGrid">
                     <div class="card" style="text-align: center; padding: 2rem;">
                         <div class="spinner" style="margin: 0 auto;"></div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Add Product Modal -->
+            <!-- Enhanced Add Product Modal -->
+            <div id="addProductModal" class="modal-overlay" style="display: none;">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Add New Product</h2>
+                        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <form id="addProductForm">
+                        <input type="hidden" name="id" id="productId">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-input" placeholder="e.g. Risol Mayo Original"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-textarea"
+                                    placeholder="Describe the product details..." rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Product Image</label>
+                                <input type="file" name="image" class="form-input" accept="image/*">
+                            </div>
+
+                            <div class="grid grid-2 gap-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label">Price (Rp) <span class="text-danger">*</span></label>
+                                    <input type="number" name="price" class="form-input" placeholder="50000" required
+                                        min="0">
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label">Unit <span class="text-danger">*</span></label>
+                                    <input type="text" name="unit" class="form-input" placeholder="box, pcs, pack"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
+                                <input type="number" name="stock" class="form-input" placeholder="0" required min="0"
+                                    value="0">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="btnSaveProduct">
+                                <span id="saveText">Save Product</span>
+                                <span id="saveSpinner" class="spinner"
+                                    style="display: none; width: 16px; height: 16px; border-width: 2px;"></span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -57,12 +119,24 @@
 
     <script src="/js/app.js"></script>
     <script>
-        const { apiCall, formatCurrency } = window.app;
+        // const { apiCall, formatCurrency, showNotification } = window.app;
+
+        // Destructure only if they aren't globally available or rename them to avoid conflict
+        // However, 'app.js' doesn't automatically declare them into global scope as vars, 
+        // it attaches them to 'window.app'.
+        // BUT, if you already have a script that does `const apiCall = ...` in the same scope, it errors.
+        // In this case, let's just use window.app.apiCall or rename the destructuring.
+
+        const { apiCall: callApi, formatCurrency: fmtMoney, showNotification: notify } = window.app;
+
+        // Store products globally for easy access
+        window.currentProducts = [];
 
         async function loadProducts() {
             try {
-                const response = await apiCall('/public/products'); // Using public endpoint for now
+                const response = await callApi('/cms/products');
                 if (response.success) {
+                    window.currentProducts = response.data;
                     renderProducts(response.data);
                 }
             } catch (e) {
@@ -73,28 +147,191 @@
         function renderProducts(products) {
             const grid = document.getElementById('productGrid');
             if (products.length === 0) {
-                grid.innerHTML = '<p class="text-muted">Tidak ada produk.</p>';
+                grid.innerHTML = '<p class="text-muted text-center w-full py-8">Tidak ada produk yang ditemukan.</p>';
                 return;
             }
             grid.className = "grid grid-3 animate-fade-in";
             grid.innerHTML = products.map(p => `
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h3 class="mb-1">${p.name}</h3>
-                    <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'}">Stok: ${p.stock}</span>
+            <div class="card h-full flex flex-col justify-between" style="overflow: hidden;">
+                ${p.image_url ? `<div style="height: 200px; background-image: url('${p.image_url}'); background-size: cover; background-position: center; margin: calc(var(--spacing-xl) * -1) calc(var(--spacing-xl) * -1) var(--spacing-lg) calc(var(--spacing-xl) * -1);"></div>` : ''}
+                <div class="card-header pb-0" ${p.image_url ? 'style="border-top: none; padding-top: 0;"' : ''}>
+                    <div class="flex justify-between items-start">
+                        <h3 class="mb-1 text-lg font-bold">${p.name}</h3>
+                        <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'}">Stok: ${p.stock}</span>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted mb-4">${p.description}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-primary font-bold" style="font-size: 1.25rem;">${formatCurrency(p.price)}</span>
-                        <button class="btn btn-outline btn-sm">Edit</button>
+                    <p class="text-muted mb-4 line-clamp-2" style="min-height: 3em;">${p.description || 'No description available.'}</p>
+                    <div class="flex justify-between items-center mt-auto">
+                        <span class="text-primary font-bold text-xl">${fmtMoney(p.price)}<span class="text-sm text-muted font-normal">/${p.unit}</span></span>
+                        <div class="flex gap-2">
+                            <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">Edit</button>
+                        </div>
                     </div>
                 </div>
             </div>
         `).join('');
         }
 
-        document.addEventListener('DOMContentLoaded', loadProducts);
+        // Modal Functions
+        const modal = document.getElementById('addProductModal');
+        const btnAdd = document.getElementById('btnAddProduct');
+        const modalTitle = document.querySelector('.modal-title');
+        const btnSaveText = document.getElementById('saveText');
+
+        function openModal() {
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.getElementById('addProductForm').reset();
+            document.getElementById('productId').value = '';
+            modalTitle.textContent = 'Add New Product';
+            btnSaveText.textContent = 'Save Product';
+        }
+
+        function editProduct(id) {
+            const product = window.currentProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('productId').value = product.id;
+            document.querySelector('input[name="name"]').value = product.name;
+            document.querySelector('textarea[name="description"]').value = product.description || '';
+            document.querySelector('input[name="price"]').value = product.price;
+            document.querySelector('input[name="unit"]').value = product.unit;
+            document.querySelector('input[name="stock"]').value = product.stock;
+
+            modalTitle.textContent = 'Edit Product';
+            btnSaveText.textContent = 'Update Product';
+
+            openModal();
+        }
+
+        // Image Processing Function
+        function processImage(file) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    reject(new Error('Invalid file type'));
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Target dimensions
+                    const targetSize = 200;
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
+
+                    // Calculate ratio to fit the shortest side to 200px
+                    // "keep original aspect-ratio ... shortest side fit to 200px then crop"
+                    const ratio = Math.max(targetSize / img.width, targetSize / img.height);
+
+                    // Calculate new dimensions
+                    const newWidth = img.width * ratio;
+                    const newHeight = img.height * ratio;
+
+                    // Calculate offsets to center the image (crop effect)
+                    const offsetX = (targetSize - newWidth) / 2;
+                    const offsetY = (targetSize - newHeight) / 2;
+
+                    // Draw image scaled and centered
+                    // The canvas will automatically crop whatever falls outside 0,0 to 200,200
+                    ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+
+                    // Convert to Blob/File
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            // Create a new File object with the same name
+                            const processedFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(processedFile);
+                        } else {
+                            reject(new Error('Canvas to Blob failed'));
+                        }
+                    }, 'image/jpeg', 0.9); // 90% quality JPEG
+                };
+                img.onerror = (e) => reject(e);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Handle Add/Edit Product Logic
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btnSave = document.getElementById('btnSaveProduct');
+            const saveText = document.getElementById('saveText');
+            const saveSpinner = document.getElementById('saveSpinner');
+            const fileInput = document.querySelector('input[name="image"]');
+            const productId = document.getElementById('productId').value;
+
+            // Loading State
+            btnSave.disabled = true;
+            saveText.style.display = 'none';
+            saveSpinner.style.display = 'inline-block';
+
+            const formData = new FormData(e.target);
+
+            try {
+                // Process image if exists
+                const imageFile = fileInput.files[0];
+                if (imageFile) {
+                    try {
+                        const processedImage = await processImage(imageFile);
+                        formData.set('image', processedImage); // Replace original file
+                        console.log(`Image processed: ${imageFile.size} -> ${processedImage.size} bytes`);
+                    } catch (err) {
+                        console.error('Image processing failed, using original:', err);
+                        // Continue with original file if processing fails, or handle error
+                    }
+                }
+
+                // Determine URL and Method
+                const url = productId ? `/cms/products/${productId}` : '/cms/products';
+                const method = productId ? 'PUT' : 'POST';
+
+                const result = await callApi(url, {
+                    method: method,
+                    body: formData
+                });
+
+                if (result.success) {
+                    notify(productId ? 'Produk berhasil diperbarui!' : 'Produk berhasil ditambahkan!', 'success');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    notify(result.message || 'Gagal menyimpan produk', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save product:', error);
+                notify('Terjadi kesalahan saat menyimpan produk', 'error');
+            } finally {
+                // Reset State
+                btnSave.disabled = false;
+                saveText.style.display = 'inline-block';
+                saveSpinner.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            if (btnAdd) {
+                btnAdd.onclick = openModal;
+            }
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
     </script>
 </body>
 

@@ -1,0 +1,43 @@
+[build]
+  # Netlify cannot run Bun backend, so we only build static files
+  command = "echo 'Static files only - Backend must be deployed separately'"
+  publish = "public"
+  
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  # Redirect all API calls to backend server
+  from = "/api/*"
+  to = "https://baitybites-api.railway.app/api/:splat"
+  status = 200
+  force = true
+  
+[[redirects]]
+  # SPA fallback for client-side routing
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

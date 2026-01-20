@@ -121,6 +121,14 @@
                     </div>
                 </form>
 
+                <div id="customerOrdersArea"
+                    style="display: none; margin-bottom: 2rem; border-bottom: 1px solid var(--neutral-200); padding-bottom: 1.5rem;">
+                    <h3 class="mb-3">Pesanan Terbaru Anda</h3>
+                    <div id="customerOrdersList" class="flex flex-col gap-2">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+
                 <div id="errorArea" class="text-danger mt-3 text-center" style="display: none;"></div>
 
                 <div id="resultArea" style="display: none;">
@@ -194,9 +202,35 @@
     <script>
         const { apiCall, formatCurrency, formatDate, getStatusBadgeClass, getStatusLabel } = window.app;
 
-        document.getElementById('trackForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const number = document.getElementById('trackNumber').value.trim();
+        async function loadCustomerOrders() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return;
+
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role !== 'customer') return;
+
+                const result = await apiCall('/customer/orders');
+                if (result.success && result.data.length > 0) {
+                    const area = document.getElementById('customerOrdersArea');
+                    const list = document.getElementById('customerOrdersList');
+                    area.style.display = 'block';
+                    list.innerHTML = result.data.slice(0, 3).map(o => `
+                        <div class="card p-3 flex justify-between items-center" style="cursor: pointer; border-color: var(--neutral-200);" onclick="trackNumber('${o.invoice_number || o.order_number}')">
+                            <div>
+                                <h4 style="margin:0;">${o.order_number}</h4>
+                                <span class="text-muted" style="font-size: 0.8rem;">${new Date(o.order_date).toLocaleDateString()}</span>
+                            </div>
+                            <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load customer orders:', e);
+            }
+        }
+
+        async function trackNumber(number) {
             const btnText = document.getElementById('btnText');
             const btnSpinner = document.getElementById('btnSpinner');
             const resultArea = document.getElementById('resultArea');
@@ -205,30 +239,44 @@
             // Reset UI
             resultArea.style.display = 'none';
             errorArea.style.display = 'none';
-            btnText.style.display = 'none';
-            btnSpinner.style.display = 'inline-block';
+            if (btnText) btnText.style.display = 'none';
+            if (btnSpinner) btnSpinner.style.display = 'inline-block';
 
             try {
-                // Public track endpoint (tidak butuh auth token karena invoice id adalah kodenya)
-                const response = await fetch(`/api/public/track/${number}`);
-                const result = await response.json();
-
+                const result = await apiCall(`/public/track/${number}`);
                 if (result.success) {
-                    const data = result.data;
-                    updateUI(data);
+                    updateUI(result.data);
                     resultArea.style.display = 'block';
-                } else {
-                    errorArea.textContent = result.message || 'Data tidak ditemukan';
-                    errorArea.style.display = 'block';
+                    resultArea.scrollIntoView({ behavior: 'smooth' });
                 }
             } catch (error) {
-                errorArea.textContent = 'Gagal menghubungkan ke server';
+                errorArea.textContent = 'Data tidak ditemukan atau terjadi kesalahan';
                 errorArea.style.display = 'block';
             } finally {
-                btnText.style.display = 'inline-block';
-                btnSpinner.style.display = 'none';
+                if (btnText) btnText.style.display = 'inline-block';
+                if (btnSpinner) btnSpinner.style.display = 'none';
+            }
+        }
+
+        document.getElementById('trackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const number = document.getElementById('trackNumber').value.trim();
+            trackNumber(number);
+        });
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomerOrders();
+
+            // Check URL for auto-track
+            const params = new URLSearchParams(window.location.search);
+            const number = params.get('number');
+            if (number) {
+                document.getElementById('trackNumber').value = number;
+                trackNumber(number);
             }
         });
+
 
         function updateUI(data) {
             document.getElementById('resOrderNumber').textContent = data.order_number;

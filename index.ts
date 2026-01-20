@@ -1,46 +1,133 @@
 import { Elysia } from "elysia";
-import { staticPlugin } from "@elysiajs/static";
 import { cors } from "@elysiajs/cors";
-import { jwt } from "@elysiajs/jwt";
+import { join } from "path";
+import { readFileSync } from "fs";
 import { initDatabase } from "./src/db/schema";
+import { jwtConfig } from "./src/utils/jwt";
 import { authRoutes } from "./src/routes/auth";
 import { publicRoutes } from "./src/routes/public";
+import { cmsRoutes } from "./src/routes/cms";
+import { customerRoutes } from "./src/routes/customer";
+import { orderRoutes } from "./src/routes/orders";
 
 // Initialize database
-const db = initDatabase();
+const db = await initDatabase();
+const PUBLIC_DIR = join(import.meta.dir, "public");
 
 // Create Elysia app
 const app = new Elysia()
+    .onError(({ code, error, set: _set }) => {
+        console.error(`Error [${code}]:`, error);
+        return {
+            success: false,
+            message: (error as any).message || 'Internal Server Error',
+            code
+        };
+    })
     .use(cors())
-    .use(
-        jwt({
-            name: "jwt",
-            secret: process.env.JWT_SECRET || "baitybites-secret-key-2026",
-        })
-    )
+
+    .use(jwtConfig)
     .decorate("db", db)
-    .group("/api", (app) => app.use(authRoutes(db)).use(publicRoutes(db)))
-    .get("/", () => Bun.file("public/index.html"))
-    .get("/test-login", () => "Test Success")
-    .get("/login.html", () => "Login Test")
-    .get("/order.html", () => Bun.file("public/order.html"))
-    .get("/track.html", () => Bun.file("public/track.html"))
-    .get("/orders.html", () => Bun.file("public/orders.html"))
-    .get("/customers.html", () => Bun.file("public/customers.html"))
-    .get("/products.html", () => Bun.file("public/products.html"))
-    .get("/production.html", () => Bun.file("public/production.html"))
-    .get("/dashboard", () => Bun.file("public/dashboard.html"))
-    .use(staticPlugin({ assets: "public", prefix: "" }))
+    .group("/api", (app) =>
+        app.get("/test", () => "api ok")
+            .use(customerRoutes(db))
+            .use(authRoutes(db))
+            .use(publicRoutes(db))
+            .use(cmsRoutes(db))
+            .use(orderRoutes(db))
+    )
+    // Serve HTML files as raw text/html to prevent Bun from resolving assets
+    .get("/", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "index.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/login.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "login.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/order.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "order.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/track.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "track.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/cms.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "cms.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/dashboard.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "dashboard.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/orders.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "orders.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/customers.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "customers.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/products.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "products.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/production.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "production.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    // Redirect clean URLs to .html files
+    .get("/login", ({ redirect }) => redirect("/login.html"))
+    .get("/cms", ({ redirect }) => redirect("/cms.html"))
+    .get("/dashboard", ({ redirect }) => redirect("/dashboard.html"))
+    // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
+    .get("/css/*", ({ params }) => {
+        const filePath = join(PUBLIC_DIR, "css", (params as any)["*"]);
+        return Bun.file(filePath);
+    })
+    .get("/js/*", ({ params }) => {
+        const filePath = join(PUBLIC_DIR, "js", (params as any)["*"]);
+        return Bun.file(filePath);
+    })
+    .get("/assets/*", ({ params }) => {
+        const filePath = join(PUBLIC_DIR, "assets", (params as any)["*"]);
+        return Bun.file(filePath);
+    })
+    .get("/uploads/*", ({ params }) => {
+        const filePath = join(PUBLIC_DIR, "uploads", decodeURIComponent((params as any)["*"]));
+        return Bun.file(filePath);
+    })
     .get("/api/health", () => ({
         status: "ok",
         timestamp: new Date().toISOString(),
     }))
-    .listen(3000);
+    .listen(9876);
 
 console.log(`
 🚀 BaityBites Order Management System
 🌐 Server running at http://localhost:${app.server?.port}
-📊 Database: baitybites.db
+📊 Database: PostgreSQL (Neon)
 👤 Default Admin: admin / admin123
 `);
 
