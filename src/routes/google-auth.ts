@@ -25,11 +25,9 @@ export const googleAuthRoutes = (db: Sql) =>
                 ]
             })
         )
-        .get('/google/login', async ({ oauth2 }) => {
+        .get('/google/login', ({ oauth2 }) => {
             // @ts-ignore
-            const url = await oauth2.authorize('Google', ['email', 'profile']);
-            if (!url) throw new Error('Failed to generate Google Auth URL');
-            return Response.redirect(url.toString(), 302);
+            return oauth2.authorize('Google', ['email', 'profile']);
         })
         .get('/google/callback', async ({ oauth2, query, jwt, cookie: { token } }) => {
             try {

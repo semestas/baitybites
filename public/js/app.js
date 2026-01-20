@@ -140,7 +140,7 @@ function logout() {
 
 // Check authentication
 function checkAuth() {
-    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html'];
+    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/privacy.html', '/tos.html'];
     const currentPath = window.location.pathname;
     const isPublicPage = publicPages.some(page => currentPath === page || currentPath.endsWith(page));
 
@@ -152,10 +152,8 @@ function checkAuth() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Check auth on protected pages
-    if (!window.location.pathname.includes('login.html')) {
-        checkAuth();
-    }
+    // Check auth
+    checkAuth();
 
     // Initialize Header for public pages
     initPublicHeader();
