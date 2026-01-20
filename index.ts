@@ -16,15 +16,38 @@ const PUBLIC_DIR = join(import.meta.dir, "public");
 
 // Create Elysia app
 const app = new Elysia()
-    .onError(({ code, error, set: _set }) => {
-        console.error(`Error [${code}]:`, error);
-        return {
-            success: false,
-            message: (error as any).message || 'Internal Server Error',
-            code
-        };
+    .onError(({ code, error, set, path }) => {
+        console.error(`Error [${code}] at ${path}:`, error);
+
+        // Return JSON for API routes
+        if (path.startsWith('/api')) {
+            return {
+                success: false,
+                message: (error as any).message || 'Internal Server Error',
+                code
+            };
+        }
+
+        // Return HTML error page for other routes
+        return new Response(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>Error ${code}</title></head>
+            <body>
+                <h1>Error ${code}</h1>
+                <p>${(error as any).message || 'Something went wrong'}</p>
+                <a href="/">Go to Homepage</a>
+            </body>
+            </html>
+        `, {
+            headers: { 'Content-Type': 'text/html' },
+            status: code === 'NOT_FOUND' ? 404 : 500
+        });
     })
-    .use(cors())
+    .use(cors({
+        origin: true, // Allow all origins in production (or specify your Netlify domain)
+        credentials: true
+    }))
 
     .use(jwtConfig)
     .decorate("db", db)
@@ -121,14 +144,19 @@ const app = new Elysia()
     .get("/api/health", () => ({
         status: "ok",
         timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV || 'development'
     }))
-    .listen(9876);
+    .listen(process.env.PORT || 9876);
+
+const port = app.server?.port || process.env.PORT || 9876;
 
 console.log(`
 🚀 BaityBites Order Management System
-🌐 Server running at http://localhost:${app.server?.port}
+🌐 Server running at http://localhost:${port}
 📊 Database: PostgreSQL (Neon)
 👤 Default Admin: admin / admin123
+🔧 Environment: ${process.env.NODE_ENV || 'development'}
+📁 Public directory: ${PUBLIC_DIR}
 `);
 
 export type App = typeof app;
