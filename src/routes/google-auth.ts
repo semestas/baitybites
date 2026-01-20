@@ -65,10 +65,11 @@ export const googleAuthRoutes = (db: Sql) =>
                         RETURNING *
                     `;
                 } else {
-                    // Update existing customer with Google info
+                    // Update existing customer with Google info (and update name to real Google name)
                     [customer] = await db`
                         UPDATE customers 
-                        SET google_id = COALESCE(google_id, ${googleUser.sub}),
+                        SET name = ${googleUser.name},
+                            google_id = COALESCE(google_id, ${googleUser.sub}),
                             avatar_url = COALESCE(avatar_url, ${googleUser.picture || null}),
                             auth_provider = 'google',
                             is_verified = true
