@@ -1,0 +1,22 @@
+# Render.com Deployment Configuration
+# Free tier deployment for BaityBites backend
+
+services:
+  - type: web
+    name: baitybites-api
+    runtime: docker
+    plan: free
+    buildCommand: bun install
+    startCommand: bun run index.ts
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 9876
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set manually in Render dashboard
+      - key: FRONTEND_URL
+        value: https://baitybites.netlify.app
