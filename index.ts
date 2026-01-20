@@ -129,6 +129,18 @@ const app = new Elysia()
             headers: { "Content-Type": "text/html; charset=utf-8" }
         });
     })
+    .get("/privacy.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "privacy.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
+    .get("/tos.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "tos.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
     // Redirect clean URLs to .html files
     .get("/login", ({ redirect }) => redirect("/login.html"))
     .get("/cms", ({ redirect }) => redirect("/cms.html"))

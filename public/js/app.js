@@ -196,7 +196,7 @@ async function checkVersion() {
 
 // Header initialization for public pages
 function initPublicHeader() {
-    const isPublicPage = ['/index.html', '/order.html', '/track.html', '/'].some(p =>
+    const isPublicPage = ['/index.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/'].some(p =>
         window.location.pathname === p || window.location.pathname.endsWith(p)
     );
 
@@ -227,20 +227,21 @@ function initPublicHeader() {
             <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
             <a href="/login.html" class="btn btn-primary btn-sm" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
         `;
-        // Handle scroll for transparent header
-        if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
-            const header = document.querySelector('.header');
-            if (header) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 50) {
-                        header.style.background = 'var(--gradient-dark)';
-                        header.style.boxShadow = 'var(--shadow-lg)';
-                    } else {
-                        header.style.background = 'rgba(0,0,0,0.3)';
-                        header.style.boxShadow = 'none';
-                    }
-                });
-            }
+    }
+
+    // Handle scroll for transparent header
+    if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
+        const header = document.querySelector('.header');
+        if (header) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.style.background = 'var(--gradient-dark)';
+                    header.style.boxShadow = 'var(--shadow-lg)';
+                } else {
+                    header.style.background = 'rgba(0,0,0,0.3)';
+                    header.style.boxShadow = 'none';
+                }
+            });
         }
     }
 }
