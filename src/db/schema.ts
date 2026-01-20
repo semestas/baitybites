@@ -10,7 +10,9 @@ export interface Customer {
   phone?: string;
   address?: string;
   google_id?: string;
+  auth_provider?: 'local' | 'google';
   avatar_url?: string;
+  is_verified?: boolean;
   created_at?: string;
 }
 
@@ -119,10 +121,20 @@ export async function initDatabase() {
       phone TEXT,
       address TEXT,
       google_id TEXT UNIQUE,
+      auth_provider TEXT DEFAULT 'local',
       avatar_url TEXT,
+      is_verified BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `;
+
+  // Migration for existing customers table
+  try {
+    await sql`ALTER TABLE customers ADD COLUMN IF NOT EXISTS auth_provider TEXT DEFAULT 'local'`;
+    await sql`ALTER TABLE customers ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE`;
+  } catch (e) {
+    console.error("Migration error on customers table:", e);
+  }
 
   await sql`
     CREATE TABLE IF NOT EXISTS products (

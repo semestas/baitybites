@@ -9,6 +9,7 @@ import { publicRoutes } from "./src/routes/public";
 import { cmsRoutes } from "./src/routes/cms";
 import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
+import { googleAuthRoutes } from "./src/routes/google-auth";
 
 // Initialize database
 const db = await initDatabase();
@@ -58,6 +59,7 @@ const app = new Elysia()
             .use(publicRoutes(db))
             .use(cmsRoutes(db))
             .use(orderRoutes(db))
+            .use(googleAuthRoutes(db))
     )
     // Serve HTML files as raw text/html to prevent Bun from resolving assets
     .get("/", () => {

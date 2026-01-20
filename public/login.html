@@ -125,31 +125,37 @@
     <script>
         // const { showNotification } = window.app;
 
-        async function loginWithGoogle() {
-            // Mock Google Login Process
-            const mockGoogleData = {
-                email: 'customer@gmail.com',
-                name: 'Customer BaityBites',
-                google_id: 'google_12345',
-                avatar_url: 'https://i.pravatar.cc/150?u=customer'
-            };
+        // Check if redirected with token
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const authStatus = params.get('auth');
 
-            try {
-                const response = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(mockGoogleData)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    localStorage.setItem('token', result.data.token);
-                    localStorage.setItem('user', JSON.stringify(result.data.user));
-                    showNotification('Login Google Berhasil!', 'success');
-                    setTimeout(() => window.location.href = '/', 1000);
-                }
-            } catch (error) {
-                showNotification('Gagal login Google', 'error');
+            if (authStatus === 'success' && token) {
+                localStorage.setItem('token', token);
+                // We show notification and redirect
+                showNotification('Login Google Berhasil!', 'success');
+
+                // Fetch user data to store in localStorage
+                fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            localStorage.setItem('user', JSON.stringify(result.data));
+                            setTimeout(() => window.location.href = '/', 1000);
+                        }
+                    });
+            } else if (authStatus === 'error') {
+                const message = params.get('message') || 'Gagal login Google';
+                showNotification(message, 'error');
             }
+        });
+
+        async function loginWithGoogle() {
+            // Redirect to backend to initiate Google flow
+            window.location.href = '/api/auth/google/login';
         }
 
         async function loginAsGuest() {
@@ -159,7 +165,8 @@
                 if (result.success) {
                     localStorage.setItem('token', result.data.token);
                     localStorage.setItem('user', JSON.stringify(result.data.user));
-                    window.location.href = '/';
+                    showNotification('Melanjutkan sebagai tamu', 'success');
+                    setTimeout(() => window.location.href = '/', 800);
                 }
             } catch (error) {
                 showNotification('Gagal login sebagai tamu', 'error');
