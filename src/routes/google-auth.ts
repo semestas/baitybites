@@ -10,8 +10,11 @@ interface GoogleUser {
     picture?: string;
 }
 
+const DEPLOY_VERSION = "1.1.0-fix-oauth";
+
 export const googleAuthRoutes = (db: Sql) =>
     new Elysia({ prefix: '/auth' })
+        .get('/version', () => ({ version: DEPLOY_VERSION }))
         .use(authPlugin)
         .use(
             oauth2({
@@ -22,10 +25,11 @@ export const googleAuthRoutes = (db: Sql) =>
                 ]
             })
         )
-        .get('/google/login', async ({ oauth2, redirect }) => {
-            // @ts-ignore - elysia-oauth2 handles state generation internally
+        .get('/google/login', async ({ oauth2 }) => {
+            // @ts-ignore
             const url = await oauth2.authorize('Google', ['email', 'profile']);
-            return redirect(url.toString());
+            if (!url) throw new Error('Failed to generate Google Auth URL');
+            return Response.redirect(url.toString(), 302);
         })
         .get('/google/callback', async ({ oauth2, query, jwt, cookie: { token } }) => {
             try {

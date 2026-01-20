@@ -160,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Header for public pages
     initPublicHeader();
 
+    // Check version
+    checkVersion();
+
     // Update active nav link (for static navs)
     const currentPath = window.location.pathname;
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -171,6 +174,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Check and display deployment version
+async function checkVersion() {
+    try {
+        const response = await fetch(`${API_BASE}/auth/version`);
+        const data = await response.json();
+        const footers = document.querySelectorAll('footer .container, .footer-text');
+        footers.forEach(footer => {
+            const vTag = document.createElement('div');
+            vTag.style.fontSize = '0.7rem';
+            vTag.style.opacity = '0.5';
+            vTag.style.marginTop = '1rem';
+            vTag.innerHTML = `Client: v1.1.0 | Server: ${data.version || 'unknown'}`;
+            footer.appendChild(vTag);
+        });
+    } catch (e) {
+        console.warn('Could not fetch version');
+    }
+}
 
 // Header initialization for public pages
 function initPublicHeader() {
