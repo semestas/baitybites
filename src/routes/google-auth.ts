@@ -22,9 +22,9 @@ export const googleAuthRoutes = (db: Sql) =>
                 ]
             })
         )
-        .get('/google/login', ({ oauth2, redirect }) => {
+        .get('/google/login', async ({ oauth2, redirect }) => {
             // @ts-ignore - elysia-oauth2 handles state generation internally
-            const url = oauth2.authorize('Google', ['email', 'profile']);
+            const url = await oauth2.authorize('Google', ['email', 'profile']);
             return redirect(url.toString());
         })
         .get('/google/callback', async ({ oauth2, query, jwt, cookie: { token } }) => {
