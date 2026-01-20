@@ -17,6 +17,7 @@
                     <a href="/" class="logo">
                         <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px;">
                     </a>
+                    <nav class="nav" id="mainNav"></nav>
                 </div>
             </div>
         </header>
@@ -114,44 +115,65 @@
         let quantities = {};
 
         // Auto-fill from local storage if logged in
-        function autoFillUser() {
-            const userStr = localStorage.getItem('user');
+        async function autoFillUser() {
+            let userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+
+            // If we have a token but no user data, try to fetch it first
+            if (token && !userStr) {
+                try {
+                    const result = await apiCall('/auth/me');
+                    if (result && result.success) {
+                        localStorage.setItem('user', JSON.stringify(result.data));
+                        userStr = JSON.stringify(result.data);
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch user during auto-fill');
+                }
+            }
+
             if (userStr) {
                 try {
                     const user = JSON.parse(userStr);
-                    if (user.role === 'customer') {
+                    if (user.role === 'customer' || user.role === 'guest') {
                         if (user.name) document.getElementById('name').value = user.name;
                         if (user.email) document.getElementById('email').value = user.email;
                         if (user.phone) document.getElementById('phone').value = user.phone;
                         if (user.address) document.getElementById('address').value = user.address;
 
                         // Disable email if logged in with Google to maintain consistency
-                        if (user.email) document.getElementById('email').disabled = true;
+                        if (user.email && user.role === 'customer' && (user.google_id || user.auth_provider === 'google')) {
+                            document.getElementById('email').disabled = true;
+                        }
 
                         // Add helpful notice for first-time Google users
-                        if (!user.phone || !user.address) {
-                            const notice = document.createElement('div');
-                            notice.className = 'info-box mb-4 animate-fade-in';
-                            notice.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
-                            notice.style.padding = '1.25rem';
-                            notice.style.borderRadius = '1rem';
-                            notice.style.fontSize = '0.9rem';
-                            notice.style.color = '#0369a1';
-                            notice.style.border = '1px solid #bae6fd';
-                            notice.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
+                        if (user.role === 'customer' && (!user.phone || !user.address)) {
+                            // Check if notice already exists to avoid duplicates
+                            if (!document.getElementById('google-first-login-notice')) {
+                                const notice = document.createElement('div');
+                                notice.id = 'google-first-login-notice';
+                                notice.className = 'info-box mb-4 animate-fade-in';
+                                notice.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+                                notice.style.padding = '1.25rem';
+                                notice.style.borderRadius = '1rem';
+                                notice.style.fontSize = '0.9rem';
+                                notice.style.color = '#0369a1';
+                                notice.style.border = '1px solid #bae6fd';
+                                notice.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
 
-                            notice.innerHTML = `
-                                <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
-                                    <div style="font-size: 1.5rem;">✨</div>
-                                    <div>
-                                        <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia BaityBites!</p>
-                                        <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini (Nomor WhatsApp & Alamat) agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Dengan begitu, pesanan Anda selanjutnya akan jauh lebih praktis dan terisi otomatis secara permanen. Selamat berbelanja!</p>
+                                notice.innerHTML = `
+                                    <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
+                                        <div style="font-size: 1.5rem;">✨</div>
+                                        <div>
+                                            <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia BaityBites!</p>
+                                            <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini (Nomor WhatsApp & Alamat) agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Dengan begitu, pesanan Anda selanjutnya akan jauh lebih praktis dan terisi otomatis secara permanen. Selamat berbelanja!</p>
+                                        </div>
                                     </div>
-                                </div>
-                            `;
+                                `;
 
-                            const form = document.getElementById('orderForm');
-                            form.parentNode.insertBefore(notice, form);
+                                const form = document.getElementById('orderForm');
+                                form.parentNode.insertBefore(notice, form);
+                            }
                         }
                     }
                 } catch (e) {
@@ -161,7 +183,6 @@
         }
 
         async function loadProducts() {
-            autoFillUser();
             try {
                 const result = await apiCall('/public/products');
                 if (result.success) {
@@ -269,7 +290,10 @@
             }
         });
 
-        loadProducts();
+        (async () => {
+            await autoFillUser();
+            await loadProducts();
+        })();
     </script>
 </body>
 

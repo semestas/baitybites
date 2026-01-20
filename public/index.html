@@ -11,149 +11,163 @@
 </head>
 
 <body>
-    <div class="hero-section">
-        <div class="hero-bg"></div>
+    <div class="page-wrapper">
+        <header class="header"
+            style="position: fixed; width: 100%; top: 0; background: rgba(0,0,0,0.3); border-bottom: none; backdrop-filter: blur(5px);">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px;">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
 
-        <div class="hero-content">
-            <div class="hero-logo">
-                <img src="/assets/logo.png" alt="BaityBites Logo">
+        <div class="hero-section">
+            <div class="hero-bg"></div>
+
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <img src="/assets/logo.png" alt="BaityBites Logo">
+                </div>
+
+                <h1 class="hero-title">Risol Mayo Lumer</h1>
+                <p class="hero-description">
+                    Sensasi kelezatan kulit krispi yang gurih berpadu dengan limpahan saus mayo premium yang lembut dan
+                    meleleh di mulut. Dibuat dengan bahan pilihan untuk gigitan yang tak terlupakan.
+                </p>
+
+                <div class="button-group"
+                    style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out 0.3s both;">
+                    <a href="/order.html" class="cta-button">
+                        <span>Pesan Sekarang</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+
+                    <a href="/track.html" class="cta-button secondary">
+                        <span>Lihat Pesanan Saya</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </a>
+                </div>
             </div>
 
-            <h1 class="hero-title">Risol Mayo Lumer</h1>
-            <p class="hero-description">
-                Sensasi kelezatan kulit krispi yang gurih berpadu dengan limpahan saus mayo premium yang lembut dan
-                meleleh di mulut. Dibuat dengan bahan pilihan untuk gigitan yang tak terlupakan.
+            <a href="#gallery" class="scroll-indicator" title="Lihat Galeri">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="gallery-section">
+            <h2>Galeri Kelezatan</h2>
+            <div class="gallery-grid" id="gallery-container">
+                <!-- Dynamic Content -->
+            </div>
+            <p class="footer-text">
+                Setiap gigitan adalah perpaduan sempurna antara kerenyahan dan kelembutan.
             </p>
+        </section>
 
-            <div class="button-group"
-                style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out 0.3s both;">
-                <a href="/order.html" class="cta-button">
-                    <span>Pesan Sekarang</span>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </a>
+        <!-- Testimony Section -->
+        <section id="testimony" class="testimony-section">
+            <h2>Apa Kata Mereka?</h2>
+            <div class="testimony-grid" id="testimony-container">
+                <!-- Dynamic Content -->
+            </div>
 
-                <a href="/track.html" class="cta-button secondary">
-                    <span>Lihat Pesanan Saya</span>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                </a>
+            <!-- Add Testimony Section -->
+            <div class="testimony-form-card"
+                style="max-width: 600px; margin: 4rem auto 0; padding: 2rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center;">
+                <h3>Punya Cerita Kelezatan?</h3>
+                <p style="margin-bottom: 1.5rem; color: rgba(255,255,255,0.8);">Bagikan pengalaman Anda menikmati Risol
+                    Mayo
+                    BaityBites.</p>
+                <button onclick="showTestimonyForm()" class="cta-button secondary" style="transform: scale(0.9);">
+                    <span>Tulis Testimoni</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Testimony Modal -->
+        <div id="testimonyModal" class="modal-overlay" style="display: none;">
+            <div class="modal p-5" style="max-width: 500px;">
+                <h2>Kirim Testimoni</h2>
+                <p class="text-muted mb-4">Testimoni Anda akan ditampilkan setelah dimoderasi oleh admin.</p>
+                <form id="testimonyForm">
+                    <div class="form-group">
+                        <label class="form-label">Nama Anda</label>
+                        <input type="text" id="testName" class="form-input" placeholder="Nama Anda" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Testimoni</label>
+                        <textarea id="testContent" class="form-textarea" placeholder="Bagikan pengalaman Anda..."
+                            required style="height: 120px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Rating</label>
+                        <select id="testRating" class="form-input">
+                            <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
+                            <option value="4">⭐⭐⭐⭐ (Puas)</option>
+                            <option value="3">⭐⭐⭐ (Biasa Saja)</option>
+                            <option value="2">⭐⭐ (Kurang Puas)</option>
+                            <option value="1">⭐ (Kecewa)</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button type="button" onclick="hideTestimonyForm()" class="btn btn-outline"
+                            style="flex: 1;">Batal</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">Kirim Testimoni</button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <a href="#gallery" class="scroll-indicator" title="Lihat Galeri">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
-            </svg>
-        </a>
-    </div>
-
-    <!-- Gallery Section -->
-    <section id="gallery" class="gallery-section">
-        <h2>Galeri Kelezatan</h2>
-        <div class="gallery-grid" id="gallery-container">
-            <!-- Dynamic Content -->
-        </div>
-        <p class="footer-text">
-            Setiap gigitan adalah perpaduan sempurna antara kerenyahan dan kelembutan.
-        </p>
-    </section>
-
-    <!-- Testimony Section -->
-    <section id="testimony" class="testimony-section">
-        <h2>Apa Kata Mereka?</h2>
-        <div class="testimony-grid" id="testimony-container">
-            <!-- Dynamic Content -->
-        </div>
-
-        <!-- Add Testimony Section -->
-        <div class="testimony-form-card"
-            style="max-width: 600px; margin: 4rem auto 0; padding: 2rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center;">
-            <h3>Punya Cerita Kelezatan?</h3>
-            <p style="margin-bottom: 1.5rem; color: rgba(255,255,255,0.8);">Bagikan pengalaman Anda menikmati Risol Mayo
-                BaityBites.</p>
-            <button onclick="showTestimonyForm()" class="cta-button secondary" style="transform: scale(0.9);">
-                <span>Tulis Testimoni</span>
-            </button>
-        </div>
-    </section>
-
-    <!-- Testimony Modal -->
-    <div id="testimonyModal" class="modal-overlay" style="display: none;">
-        <div class="modal p-5" style="max-width: 500px;">
-            <h2>Kirim Testimoni</h2>
-            <p class="text-muted mb-4">Testimoni Anda akan ditampilkan setelah dimoderasi oleh admin.</p>
-            <form id="testimonyForm">
-                <div class="form-group">
-                    <label class="form-label">Nama Anda</label>
-                    <input type="text" id="testName" class="form-input" placeholder="Nama Anda" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Testimoni</label>
-                    <textarea id="testContent" class="form-textarea" placeholder="Bagikan pengalaman Anda..." required
-                        style="height: 120px;"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Rating</label>
-                    <select id="testRating" class="form-input">
-                        <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
-                        <option value="4">⭐⭐⭐⭐ (Puas)</option>
-                        <option value="3">⭐⭐⭐ (Biasa Saja)</option>
-                        <option value="2">⭐⭐ (Kurang Puas)</option>
-                        <option value="1">⭐ (Kecewa)</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 mt-4">
-                    <button type="button" onclick="hideTestimonyForm()" class="btn btn-outline"
-                        style="flex: 1;">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="flex: 2;">Kirim Testimoni</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="/js/app.js"></script>
-    <script>
-        function showTestimonyForm() {
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                document.getElementById('testName').value = user.name || '';
+        <script src="/js/app.js"></script>
+        <script>
+            function showTestimonyForm() {
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    document.getElementById('testName').value = user.name || '';
+                }
+                document.getElementById('testimonyModal').style.display = 'flex';
             }
-            document.getElementById('testimonyModal').style.display = 'flex';
-        }
 
-        function hideTestimonyForm() {
-            document.getElementById('testimonyModal').style.display = 'none';
-        }
+            function hideTestimonyForm() {
+                document.getElementById('testimonyModal').style.display = 'none';
+            }
 
-        async function loadContent() {
-            try {
-                // Load Gallery
-                const resGal = await fetch('/api/public/gallery');
-                const galJson = await resGal.json();
-                const galContainer = document.getElementById('gallery-container');
-                if (galJson.success) {
-                    galContainer.innerHTML = galJson.data.map(item => `
+            async function loadContent() {
+                try {
+                    // Load Gallery
+                    const resGal = await fetch('/api/public/gallery');
+                    const galJson = await resGal.json();
+                    const galContainer = document.getElementById('gallery-container');
+                    if (galJson.success) {
+                        galContainer.innerHTML = galJson.data.map(item => `
                         <div class="gallery-item">
                             <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
                         </div>
                     `).join('');
-                }
+                    }
 
-                // Load Testimonials
-                const resTest = await fetch('/api/public/testimonials');
-                const testJson = await resTest.json();
-                const testContainer = document.getElementById('testimony-container');
-                if (testJson.success) {
-                    testContainer.innerHTML = testJson.data.map((t, idx) => `
+                    // Load Testimonials
+                    const resTest = await fetch('/api/public/testimonials');
+                    const testJson = await resTest.json();
+                    const testContainer = document.getElementById('testimony-container');
+                    if (testJson.success) {
+                        testContainer.innerHTML = testJson.data.map((t, idx) => `
                         <div class="testimony-card ${idx === 1 ? 'offset' : ''}">
                             <div class="user-info">
                                 <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}">
@@ -165,73 +179,74 @@
                             <p class="quote">"${t.content}"</p>
                         </div>
                     `).join('');
+                    }
+                } catch (e) {
+                    console.error('Gagal memuat konten:', e);
                 }
-            } catch (e) {
-                console.error('Gagal memuat konten:', e);
             }
-        }
 
-        loadContent();
+            loadContent();
 
-        // Magic Sparkles Animation
-        const button = document.querySelector('.cta-button');
-        button.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.8) createSparkle(e.clientX, e.clientY);
-        });
+            // Magic Sparkles Animation
+            const button = document.querySelector('.cta-button');
+            button.addEventListener('mousemove', (e) => {
+                if (Math.random() > 0.8) createSparkle(e.clientX, e.clientY);
+            });
 
-        function createSparkle(x, y) {
-            const sparkle = document.createElement('div');
-            sparkle.className = 'sparkle';
-            const size = Math.random() * 8 + 4;
-            sparkle.style.width = size + 'px';
-            sparkle.style.height = size + 'px';
-            sparkle.style.left = x + 'px';
-            sparkle.style.top = y + 'px';
-            const color = ['#f59638', '#fff', '#ec6817'][Math.floor(Math.random() * 3)];
-            sparkle.style.background = color;
-            sparkle.style.boxShadow = `0 0 10px ${color}`;
-            document.body.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 800);
-        }
-
-        setInterval(() => {
-            const content = document.querySelector('.hero-content');
-            if (content) {
-                const rect = content.getBoundingClientRect();
-                createSparkle(rect.left + Math.random() * rect.width, rect.top + Math.random() * rect.height);
+            function createSparkle(x, y) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                const size = Math.random() * 8 + 4;
+                sparkle.style.width = size + 'px';
+                sparkle.style.height = size + 'px';
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                const color = ['#f59638', '#fff', '#ec6817'][Math.floor(Math.random() * 3)];
+                sparkle.style.background = color;
+                sparkle.style.boxShadow = `0 0 10px ${color}`;
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
             }
-        }, 1500);
 
-        // Testimony Form Submission
-        document.getElementById('testimonyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { apiCall, showNotification } = window.app;
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-
-            const payload = {
-                name: document.getElementById('testName').value,
-                content: document.getElementById('testContent').value,
-                rating: parseInt(document.getElementById('testRating').value),
-                avatar_url: user?.avatar_url || null,
-                role: user?.is_google ? 'Verified Customer' : 'Pelanggan'
-            };
-
-            try {
-                const result = await apiCall('/customer/testimony', {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                if (result.success) {
-                    showNotification('Terima kasih! Testimoni Anda sedang dimoderasi.', 'success');
-                    hideTestimonyForm();
+            setInterval(() => {
+                const content = document.querySelector('.hero-content');
+                if (content) {
+                    const rect = content.getBoundingClientRect();
+                    createSparkle(rect.left + Math.random() * rect.width, rect.top + Math.random() * rect.height);
                 }
-            } catch (error) {
-                console.error('Testimony submit error:', error);
-            }
-        });
-    </script>
+            }, 1500);
+
+            // Testimony Form Submission
+            document.getElementById('testimonyForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const { apiCall, showNotification } = window.app;
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+
+                const payload = {
+                    name: document.getElementById('testName').value,
+                    content: document.getElementById('testContent').value,
+                    rating: parseInt(document.getElementById('testRating').value),
+                    avatar_url: user?.avatar_url || null,
+                    role: user?.is_google ? 'Verified Customer' : 'Pelanggan'
+                };
+
+                try {
+                    const result = await apiCall('/customer/testimony', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (result.success) {
+                        showNotification('Terima kasih! Testimoni Anda sedang dimoderasi.', 'success');
+                        hideTestimonyForm();
+                    }
+                } catch (error) {
+                    console.error('Testimony submit error:', error);
+                }
+            });
+        </script>
+    </div>
 </body>
 
 </html>

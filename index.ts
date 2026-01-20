@@ -18,10 +18,14 @@ const PUBLIC_DIR = join(import.meta.dir, "public");
 // Create Elysia app
 const app = new Elysia()
     .onError(({ code, error, set, path }) => {
-        console.error(`Error [${code}] at ${path}:`, error);
+        // Mute NOT_FOUND logs in terminal as they are usually noise (favicons, browser devtools, etc)
+        if (code !== 'NOT_FOUND') {
+            console.error(`Error [${code}] at ${path}:`, error);
+        }
 
         // Return JSON for API routes
         if (path.startsWith('/api')) {
+            set.status = code === 'NOT_FOUND' ? 404 : 500;
             return {
                 success: false,
                 message: (error as any).message || 'Internal Server Error',
@@ -36,8 +40,8 @@ const app = new Elysia()
             <head><title>Error ${code}</title></head>
             <body>
                 <h1>Error ${code}</h1>
-                <p>${(error as any).message || 'Something went wrong'}</p>
-                <a href="/">Go to Homepage</a>
+                <p>${code === 'NOT_FOUND' ? 'Halaman tidak ditemukan' : ((error as any).message || 'Something went wrong')}</p>
+                <a href="/">Kembali ke Beranda</a>
             </body>
             </html>
         `, {
@@ -45,6 +49,9 @@ const app = new Elysia()
             status: code === 'NOT_FOUND' ? 404 : 500
         });
     })
+    // Explicitly handle favicon and chrome devtools noise
+    .get("/favicon.ico", () => Bun.file(join(PUBLIC_DIR, "assets/favicon.png")))
+    .get("/.well-known/*", () => new Response(null, { status: 404 }))
     .use(cors({
         origin: true, // Allow all origins in production (or specify your Netlify domain)
         credentials: true

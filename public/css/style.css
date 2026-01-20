@@ -258,6 +258,13 @@ p {
   background: rgba(255, 255, 255, 0.15);
 }
 
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: white;
+}
+
 /* ===================================
    Cards
    =================================== */

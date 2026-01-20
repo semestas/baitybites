@@ -1,6 +1,6 @@
 // Global API configuration
 // const API_BASE = window.location.origin + '/api';
-const API_BASE = 'https://baitybites-api.onrender.com/api';
+const API_BASE = window.location.origin + '/api';
 
 // Utility functions
 function formatCurrency(amount) {
@@ -157,7 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAuth();
     }
 
-    // Update active nav link
+    // Initialize Header for public pages
+    initPublicHeader();
+
+    // Update active nav link (for static navs)
     const currentPath = window.location.pathname;
     document.querySelectorAll('.nav-link').forEach(link => {
         if (link.getAttribute('href') === currentPath ||
@@ -169,6 +172,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Header initialization for public pages
+function initPublicHeader() {
+    const isPublicPage = ['/index.html', '/order.html', '/track.html', '/'].some(p =>
+        window.location.pathname === p || window.location.pathname.endsWith(p)
+    );
+
+    if (!isPublicPage) return;
+
+    const nav = document.getElementById('mainNav');
+    if (!nav) return;
+
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (user) {
+        // Logged in
+        nav.innerHTML = `
+            <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
+            <a href="/order.html" class="nav-link ${window.location.pathname.endsWith('order.html') ? 'active' : ''}">Pesan</a>
+            <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
+            <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
+                <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
+                <button onclick="logout()" class="btn btn-outline btn-sm" style="color: white; border-color: white;">Logout</button>
+            </div>
+        `;
+    } else {
+        // Not logged in
+        nav.innerHTML = `
+            <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
+            <a href="/order.html" class="nav-link ${window.location.pathname.endsWith('order.html') ? 'active' : ''}">Pesan</a>
+            <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
+            <a href="/login.html" class="btn btn-primary btn-sm" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
+        `;
+        // Handle scroll for transparent header
+        if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
+            const header = document.querySelector('.header');
+            if (header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.style.background = 'var(--gradient-dark)';
+                        header.style.boxShadow = 'var(--shadow-lg)';
+                    } else {
+                        header.style.background = 'rgba(0,0,0,0.3)';
+                        header.style.boxShadow = 'none';
+                    }
+                });
+            }
+        }
+    }
+}
+
 // Export for use in other modules
 window.app = {
     apiCall,
@@ -179,5 +233,6 @@ window.app = {
     getStatusLabel,
     showNotification,
     logout,
-    checkAuth
+    checkAuth,
+    initPublicHeader
 };
