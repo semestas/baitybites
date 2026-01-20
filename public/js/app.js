@@ -1,5 +1,6 @@
 // Global API configuration
-const API_BASE = window.location.origin + '/api';
+// const API_BASE = window.location.origin + '/api';
+const API_BASE = 'https://baitybites-api.onrender.com/api';
 
 // Utility functions
 function formatCurrency(amount) {

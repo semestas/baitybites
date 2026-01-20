@@ -8,14 +8,14 @@ Domain: https://baitybites.netlify.app
 **Note**: Netlify hanya untuk static files. Backend API harus di-deploy terpisah.
 
 ### Backend Options
-- Railway.app (Recommended)
-- Render.com
-- Fly.io
+- **Render.com** (Currently deployed - Free tier)
+- Railway.app (Requires paid plan)
+- Fly.io (Free with credit card verification)
 
 ## Environment Variables Required
 
 ### Backend (.env)
-```
+```bash
 DATABASE_URL=postgresql://user:password@host:5432/database
 JWT_SECRET=your-super-secret-jwt-key-here
 NODE_ENV=production
@@ -23,10 +23,10 @@ PORT=9876
 FRONTEND_URL=https://baitybites.netlify.app
 ```
 
-### Netlify (.env or netlify.toml)
-```
-VITE_API_URL=https://your-backend-url.railway.app/api
-```
+### Netlify
+**No environment variables needed!** 
+API URL sudah di-hardcode di `public/js/app.js` dan proxy di `netlify.toml`
+
 
 ## Local Development
 ```bash

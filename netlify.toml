@@ -9,7 +9,8 @@
 [[redirects]]
   # Redirect all API calls to backend server
   from = "/api/*"
-  to = "https://baitybites-api.railway.app/api/:splat"
+  # to = "https://baitybites-api.railway.app/api/:splat"
+  to = "https://baitybites-api.onrender.com/api/:splat"
   status = 200
   force = true
   
