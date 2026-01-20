@@ -127,6 +127,21 @@
 
                         // Disable email if logged in with Google to maintain consistency
                         if (user.email) document.getElementById('email').disabled = true;
+
+                        // Add helpful notice for first-time Google users
+                        if (!user.phone || !user.address) {
+                            const notice = document.createElement('div');
+                            notice.className = 'info-box mb-4';
+                            notice.style.background = '#e0f2fe';
+                            notice.style.padding = '1rem';
+                            notice.style.borderRadius = '0.5rem';
+                            notice.style.fontSize = '0.85rem';
+                            notice.style.color = '#0369a1';
+                            notice.innerHTML = '✨ <strong>Hai ' + (user.name || 'Pelanggan') + '!</strong> Karena ini login pertama Anda via Google, silakan lengkapi Nomor WhatsApp & Alamat sekali saja agar pesanan berikutnya lebih praktis.';
+
+                            const form = document.getElementById('orderForm');
+                            form.parentNode.insertBefore(notice, form);
+                        }
                     }
                 } catch (e) {
                     console.error('Failed to parse user for auto-fill');
