@@ -10,7 +10,7 @@ interface GoogleUser {
     picture?: string;
 }
 
-const DEPLOY_VERSION = "1.1.0-fix-oauth";
+const DEPLOY_VERSION = "1.3.0-oauth-proper-fix";
 
 export const googleAuthRoutes = (db: Sql) =>
     new Elysia({ prefix: '/auth' })
@@ -23,21 +23,21 @@ export const googleAuthRoutes = (db: Sql) =>
                     process.env.GOOGLE_CLIENT_SECRET || 'dummy_secret',
                     process.env.GOOGLE_REDIRECT_URI || 'http://localhost:9876/api/auth/google/callback'
                 ]
+            }, {
+                cookie: {
+                    path: '/',
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                }
             })
         )
         .get('/google/login', ({ oauth2 }) => {
-            // @ts-ignore
-            return oauth2.authorize('Google', ['email', 'profile']);
+            return oauth2.redirect('Google', ['email', 'profile']);
         })
-        .get('/google/callback', async ({ oauth2, query, jwt, cookie: { token } }) => {
+        .get('/google/callback', async ({ oauth2, jwt, cookie: { token } }) => {
             try {
-                const code = query.code;
-                const state = query.state;
-
-                if (!code) throw new Error('No code provided from Google');
-
-                // @ts-ignore - The plugin adds validate to oauth2 context
-                const googleToken = await oauth2.validate('Google', code, state);
+                // oauth2.authorize handles state and code validation
+                const googleToken = await oauth2.authorize('Google');
 
                 // Fetch user info from Google
                 const userResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
