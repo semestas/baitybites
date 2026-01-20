@@ -131,13 +131,24 @@
                         // Add helpful notice for first-time Google users
                         if (!user.phone || !user.address) {
                             const notice = document.createElement('div');
-                            notice.className = 'info-box mb-4';
-                            notice.style.background = '#e0f2fe';
-                            notice.style.padding = '1rem';
-                            notice.style.borderRadius = '0.5rem';
-                            notice.style.fontSize = '0.85rem';
+                            notice.className = 'info-box mb-4 animate-fade-in';
+                            notice.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+                            notice.style.padding = '1.25rem';
+                            notice.style.borderRadius = '1rem';
+                            notice.style.fontSize = '0.9rem';
                             notice.style.color = '#0369a1';
-                            notice.innerHTML = '✨ <strong>Hai ' + (user.name || 'Pelanggan') + '!</strong> Karena ini login pertama Anda via Google, silakan lengkapi Nomor WhatsApp & Alamat sekali saja agar pesanan berikutnya lebih praktis.';
+                            notice.style.border = '1px solid #bae6fd';
+                            notice.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
+
+                            notice.innerHTML = `
+                                <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
+                                    <div style="font-size: 1.5rem;">✨</div>
+                                    <div>
+                                        <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia BaityBites!</p>
+                                        <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini (Nomor WhatsApp & Alamat) agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Dengan begitu, pesanan Anda selanjutnya akan jauh lebih praktis dan terisi otomatis secara permanen. Selamat berbelanja!</p>
+                                    </div>
+                                </div>
+                            `;
 
                             const form = document.getElementById('orderForm');
                             form.parentNode.insertBefore(notice, form);
