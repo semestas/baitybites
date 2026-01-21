@@ -3,7 +3,110 @@ import type { Sql } from '../db/schema';
 
 export const cmsRoutes = (db: Sql) =>
     new Elysia({ prefix: '/cms' })
+        .get('/stats', async () => {
+            const [stats] = await db`
+                SELECT 
+                    COUNT(*)::int as total_orders,
+                    COUNT(*) FILTER (WHERE status = 'completed')::int as completed_orders,
+                    COUNT(*) FILTER (WHERE status NOT IN ('completed', 'cancelled'))::int as in_progress_orders,
+                    COALESCE(SUM(total_amount) FILTER (WHERE status NOT IN ('cancelled', 'pending', 'confirmed')), 0)::int as total_revenue
+                FROM orders
+            `;
 
+            const flow = await db`
+                SELECT status, COUNT(*)::int as count
+                FROM orders
+                GROUP BY status
+            `;
+
+            const flowData = flow.reduce((acc: any, curr: any) => {
+                acc[curr.status] = curr.count;
+                return acc;
+            }, {});
+
+            const recentOrders = await db`
+                SELECT o.*, c.name as customer_name 
+                FROM orders o 
+                JOIN customers c ON o.customer_id = c.id 
+                ORDER BY o.created_at DESC
+                LIMIT 5
+            `;
+
+            return {
+                success: true,
+                data: {
+                    stats,
+                    flow: flowData,
+                    recentOrders
+                }
+            };
+        })
+        .get('/production', async () => {
+            const stats = await db`
+                SELECT 
+                    COUNT(*) FILTER (WHERE status = 'production')::int as in_production,
+                    COUNT(*) FILTER (WHERE status = 'packaging')::int as wait_for_packing,
+                    COUNT(*) FILTER (WHERE status = 'shipping')::int as ready_to_ship
+                FROM orders
+            `;
+
+            const queue = await db`
+                SELECT 
+                    o.id,
+                    o.order_number,
+                    o.status,
+                    o.notes,
+                    o.created_at as order_created,
+                    o.updated_at as last_update,
+                    c.name as customer_name,
+                    (SELECT start_date FROM production WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as prod_start,
+                    (SELECT end_date FROM production WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as prod_end,
+                    (SELECT packaging_date FROM packaging WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as pack_start,
+                    (SELECT shipping_date FROM shipping WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as ship_start,
+                    (
+                        SELECT json_agg(json_build_object(
+                            'product_name', p.name,
+                            'quantity', oi.quantity,
+                            'production_time', COALESCE(p.production_time, 10),
+                            'packaging_time', COALESCE(p.packaging_time, 5)
+                        ))
+                        FROM order_items oi
+                        JOIN products p ON oi.product_id = p.id
+                        WHERE oi.order_id = o.id
+                    ) as items
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                WHERE o.status IN ('confirmed', 'production', 'packaging', 'shipping')
+                ORDER BY o.updated_at ASC
+            `;
+
+            const processedQueue = queue.map((order: any) => {
+                let totalProd = 0;
+                let totalPack = 0;
+                order.items?.forEach((item: any) => {
+                    totalProd += (item.quantity * item.production_time);
+                    totalPack += (item.quantity * item.packaging_time);
+                });
+
+                return {
+                    ...order,
+                    estimations: {
+                        production_mins: totalProd,
+                        packaging_mins: totalPack,
+                        pickup_buffer_mins: 15,
+                        total_mins: totalProd + totalPack + 15
+                    }
+                };
+            });
+
+            return {
+                success: true,
+                data: {
+                    stats: stats[0],
+                    queue: processedQueue
+                }
+            };
+        })
         // --- Gallery Management ---
         .get('/gallery', async () => {
             const items = await db`SELECT * FROM gallery ORDER BY display_order ASC`;
@@ -104,16 +207,33 @@ export const cmsRoutes = (db: Sql) =>
                 await db`
                     INSERT INTO production (order_id, start_date, status)
                     VALUES (${params.id}, CURRENT_TIMESTAMP, 'in_progress')
+                    ON CONFLICT DO NOTHING
                 `;
             } else if (body.status === 'packaging') {
+                // Mark production as completed
+                await db`
+                    UPDATE production 
+                    SET end_date = CURRENT_TIMESTAMP, status = 'completed' 
+                    WHERE order_id = ${params.id} AND status = 'in_progress'
+                `;
+                // Create packaging record
                 await db`
                     INSERT INTO packaging (order_id, packaging_date, status)
                     VALUES (${params.id}, CURRENT_TIMESTAMP, 'in_progress')
+                    ON CONFLICT DO NOTHING
                 `;
             } else if (body.status === 'shipping') {
+                // Mark packaging as completed (using existing packaging_date as start, maybe we just mark status)
+                await db`
+                    UPDATE packaging 
+                    SET status = 'completed' 
+                    WHERE order_id = ${params.id} AND status = 'in_progress'
+                `;
+                // Create shipping record
                 await db`
                     INSERT INTO shipping (order_id, shipping_date, courier, status)
                     VALUES (${params.id}, CURRENT_TIMESTAMP, ${body.courier || 'Kurir Internal'}, 'pending')
+                    ON CONFLICT DO NOTHING
                 `;
             }
 

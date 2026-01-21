@@ -4,9 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production - BaityBites OMS</title>
+    <title>Production - Baitybites OMS</title>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .timeline-compact {
+            display: flex;
+            gap: 1rem;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--neutral-600);
+        }
+
+        .time-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .time-item i {
+            width: 12px;
+            height: 12px;
+        }
+
+        .est-box {
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .est-total {
+            color: #92400e;
+            font-size: 1rem;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #e5e7eb;
+            padding: 2px 0;
+        }
+
+        .item-qty {
+            font-weight: bold;
+            color: var(--primary-600);
+        }
+
+        .items-list {
+            max-width: 250px;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        .stat-card .stat-icon-bg {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .stat-card .stat-icon-bg i,
+        .stat-card .stat-icon-bg svg {
+            width: 52px !important;
+            height: 52px !important;
+            display: block;
+        }
+
+        .stat-card .stat-label,
+        .stat-card .stat-value {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -15,7 +99,7 @@
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
                     </a>
                     <nav class="nav" id="mainNav">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
@@ -40,14 +124,17 @@
                     <div class="stat-card" style="border-left-color: #3b82f6;">
                         <div class="stat-label">In Production</div>
                         <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="flame"></i></div>
                     </div>
                     <div class="stat-card" style="border-left-color: #f59e0b;">
                         <div class="stat-label">Wait for Packing</div>
                         <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="package"></i></div>
                     </div>
                     <div class="stat-card" style="border-left-color: #10b981;">
                         <div class="stat-label">Ready to Ship</div>
                         <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="truck"></i></div>
                     </div>
                 </div>
 
@@ -84,23 +171,14 @@
         <footer
             style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
             <div class="container">
-                <p>&copy; 2026 BaityBites. All rights reserved.</p>
+                <p>&copy; 2026 Baitybites. All rights reserved.</p>
             </div>
         </footer>
     </div>
 
     <script src="/js/app.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.getElementById('productionTableBody').innerHTML = `
-          <tr>
-            <td colspan="5" class="text-center text-muted">Belum ada antrean produksi.</td>
-          </tr>
-        `;
-            }, 1000);
-        });
-    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/js/production.js"></script>
 </body>
 
 </html>

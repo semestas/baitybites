@@ -4,10 +4,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BaityBites - Order Management System</title>
-  <meta name="description" content="Sistem manajemen order untuk BaityBites - dari pemesanan hingga pengiriman">
+  <title>Baitybites - Order Management System</title>
+  <meta name="description" content="Sistem manajemen order untuk Baitybites - dari pemesanan hingga pengiriman">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Compact Stat Pills Styling */
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(to right, #ffffff, #f0fdfa);
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      padding: 0.5rem 1rem;
+      min-width: 200px;
+      flex: 1 1 200px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-400);
+    }
+
+    .stat-pill-icon-wrapper {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    .stat-pill-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 3px solid #e5e7eb;
+      border-top-color: #4caf50;
+      /* Dynamic color */
+      transform: rotate(-45deg);
+    }
+
+    .stat-pill-icon {
+      width: 24px;
+      height: 24px;
+      z-index: 1;
+    }
+
+    .stat-pill-info {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-pill-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .stat-pill-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-left: auto;
+    }
+
+    /* Override stat-card to be compact horizontal rows */
+    .grid-4.stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .stat-card.compact-row {
+      display: flex;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--neutral-200);
+      border-left: 5px solid var(--primary-500);
+      flex: 1 1 calc(25% - 1.5rem);
+      min-width: 250px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .stat-card.compact-row .stat-info {
+      flex: 1;
+    }
+
+    .stat-card.compact-row .stat-label {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--neutral-600);
+      margin: 0;
+    }
+
+    .stat-card.compact-row .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-top: 0.25rem;
+      color: var(--neutral-900);
+    }
+
+    .stat-card.compact-row .stat-icon {
+      opacity: 0.15;
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .stat-card.compact-row .stat-icon i,
+    .stat-card.compact-row .stat-icon svg {
+      width: 48px !important;
+      height: 48px !important;
+      display: block;
+    }
+
+    #orderFlowStats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .spinner-sm {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e5e7eb;
+      border-top-color: var(--primary-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  </style>
 </head>
 
 <body>
@@ -17,7 +159,7 @@
       <div class="container">
         <div class="header-content">
           <a href="/" class="logo">
-            <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+            <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
           </a>
           <nav class="nav" id="mainNav">
             <a href="/dashboard" class="nav-link active">Dashboard</a>
@@ -37,41 +179,41 @@
         <!-- Page Header -->
         <div class="mb-4">
           <h1 class="animate-fade-in">Dashboard</h1>
-          <p class="text-muted">Selamat datang di BaityBites Order Management System</p>
+          <p class="text-muted">Selamat datang di Baitybites Order Management System</p>
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-4 mb-4 animate-fade-in">
-          <div class="stat-card" style="border-left-color: #f59638;">
-            <div style="position: relative;">
+        <div class="stats-container mb-4 animate-fade-in">
+          <div class="stat-card compact-row" style="border-left-color: #f59638;">
+            <div class="stat-info">
               <div class="stat-label">Total Orders</div>
               <div class="stat-value" id="totalOrders">0</div>
-              <div class="stat-icon">📦</div>
             </div>
+            <div class="stat-icon">📦</div>
           </div>
 
-          <div class="stat-card" style="border-left-color: #4caf50;">
-            <div style="position: relative;">
+          <div class="stat-card compact-row" style="border-left-color: #4caf50;">
+            <div class="stat-info">
               <div class="stat-label">Completed</div>
               <div class="stat-value" id="completedOrders">0</div>
-              <div class="stat-icon">✅</div>
             </div>
+            <div class="stat-icon">✅</div>
           </div>
 
-          <div class="stat-card" style="border-left-color: #3b82f6;">
-            <div style="position: relative;">
+          <div class="stat-card compact-row" style="border-left-color: #3b82f6;">
+            <div class="stat-info">
               <div class="stat-label">In Progress</div>
               <div class="stat-value" id="inProgressOrders">0</div>
-              <div class="stat-icon">⚙️</div>
             </div>
+            <div class="stat-icon">⚙️</div>
           </div>
 
-          <div class="stat-card" style="border-left-color: #f59e0b;">
-            <div style="position: relative;">
+          <div class="stat-card compact-row" style="border-left-color: #f1c40f;">
+            <div class="stat-info">
               <div class="stat-label">Revenue</div>
               <div class="stat-value" id="totalRevenue">Rp 0</div>
-              <div class="stat-icon">💰</div>
             </div>
+            <div class="stat-icon">💰</div>
           </div>
         </div>
 
@@ -81,7 +223,7 @@
             <h2 class="card-title">Order Flow Status</h2>
           </div>
           <div class="card-body">
-            <div class="grid grid-4" id="orderFlowStats">
+            <div id="orderFlowStats">
               <!-- Will be populated by JavaScript -->
             </div>
           </div>
@@ -154,7 +296,7 @@
     <footer
       style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
       <div class="container">
-        <p>&copy; 2026 BaityBites. All rights reserved.</p>
+        <p>&copy; 2026 Baitybites. All rights reserved.</p>
         <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
           Order Management System v1.0
         </p>
@@ -163,6 +305,7 @@
   </div>
 
   <script src="/js/app.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="/js/dashboard.js"></script>
 </body>
 

@@ -1,5 +1,5 @@
 /* ===================================
-   BaityBites Design System
+   Baitybites Design System
    Modern, Premium, Dynamic UI
    =================================== */
 
@@ -804,6 +804,12 @@ p {
 /* ===================================
    Dashboard Stats
    =================================== */
+
+.stats-container {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
 .stat-card {
   background: white;
   border-radius: var(--radius-xl);

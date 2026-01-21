@@ -1,179 +1,180 @@
-// Dashboard specific functionality
-const { apiCall, formatCurrency, formatDate, getStatusBadgeClass, getStatusLabel } = window.app;
 
-// Load dashboard data
-async function loadDashboardData() {
-  try {
-    // For now, we'll use mock data since we haven't created the API endpoints yet
-    // This will be replaced with actual API calls
+// Dashboard initialization and data loading
+(function () {
+  console.log('Dashboard script loaded with Lucide Icons integration');
 
-    const mockStats = {
-      totalOrders: 24,
-      completedOrders: 18,
-      inProgressOrders: 6,
-      totalRevenue: 3600000
-    };
+  // Utility to get utilities safely
+  const getUtils = () => window.app || {};
 
-    const mockOrderFlow = {
-      pending: 2,
-      confirmed: 1,
-      invoiced: 1,
-      paid: 2,
-      production: 3,
-      packaging: 2,
-      shipping: 1,
-      completed: 18
-    };
-
-    const mockRecentOrders = [
-      {
-        id: 1,
-        order_number: 'PO-20260119-0001',
-        customer_name: 'Ibu Siti Aminah',
-        order_date: '2026-01-19',
-        total_amount: 450000,
-        status: 'production'
-      },
-      {
-        id: 2,
-        order_number: 'PO-20260118-0002',
-        customer_name: 'Bapak Ahmad Rizki',
-        order_date: '2026-01-18',
-        total_amount: 300000,
-        status: 'packaging'
-      },
-      {
-        id: 3,
-        order_number: 'PO-20260117-0003',
-        customer_name: 'Ibu Dewi Lestari',
-        order_date: '2026-01-17',
-        total_amount: 520000,
-        status: 'shipping'
-      },
-      {
-        id: 4,
-        order_number: 'PO-20260116-0004',
-        customer_name: 'Bapak Hendra Wijaya',
-        order_date: '2026-01-16',
-        total_amount: 380000,
-        status: 'completed'
-      },
-      {
-        id: 5,
-        order_number: 'PO-20260115-0005',
-        customer_name: 'Ibu Ratna Sari',
-        order_date: '2026-01-15',
-        total_amount: 420000,
-        status: 'completed'
+  // Load dashboard data
+  async function loadDashboardData() {
+    console.log('Attempting to load dashboard data...');
+    try {
+      const utils = getUtils();
+      if (!utils.apiCall) {
+        console.error('apiCall not found in window.app');
+        return;
       }
-    ];
 
-    // Update stats
-    updateStats(mockStats);
+      const result = await utils.apiCall('/cms/stats');
+      console.log('Dashboard stats result:', result);
 
-    // Update order flow
-    updateOrderFlow(mockOrderFlow);
+      if (result && result.success) {
+        const { stats, flow, recentOrders } = result.data;
 
-    // Update recent orders table
-    updateRecentOrders(mockRecentOrders);
+        // Update main stats cards
+        updateStats({
+          totalOrders: stats.total_orders || 0,
+          completedOrders: stats.completed_orders || 0,
+          inProgressOrders: stats.in_progress_orders || 0,
+          totalRevenue: stats.total_revenue || 0
+        });
 
-  } catch (error) {
-    console.error('Failed to load dashboard data:', error);
-  }
-}
+        // Update order status distribution cards
+        updateOrderFlow(flow || {});
 
-function updateStats(stats) {
-  document.getElementById('totalOrders').textContent = stats.totalOrders;
-  document.getElementById('completedOrders').textContent = stats.completedOrders;
-  document.getElementById('inProgressOrders').textContent = stats.inProgressOrders;
-  document.getElementById('totalRevenue').textContent = formatCurrency(stats.totalRevenue);
-}
+        // Update the table of latest orders
+        updateRecentOrders(recentOrders || []);
 
-function updateOrderFlow(flowData) {
-  const flowContainer = document.getElementById('orderFlowStats');
-
-  const flowSteps = [
-    { key: 'pending', label: 'Pending', icon: '⏳' },
-    { key: 'confirmed', label: 'Confirmed', icon: '✓' },
-    { key: 'paid', label: 'Paid', icon: '💳' },
-    { key: 'production', label: 'Production', icon: '🏭' },
-    { key: 'packaging', label: 'Packaging', icon: '📦' },
-    { key: 'shipping', label: 'Shipping', icon: '🚚' },
-    { key: 'completed', label: 'Completed', icon: '✅' }
-  ];
-
-  flowContainer.innerHTML = flowSteps.map(step => `
-    <div style="text-align: center; padding: var(--spacing-lg); background: var(--neutral-50); border-radius: var(--radius-lg); transition: all 0.3s;">
-      <div style="font-size: 2.5rem; margin-bottom: var(--spacing-sm);">${step.icon}</div>
-      <div style="font-size: 0.875rem; color: var(--neutral-600); margin-bottom: var(--spacing-xs);">${step.label}</div>
-      <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary-600);">${flowData[step.key] || 0}</div>
-    </div>
-  `).join('');
-}
-
-function updateRecentOrders(orders) {
-  const tableBody = document.getElementById('recentOrdersTable');
-
-  if (orders.length === 0) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="6" class="text-center" style="padding: var(--spacing-xl);">
-          <div style="color: var(--neutral-500);">No recent orders</div>
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  tableBody.innerHTML = orders.map(order => `
-    <tr>
-      <td><strong>${order.order_number}</strong></td>
-      <td>${order.customer_name}</td>
-      <td>${formatDate(order.order_date)}</td>
-      <td><strong>${formatCurrency(order.total_amount)}</strong></td>
-      <td>
-        <span class="badge ${getStatusBadgeClass(order.status)}">
-          ${getStatusLabel(order.status)}
-        </span>
-      </td>
-      <td>
-        <button class="btn btn-primary btn-sm" onclick="viewOrder(${order.id})">
-          View
-        </button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function viewOrder(orderId) {
-  window.location.href = `/orders.html?id=${orderId}`;
-}
-
-// Check if user is admin
-function isAdmin() {
-  const userStr = localStorage.getItem('user');
-  if (!userStr) return false;
-
-  try {
-    const user = JSON.parse(userStr);
-    return user.role === 'admin';
-  } catch (e) {
-    return false;
-  }
-}
-
-// Initialize dashboard
-document.addEventListener('DOMContentLoaded', () => {
-  // Hide Recent Orders section if not admin
-  if (!isAdmin()) {
-    const recentOrdersCard = document.querySelector('.card.animate-fade-in:has(#recentOrdersTable)');
-    if (recentOrdersCard) {
-      recentOrdersCard.style.display = 'none';
+        // Initialize Lucide icons
+        if (window.lucide) {
+          lucide.createIcons();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
     }
   }
 
-  loadDashboardData();
+  function updateStats(stats) {
+    const utils = getUtils();
+    console.log('Updating stats cards:', stats);
 
-  // Refresh data every 30 seconds
+    const elements = {
+      totalOrders: document.getElementById('totalOrders'),
+      completedOrders: document.getElementById('completedOrders'),
+      inProgressOrders: document.getElementById('inProgressOrders'),
+      totalRevenue: document.getElementById('totalRevenue')
+    };
+
+    if (elements.totalOrders) elements.totalOrders.textContent = stats.totalOrders;
+    if (elements.completedOrders) elements.completedOrders.textContent = stats.completedOrders;
+    if (elements.inProgressOrders) elements.inProgressOrders.textContent = stats.inProgressOrders;
+    if (elements.totalRevenue) {
+      elements.totalRevenue.textContent = utils.formatCurrency ? utils.formatCurrency(stats.totalRevenue) : ('Rp ' + stats.totalRevenue);
+    }
+
+    // Update icons with Lucide
+    const statIcons = document.querySelectorAll('.stat-card .stat-icon');
+    const iconNames = ['package', 'check', 'settings', 'banknote'];
+
+    statIcons.forEach((el, index) => {
+      el.innerHTML = `<i data-lucide="${iconNames[index]}" style="width: 48px; height: 48px; opacity: 0.2;"></i>`;
+    });
+  }
+
+  function updateOrderFlow(flowData) {
+    console.log('Updating order flow status:', flowData);
+    const flowContainer = document.getElementById('orderFlowStats');
+    if (!flowContainer) return;
+
+    const flowSteps = [
+      { key: 'pending', label: 'Pending', icon: 'clock', color: '#f59e0b', ringColor: '#8bc34a' },
+      { key: 'confirmed', label: 'Confirmed', icon: 'check', color: '#3b82f6', ringColor: '#3b82f6' },
+      { key: 'paid', label: 'Paid', icon: 'credit-card', color: '#10b981', ringColor: '#10b981' },
+      { key: 'production', label: 'Production', icon: 'factory', color: '#a855f7', ringColor: '#a855f7' },
+      { key: 'packaging', label: 'Packaging', icon: 'package', color: '#f97316', ringColor: '#f97316' },
+      { key: 'shipping', label: 'Shipping', icon: 'truck', color: '#2563eb', ringColor: '#2563eb' },
+      { key: 'completed', label: 'Completed', icon: 'check-circle', color: '#059669', ringColor: '#059669' }
+    ];
+
+    flowContainer.innerHTML = flowSteps.map(step => `
+      <div id="flow-${step.key}" class="stat-pill">
+        <div class="stat-pill-icon-wrapper">
+          <div class="stat-pill-ring" style="border-top-color: ${step.ringColor}"></div>
+          <div class="flow-icon" style="z-index: 1; display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="${step.icon}" class="stat-pill-icon"></i>
+          </div>
+        </div>
+        <div class="stat-pill-info">
+          <div class="stat-pill-label" style="color: ${step.color}">${step.label}</div>
+          <div class="stat-pill-value" style="color: ${step.color}">${flowData[step.key] || 0}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function updateRecentOrders(orders) {
+    console.log('Updating recent orders table:', orders);
+    const tableBody = document.getElementById('recentOrdersTable');
+    if (!tableBody) return;
+
+    const utils = getUtils();
+
+    if (!orders || orders.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center" style="padding: 2rem;">
+            <div style="color: #9ca3af;">No recent orders</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = orders.map(order => `
+      <tr>
+        <td><strong>${order.order_number}</strong></td>
+        <td>${order.customer_name}</td>
+        <td>${utils.formatDate ? utils.formatDate(order.order_date) : order.order_date}</td>
+        <td><strong>${utils.formatCurrency ? utils.formatCurrency(order.total_amount) : ('Rp ' + order.total_amount)}</strong></td>
+        <td>
+          <span class="badge ${utils.getStatusBadgeClass ? utils.getStatusBadgeClass(order.status) : ''}">
+            ${utils.getStatusLabel ? utils.getStatusLabel(order.status) : order.status}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="viewOrder(${order.id})">
+            View
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Global exposure for event handlers
+  window.viewOrder = function (orderId) {
+    window.location.href = `/orders.html?id=${orderId}`;
+  };
+
+  function isAdmin() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return false;
+    try {
+      const user = JSON.parse(userStr);
+      return user.role === 'admin';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Initialize
+  const init = () => {
+    console.log('Initializing Dashboard Layout...');
+    if (!isAdmin()) {
+      // Modern browsers support :has, for older ones we use a simpler fallback if needed
+      const recentOrdersCard = document.querySelector('.card:has(#recentOrdersTable)');
+      if (recentOrdersCard) recentOrdersCard.style.display = 'none';
+    }
+    loadDashboardData();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Auto-refresh stats
   setInterval(loadDashboardData, 30000);
-});
+})();

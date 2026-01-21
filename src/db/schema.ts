@@ -147,15 +147,19 @@ export async function initDatabase() {
       unit TEXT NOT NULL,
       stock INTEGER DEFAULT 0,
       image_url TEXT,
+      production_time INTEGER DEFAULT 10, -- minutes per unit/box
+      packaging_time INTEGER DEFAULT 5,   -- minutes per unit/box
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `;
 
-  // Migration: Add image_url column if it doesn't exist
+  // Migration: Add image_url and time columns if they don't exist
   try {
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS production_time INTEGER DEFAULT 10`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS packaging_time INTEGER DEFAULT 5`;
   } catch (e) {
-    // Ignore error if column already exists (though IF NOT EXISTS handles it, just safe keeping)
+    console.error("Migration error on products table:", e);
   }
 
   await sql`
