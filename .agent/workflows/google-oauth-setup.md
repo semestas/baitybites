@@ -16,7 +16,7 @@ Workflow ini menjelaskan langkah-langkah untuk mengimplementasikan Google OAuth 
 ### 1.1 Buat Project di Google Cloud Console
 1. Buka [Google Cloud Console](https://console.cloud.google.com/)
 2. Klik "Select a project" → "New Project"
-3. Nama project: `BaityBites OMS`
+3. Nama project: `Baitybites OMS`
 4. Klik "Create"
 
 ### 1.2 Enable Google+ API
@@ -28,7 +28,7 @@ Workflow ini menjelaskan langkah-langkah untuk mengimplementasikan Google OAuth 
 1. Di sidebar, pilih "APIs & Services" → "OAuth consent screen"
 2. Pilih "External" (untuk testing) atau "Internal" (jika punya Google Workspace)
 3. Isi informasi aplikasi:
-   - App name: `BaityBites Order Management`
+   - App name: `Baitybites Order Management`
    - User support email: [email Anda]
    - Developer contact: [email Anda]
 4. Klik "Save and Continue"
@@ -43,7 +43,7 @@ Workflow ini menjelaskan langkah-langkah untuk mengimplementasikan Google OAuth 
 1. Di sidebar, pilih "APIs & Services" → "Credentials"
 2. Klik "Create Credentials" → "OAuth client ID"
 3. Application type: "Web application"
-4. Name: `BaityBites Web Client`
+4. Name: `Baitybites Web Client`
 5. Authorized JavaScript origins:
    - `http://localhost:9876`
    - `http://localhost:3000` (jika ada)

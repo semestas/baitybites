@@ -1,5 +1,5 @@
 # Render.com Deployment Configuration
-# Free tier deployment for BaityBites backend
+# Free tier deployment for Baitybites backend
 
 services:
   - type: web

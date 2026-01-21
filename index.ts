@@ -176,7 +176,7 @@ const app = new Elysia()
 const port = app.server?.port || process.env.PORT || 9876;
 
 console.log(`
-🚀 BaityBites Order Management System
+🚀 Baitybites Order Management System
 🌐 Server running at http://localhost:${port}
 📊 Database: PostgreSQL (Neon)
 👤 Default Admin: admin / admin123

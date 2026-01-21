@@ -1,8 +1,8 @@
-# 🚀 Deployment Guide - BaityBites OMS
+# 🚀 Deployment Guide - Baitybites OMS
 
 ## Architecture Overview
 
-BaityBites adalah full-stack application yang memerlukan:
+Baitybites adalah full-stack application yang memerlukan:
 1. **Backend Server** (Bun + ElysiaJS + PostgreSQL)
 2. **Frontend** (Static HTML/CSS/JS)
 
@@ -63,7 +63,7 @@ File `netlify.toml` sudah dibuat. **EDIT baris berikut**:
 1. Login ke [Railway](https://railway.app)
 2. Click "New Project"
 3. Select "Deploy from GitHub repo"
-4. Choose your BaityBites repository
+4. Choose your Baitybites repository
 
 ### 2. Add PostgreSQL Database
 1. Click "New" → "Database" → "Add PostgreSQL"

@@ -1,11 +1,11 @@
 // Header component template
 function createHeader(activePage = 'dashboard') {
-    return `
+  return `
     <header class="header">
       <div class="container">
         <div class="header-content">
           <a href="/" class="logo">
-            <img src="/assets/logo.png" alt="BaityBites Logo" style="height: 50px; width: auto;">
+            <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
           </a>
           <nav class="nav" id="mainNav">
             <a href="/" class="nav-link ${activePage === 'dashboard' ? 'active' : ''}">Dashboard</a>
@@ -23,10 +23,10 @@ function createHeader(activePage = 'dashboard') {
 
 // Footer component template
 function createFooter() {
-    return `
+  return `
     <footer style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
       <div class="container">
-        <p>&copy; 2026 BaityBites. All rights reserved.</p>
+        <p>&copy; 2026 Baitybites. All rights reserved.</p>
         <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm); color: var(--neutral-400);">
           Order Management System v1.0
         </p>
@@ -37,14 +37,14 @@ function createFooter() {
 
 // Page wrapper template
 function createPageWrapper(title, content, activePage = 'dashboard') {
-    return `
+  return `
     <!DOCTYPE html>
     <html lang="id">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${title} - BaityBites</title>
-      <meta name="description" content="Sistem manajemen order untuk BaityBites - dari pemesanan hingga pengiriman">
+      <meta name="description" content="Sistem manajemen order untuk Baitybites - dari pemesanan hingga pengiriman">
       <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
@@ -65,9 +65,9 @@ function createPageWrapper(title, content, activePage = 'dashboard') {
 
 // Export for use in other modules
 if (typeof window !== 'undefined') {
-    window.components = {
-        createHeader,
-        createFooter,
-        createPageWrapper
-    };
+  window.components = {
+    createHeader,
+    createFooter,
+    createPageWrapper
+  };
 }

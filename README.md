@@ -1,4 +1,4 @@
-# BaityBites Order Management System
+# Baitybites Order Management System
 
 ## 🚀 Deployment Configuration
 

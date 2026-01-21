@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# BaityBites - Pre-commit Checklist Script
+# Baitybites - Pre-commit Checklist Script
 # Run this before committing to GitHub
 
-echo "🔍 BaityBites Pre-Commit Checklist"
+echo "🔍 Baitybites Pre-Commit Checklist"
 echo "=================================="
 echo ""
 

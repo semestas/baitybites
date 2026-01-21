@@ -1,4 +1,4 @@
-# 📁 BaityBites Project Structure
+# 📁 Baitybites Project Structure
 
 ## Directory Layout
 
