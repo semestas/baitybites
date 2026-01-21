@@ -129,6 +129,12 @@ const app = new Elysia()
             headers: { "Content-Type": "text/html; charset=utf-8" }
         });
     })
+    .get("/production-mobile.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "production-mobile.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
     .get("/privacy.html", () => {
         const html = readFileSync(join(PUBLIC_DIR, "privacy.html"), "utf-8");
         return new Response(html, {
@@ -144,6 +150,7 @@ const app = new Elysia()
     // Redirect clean URLs to .html files
     .get("/login", ({ redirect }) => redirect("/login.html"))
     .get("/cms", ({ redirect }) => redirect("/cms.html"))
+    .get("/production-mobile", ({ redirect }) => redirect("/production-mobile.html"))
     .get("/dashboard", ({ redirect }) => redirect("/dashboard.html"))
     .get("/order", ({ redirect }) => redirect("/order.html"))
     .get("/track", ({ redirect }) => redirect("/track.html"))
