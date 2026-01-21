@@ -107,6 +107,68 @@ export const cmsRoutes = (db: Sql) =>
                 }
             };
         })
+        .get('/production/mobile', async () => {
+            // Get Incoming Orders (Pending Verification)
+            const incoming = await db`
+                SELECT 
+                    o.id, o.order_number, o.status, o.total_amount, o.created_at,
+                    c.name as customer_name,
+                    (
+                        SELECT json_agg(json_build_object('product_name', p.name, 'quantity', oi.quantity))
+                        FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id
+                    ) as items
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                WHERE o.status IN ('pending', 'paid')
+                ORDER BY o.created_at ASC
+            `;
+
+            // Get Active Production Queue (Same logic as main production)
+            const queue = await db`
+                SELECT 
+                    o.id, o.order_number, o.status, o.notes,
+                    o.created_at as order_created, o.updated_at as last_update,
+                    c.name as customer_name,
+                    (SELECT start_date FROM production WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as prod_start,
+                    (SELECT packaging_date FROM packaging WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as pack_start,
+                    (
+                        SELECT json_agg(json_build_object(
+                            'product_name', p.name,
+                            'quantity', oi.quantity,
+                            'production_time', COALESCE(p.production_time, 10),
+                            'packaging_time', COALESCE(p.packaging_time, 5)
+                        ))
+                        FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id
+                    ) as items
+                FROM orders o
+                JOIN customers c ON o.customer_id = c.id
+                WHERE o.status IN ('confirmed', 'production', 'packaging')
+                ORDER BY o.updated_at ASC
+            `;
+
+            const processEstimations = (list: any[]) => list.map((order: any) => {
+                let totalProd = 0;
+                let totalPack = 0;
+                order.items?.forEach((item: any) => {
+                    totalProd += (item.quantity * (item.production_time || 10));
+                    totalPack += (item.quantity * (item.packaging_time || 5));
+                });
+                return {
+                    ...order,
+                    estimations: {
+                        total_mins: totalProd + totalPack + 15
+                    }
+                };
+            });
+
+            return {
+                success: true,
+                data: {
+                    incoming: processEstimations(incoming),
+                    queue: processEstimations(queue)
+                }
+            };
+        })
         // --- Gallery Management ---
         .get('/gallery', async () => {
             const items = await db`SELECT * FROM gallery ORDER BY display_order ASC`;
