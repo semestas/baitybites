@@ -81,35 +81,36 @@
 
     <script src="/js/app.js"></script>
     <script>
-        const { apiCall, formatDate, formatDateTime } = window.app;
+        (function () {
+            const { apiCall, formatDate, formatDateTime } = window.app;
 
-        async function loadCustomers() {
-            try {
-                const response = await apiCall('/cms/customers');
-                if (response.success) {
-                    renderCustomers(response.data);
-                } else {
-                    document.getElementById('customersTableBody').innerHTML = `
+            async function loadCustomers() {
+                try {
+                    const response = await apiCall('/cms/customers');
+                    if (response.success) {
+                        renderCustomers(response.data);
+                    } else {
+                        document.getElementById('customersTableBody').innerHTML = `
                         <tr><td colspan="6" class="text-center text-danger">Gagal memuat data pelanggan.</td></tr>
                     `;
-                }
-            } catch (error) {
-                console.error('Error loading customers:', error);
-                document.getElementById('customersTableBody').innerHTML = `
+                    }
+                } catch (error) {
+                    console.error('Error loading customers:', error);
+                    document.getElementById('customersTableBody').innerHTML = `
                     <tr><td colspan="6" class="text-center text-danger">Terjadi kesalahan sistem.</td></tr>
                 `;
-            }
-        }
-
-        function renderCustomers(customers) {
-            const tbody = document.getElementById('customersTableBody');
-
-            if (customers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum ada data pelanggan.</td></tr>`;
-                return;
+                }
             }
 
-            tbody.innerHTML = customers.map(c => `
+            function renderCustomers(customers) {
+                const tbody = document.getElementById('customersTableBody');
+
+                if (customers.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum ada data pelanggan.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = customers.map(c => `
                 <tr>
                     <td>
                         <div class="flex items-center gap-3">
@@ -133,24 +134,25 @@
                     </td>
                 </tr>
             `).join('');
-        }
+            }
 
-        function getInitials(name) {
-            return name
-                .split(' ')
-                .map(n => n[0])
-                .slice(0, 2)
-                .join('')
-                .toUpperCase();
-        }
+            function getInitials(name) {
+                return name
+                    .split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+            }
 
-        // Check if DOM is already loaded, otherwise wait for it
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadCustomers);
-        } else {
-            // DOM is already loaded, call immediately
-            loadCustomers();
-        }
+            // Check if DOM is already loaded, otherwise wait for it
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadCustomers);
+            } else {
+                // DOM is already loaded, call immediately
+                loadCustomers();
+            }
+        })();
     </script>
 </body>
 

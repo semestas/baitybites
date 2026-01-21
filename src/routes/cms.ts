@@ -151,6 +151,26 @@ export const cmsRoutes = (db: Sql) =>
             return { success: true, message: 'Item deleted' };
         })
 
+        // --- Customer Management ---
+        .get('/customers', async () => {
+            const customers = await db`
+                SELECT c.*, 
+                       COUNT(o.id)::int as total_orders, 
+                       MAX(o.order_date) as last_order
+                FROM customers c
+                LEFT JOIN orders o ON c.id = o.customer_id
+                GROUP BY c.id
+                ORDER BY c.created_at DESC
+            `;
+            const stats = await db`
+                SELECT json_agg(json_build_object(
+                    'total_orders', (SELECT COUNT(*) FROM orders),
+                    'total_revenue', (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status = 'completed')
+                )) as stats
+            `;
+            return { success: true, data: customers, stats: stats[0]?.stats || {} };
+        })
+
         // --- Testimonials Moderation ---
         .get('/testimonials', async () => {
             const items = await db`SELECT * FROM testimonials ORDER BY created_at DESC`;
