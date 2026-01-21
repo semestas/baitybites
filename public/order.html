@@ -30,6 +30,34 @@
                         <p class="text-muted">Nikmati kelezatan Risol Mayo Premium kami langsung di rumah Anda.</p>
                     </div>
                     <div class="card-body">
+                        <!-- Loyalty Benefits Notice -->
+                        <div id="loyalty-notice" class="info-box mb-4 animate-fade-in"
+                            style="display: none; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); padding: 1.25rem; border-radius: 1rem; border: 1px solid #fed7aa; color: #9a3412; font-size: 0.9rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                            <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
+                                <div style="font-size: 1.5rem;">🎁</div>
+                                <div>
+                                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Dapatkan Keuntungan Lebih sebagai
+                                        Pelanggan Setia!</p>
+                                    <p style="margin: 0 0 0.75rem 0;">Yuk, <strong>login</strong> untuk menikmati
+                                        berbagai kemudahan dan promo eksklusif:</p>
+                                    <ul style="margin: 0; padding-left: 1.2rem; display: grid; gap: 0.25rem;">
+                                        <li>🚀 <strong>Gratis Ongkir</strong> hingga Rp20.000,- untuk setiap pesanan.
+                                        </li>
+                                        <li>⏱️ <strong>Auto-Fill:</strong> Alamat & kontak terisi otomatis, pesanan jadi
+                                            lebih kilat.</li>
+                                        <li>📊 <strong>Riwayat & Lacak:</strong> Pantau semua pesanan Anda dalam satu
+                                            dashboard.</li>
+                                        <li>💌 <strong>Promo Eksklusif:</strong> Info menu baru & diskon khusus member.
+                                        </li>
+                                    </ul>
+                                    <div style="margin-top: 1rem;">
+                                        <a href="/login.html" class="btn btn-primary btn-sm"
+                                            style="display: inline-block;">Login / Daftar Sekarang</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="orderForm">
                             <div class="grid grid-2">
                                 <div class="form-group">
@@ -302,8 +330,18 @@
             }
         });
 
+        // Show loyalty notice if not logged in
+        function checkLoyaltyNotice() {
+            const token = localStorage.getItem('token');
+            const notice = document.getElementById('loyalty-notice');
+            if (!token && notice) {
+                notice.style.display = 'block';
+            }
+        }
+
         (async () => {
             await autoFillUser();
+            checkLoyaltyNotice();
             await loadProducts();
         })();
     </script>
