@@ -145,6 +145,10 @@ const app = new Elysia()
     .get("/login", ({ redirect }) => redirect("/login.html"))
     .get("/cms", ({ redirect }) => redirect("/cms.html"))
     .get("/dashboard", ({ redirect }) => redirect("/dashboard.html"))
+    .get("/order", ({ redirect }) => redirect("/order.html"))
+    .get("/track", ({ redirect }) => redirect("/track.html"))
+    .get("/privacy", ({ redirect }) => redirect("/privacy.html"))
+    .get("/tos", ({ redirect }) => redirect("/tos.html"))
     // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
     .get("/css/*", ({ params }) => {
         const filePath = join(PUBLIC_DIR, "css", (params as any)["*"]);

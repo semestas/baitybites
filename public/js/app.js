@@ -140,9 +140,16 @@ function logout() {
 
 // Check authentication
 function checkAuth() {
-    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/privacy.html', '/tos.html'];
+    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/privacy', '/tos'];
     const currentPath = window.location.pathname;
-    const isPublicPage = publicPages.some(page => currentPath === page || currentPath.endsWith(page));
+    const normalizedPath = currentPath.replace(/\/$/, '') || '/';
+
+    const isPublicPage = publicPages.some(page =>
+        currentPath === page ||
+        currentPath.endsWith(page) ||
+        normalizedPath === page ||
+        normalizedPath + '.html' === page
+    );
 
     const token = localStorage.getItem('token');
     if (!token && !isPublicPage) {
@@ -194,8 +201,15 @@ async function checkVersion() {
 
 // Header initialization for public pages
 function initPublicHeader() {
-    const isPublicPage = ['/index.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/'].some(p =>
-        window.location.pathname === p || window.location.pathname.endsWith(p)
+    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/index', '/order', '/track', '/privacy', '/tos'];
+    const currentPath = window.location.pathname;
+    const normalizedPath = currentPath.replace(/\/$/, '') || '/';
+
+    const isPublicPage = publicPages.some(page =>
+        currentPath === page ||
+        currentPath.endsWith(page) ||
+        normalizedPath === page ||
+        normalizedPath + '.html' === page
     );
 
     if (!isPublicPage) return;
