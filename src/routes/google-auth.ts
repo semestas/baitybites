@@ -10,7 +10,7 @@ interface GoogleUser {
     picture?: string;
 }
 
-const DEPLOY_VERSION = "1.4.0-cookie-samesite-fix";
+const DEPLOY_VERSION = "1.5.0-revert-lax-explicit-domain";
 
 export const googleAuthRoutes = (db: Sql) => {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
@@ -60,8 +60,11 @@ export const googleAuthRoutes = (db: Sql) => {
             }, {
                 cookie: {
                     path: '/',
-                    secure: process.env.NODE_ENV === 'production', // Must be true for sameSite='none'
-                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' is required for cross-site (Render -> Netlify)
+                    httpOnly: true,
+                    // Explicitly set domain to avoid ambiguity
+                    domain: isLocal ? undefined : 'baitybites-api.onrender.com',
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax' // Revert to standard Lax
                 }
             })
         )
