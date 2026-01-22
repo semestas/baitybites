@@ -10,7 +10,7 @@ interface GoogleUser {
     picture?: string;
 }
 
-const DEPLOY_VERSION = "1.3.0-oauth-proper-fix";
+const DEPLOY_VERSION = "1.4.0-cookie-samesite-fix";
 
 export const googleAuthRoutes = (db: Sql) => {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
