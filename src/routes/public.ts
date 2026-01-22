@@ -64,7 +64,12 @@ export const publicRoutes = (db: Sql) =>
             } catch (error) {
                 console.error('Order error:', error);
                 set.status = 500;
-                return { success: false, message: 'Gagal membuat order' };
+                // DEBUG: Return exact error message to frontend
+                return {
+                    success: false,
+                    message: `Gagal membuat order: ${(error as any).message}`,
+                    debug_error: JSON.stringify(error)
+                };
             }
         }, {
             body: t.Object({
