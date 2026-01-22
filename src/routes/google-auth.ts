@@ -60,8 +60,8 @@ export const googleAuthRoutes = (db: Sql) => {
             }, {
                 cookie: {
                     path: '/',
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax'
+                    secure: process.env.NODE_ENV === 'production', // Must be true for sameSite='none'
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' is required for cross-site (Render -> Netlify)
                 }
             })
         )
