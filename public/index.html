@@ -150,16 +150,29 @@
 
             async function loadContent() {
                 try {
-                    // Load Gallery
-                    const resGal = await fetch('/api/public/gallery');
-                    const galJson = await resGal.json();
+                    // Check for Elfsight Widget first
+                    const widgetRes = await fetch('/api/public/instagram-widget');
+                    const widgetJson = await widgetRes.json();
                     const galContainer = document.getElementById('gallery-container');
-                    if (galJson.success) {
-                        galContainer.innerHTML = galJson.data.map(item => `
-                        <div class="gallery-item">
-                            <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
-                        </div>
-                    `).join('');
+
+                    if (widgetJson.success && widgetJson.data) {
+                        // Display Elfsight Widget
+                        galContainer.innerHTML = `
+                            <div style="width: 100%; grid-column: 1 / -1;">
+                                ${widgetJson.data}
+                            </div>
+                        `;
+                    } else {
+                        // Fallback to database gallery
+                        const resGal = await fetch('/api/public/gallery');
+                        const galJson = await resGal.json();
+                        if (galJson.success) {
+                            galContainer.innerHTML = galJson.data.map(item => `
+                            <div class="gallery-item">
+                                <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
+                            </div>
+                        `).join('');
+                        }
                     }
 
                     // Load Testimonials

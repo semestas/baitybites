@@ -160,36 +160,68 @@
             <section id="instagram-section" class="section-card" style="display:none;">
                 <div class="mb-4">
                     <h2>⚙️ Instagram Integration</h2>
-                    <p class="text-muted">Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post
-                        terpopuler</p>
+                    <p class="text-muted">Pilih salah satu metode integrasi Instagram di bawah ini</p>
                 </div>
 
-                <div class="card mb-4" style="background: #f8f9fa; border: 2px solid #e9ecef;">
-                    <h4>📋 Cara Mendapatkan Access Token</h4>
+                <!-- Option 1: Elfsight Widget (Recommended) -->
+                <div class="card mb-4" style="background: #e8f5e9; border: 2px solid #4caf50;">
+                    <h4>✨ Opsi 1: Elfsight Widget (Direkomendasikan - Paling Mudah)</h4>
+                    <p style="line-height: 1.8; margin-bottom: 15px;">
+                        Cara tercepat dan termudah tanpa perlu API token. Cukup copy-paste widget code dari Elfsight.
+                    </p>
                     <ol style="line-height: 1.8;">
-                        <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
-                                Developers</a></li>
-                        <li>Buat atau pilih App yang terhubung dengan akun Instagram Business</li>
-                        <li>Di Graph API Explorer, generate token dengan permissions: <code>instagram_basic</code>,
-                            <code>pages_read_engagement</code>
-                        </li>
-                        <li>Salin Long-Lived Access Token dan paste di bawah</li>
+                        <li>Buka <a href="https://elfsight.com/instagram-feed-instashow/" target="_blank">Elfsight
+                                Instagram Feed</a></li>
+                        <li>Buat widget Instagram Feed gratis atau berbayar</li>
+                        <li>Salin kode widget yang diberikan</li>
+                        <li>Paste di kolom bawah ini</li>
                     </ol>
+
+                    <div class="form-group mt-3">
+                        <label class="form-label">Elfsight Widget Code</label>
+                        <textarea id="elfsightWidget" class="form-input" rows="4" placeholder='<script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
+<div class="elfsight-app-xxxxx-xxxxx"></div>'></textarea>
+                        <small class="text-muted">Paste kode lengkap dari Elfsight (termasuk script tag)</small>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveElfsightWidget()">💾 Simpan Widget</button>
+                    <div id="elfsightStatus" class="mt-2"></div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Instagram Access Token</label>
-                    <input type="password" id="igToken" class="form-input"
-                        placeholder="Paste your Instagram Graph API token here">
-                    <small class="text-muted" id="tokenStatus"></small>
-                </div>
+                <!-- Option 2: API Integration (Advanced) -->
+                <div class="card mb-4" style="background: #fff3e0; border: 2px solid #ff9800;">
+                    <h4>🔧 Opsi 2: API Integration (Advanced)</h4>
+                    <p style="line-height: 1.8; margin-bottom: 15px;">
+                        Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post terpopuler
+                    </p>
+                    <details>
+                        <summary style="cursor: pointer; font-weight: bold; margin-bottom: 10px;">📋 Cara Mendapatkan
+                            Access Token</summary>
+                        <ol style="line-height: 1.8; margin-top: 10px;">
+                            <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
+                                    Developers</a></li>
+                            <li>Buat atau pilih App yang terhubung dengan akun Instagram Business</li>
+                            <li>Di Graph API Explorer, generate token dengan permissions: <code>instagram_basic</code>,
+                                <code>pages_read_engagement</code>
+                            </li>
+                            <li>Salin Long-Lived Access Token dan paste di bawah</li>
+                        </ol>
+                    </details>
 
-                <div class="flex gap-2">
-                    <button class="btn btn-primary" onclick="saveInstagramToken()">💾 Simpan Token</button>
-                    <button class="btn btn-secondary" onclick="syncInstagram()">🔄 Sinkronkan Sekarang</button>
-                </div>
+                    <div class="form-group mt-3">
+                        <label class="form-label">Instagram Access Token</label>
+                        <input type="password" id="igToken" class="form-input"
+                            placeholder="Paste your Instagram Graph API token here">
+                        <small class="text-muted" id="tokenStatus"></small>
+                    </div>
 
-                <div id="syncStatus" class="mt-4"></div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-primary" onclick="saveInstagramToken()">💾 Simpan Token</button>
+                        <button class="btn btn-secondary" onclick="syncInstagram()">🔄 Sinkronkan Sekarang</button>
+                    </div>
+
+                    <div id="syncStatus" class="mt-4"></div>
+                </div>
             </section>
         </main>
     </div>
@@ -384,8 +416,89 @@
             }
         };
 
+        // --- Elfsight Widget Functions ---
+        async function saveElfsightWidget() {
+            const widget = document.getElementById('elfsightWidget').value.trim();
+            if (!widget) {
+                alert('Mohon paste kode widget dari Elfsight');
+                return;
+            }
+            try {
+                const res = await apiCall('/cms/instagram/widget', {
+                    method: 'PUT',
+                    body: JSON.stringify({ widget })
+                });
+                if (res.success) {
+                    document.getElementById('elfsightStatus').innerHTML =
+                        '<div class="badge badge-approved">✅ Widget berhasil disimpan!</div>';
+                    setTimeout(() => {
+                        document.getElementById('elfsightStatus').innerHTML = '';
+                    }, 3000);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Gagal menyimpan widget');
+            }
+        }
+
+        // --- Instagram API Functions ---
+        async function loadInstagramSettings() {
+            try {
+                const res = await apiCall('/cms/instagram/settings');
+                if (res.success && res.data.has_token) {
+                    document.getElementById('tokenStatus').textContent = '✅ Token tersimpan';
+                }
+                // Load widget if exists
+                const widgetRes = await apiCall('/cms/instagram/widget');
+                if (widgetRes.success && widgetRes.data) {
+                    document.getElementById('elfsightWidget').value = widgetRes.data;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function saveInstagramToken() {
+            const token = document.getElementById('igToken').value.trim();
+            if (!token) {
+                alert('Mohon masukkan access token');
+                return;
+            }
+            try {
+                const res = await apiCall('/cms/instagram/token', {
+                    method: 'PUT',
+                    body: JSON.stringify({ token })
+                });
+                if (res.success) {
+                    document.getElementById('tokenStatus').textContent = '✅ Token berhasil disimpan';
+                    document.getElementById('igToken').value = '';
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Gagal menyimpan token');
+            }
+        }
+
+        async function syncInstagram() {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.innerHTML = '<div class="badge badge-pending">⏳ Sedang sinkronisasi...</div>';
+            try {
+                const res = await apiCall('/cms/instagram/sync', { method: 'POST' });
+                if (res.success) {
+                    statusEl.innerHTML = '<div class="badge badge-approved">✅ ' + res.message + '</div>';
+                    loadGallery(); // Refresh gallery
+                } else {
+                    statusEl.innerHTML = '<div class="badge badge-pending">❌ ' + res.message + '</div>';
+                }
+            } catch (e) {
+                console.error(e);
+                statusEl.innerHTML = '<div class="badge badge-pending">❌ Gagal sinkronisasi</div>';
+            }
+        }
+
         // Initial Load
         switchSection('orders');
+        loadInstagramSettings();
     </script>
 </body>
 

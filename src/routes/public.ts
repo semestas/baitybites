@@ -141,4 +141,11 @@ export const publicRoutes = (db: Sql) =>
         .get('/testimonials', async () => {
             const testimonials = await db`SELECT * FROM testimonials WHERE is_approved = TRUE ORDER BY created_at DESC`;
             return { success: true, data: testimonials };
+        })
+        .get('/instagram-widget', async () => {
+            const [widget] = await db`SELECT value FROM settings WHERE key = 'elfsight_widget' LIMIT 1`;
+            return {
+                success: true,
+                data: widget ? widget.value : null
+            };
         });

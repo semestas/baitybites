@@ -468,4 +468,23 @@ export const cmsRoutes = (db: Sql) =>
             body: t.Object({
                 token: t.String()
             })
+        })
+        .get('/instagram/widget', async () => {
+            const [widget] = await db`SELECT value FROM settings WHERE key = 'elfsight_widget' LIMIT 1`;
+            return {
+                success: true,
+                data: widget ? widget.value : null
+            };
+        })
+        .put('/instagram/widget', async ({ body }) => {
+            await db`
+                INSERT INTO settings (key, value) 
+                VALUES ('elfsight_widget', ${body.widget})
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
+            `;
+            return { success: true, message: 'Widget Elfsight berhasil disimpan' };
+        }, {
+            body: t.Object({
+                widget: t.String()
+            })
         });
