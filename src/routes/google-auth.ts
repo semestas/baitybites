@@ -12,16 +12,50 @@ interface GoogleUser {
 
 const DEPLOY_VERSION = "1.3.0-oauth-proper-fix";
 
-export const googleAuthRoutes = (db: Sql) =>
-    new Elysia({ prefix: '/auth' })
+export const googleAuthRoutes = (db: Sql) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI?.trim();
+
+    console.log('Setup Google Auth with:', {
+        clientId: clientId ? clientId.substring(0, 10) : 'MISSING',
+        hasSecret: !!clientSecret,
+        redirectUri
+    });
+
+    // Determine if we are running locally
+    const isLocal = process.env.HOST === 'localhost' || process.env.NODE_ENV === 'development';
+
+    // If local, ignore .env production URLs and use localhost
+    const backendUrl = isLocal
+        ? `http://localhost:${process.env.PORT || 3000}`
+        : (process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`);
+
+    const frontendUrl = isLocal
+        ? `http://localhost:${process.env.PORT || 3000}`
+        : (process.env.FRONTEND_URL || backendUrl);
+
+    // Determine the final redirect URI for Google
+    const defaultRedirectUri = `${backendUrl}/api/auth/google/callback`;
+    const finalRedirectUri = redirectUri || defaultRedirectUri;
+
+    console.log('Setup Google Auth with:', {
+        isLocal,
+        clientId: clientId ? clientId.substring(0, 10) : 'MISSING',
+        hasSecret: !!clientSecret,
+        callbackUrl: finalRedirectUri,
+        returnTo: frontendUrl
+    });
+
+    return new Elysia({ prefix: '/auth' })
         .get('/version', () => ({ version: DEPLOY_VERSION }))
         .use(authPlugin)
         .use(
             oauth2({
                 Google: [
-                    process.env.GOOGLE_CLIENT_ID || 'dummy_id',
-                    process.env.GOOGLE_CLIENT_SECRET || 'dummy_secret',
-                    process.env.GOOGLE_REDIRECT_URI || 'http://localhost:9876/api/auth/google/callback'
+                    clientId || 'dummy_id',
+                    clientSecret || 'dummy_secret',
+                    finalRedirectUri
                 ]
             }, {
                 cookie: {
@@ -31,6 +65,31 @@ export const googleAuthRoutes = (db: Sql) =>
                 }
             })
         )
+        .get('/google/debug', async ({ oauth2 }) => {
+            const url = await oauth2.createURL('Google', ['email', 'profile']);
+            const currentPort = process.env.PORT || 3000;
+            return {
+                debug_info: "=== CONFIGURATION CHECK ===",
+                server_port: currentPort,
+                environment: process.env.NODE_ENV || 'development',
+
+                // Configured values
+                configured_client_id: clientId,
+                computed_redirect_uri: finalRedirectUri,
+
+                // Instructions
+                google_console_instructions: {
+                    step_1: "Go to Google Cloud Console > APIs & Services > Credentials",
+                    step_2: "Edit your OAuth 2.0 Client ID",
+                    step_3: "Ensure 'Authorized JavaScript origins' has:",
+                    expected_origin: backendUrl,
+                    step_4: "Ensure 'Authorized redirect URIs' has EXACTLY:",
+                    expected_redirect_uri: finalRedirectUri
+                },
+
+                generated_auth_url: url.href
+            };
+        })
         .get('/google/login', ({ oauth2 }) => {
             return oauth2.redirect('Google', ['email', 'profile']);
         })
@@ -42,7 +101,7 @@ export const googleAuthRoutes = (db: Sql) =>
                 // Fetch user info from Google
                 const userResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
-                        Authorization: `Bearer ${googleToken.accessToken}`
+                        Authorization: `Bearer ${googleToken.accessToken()}`
                     }
                 });
 
@@ -69,7 +128,7 @@ export const googleAuthRoutes = (db: Sql) =>
                 } else {
                     // Update existing customer with Google info (and update name to real Google name)
                     [customer] = await db`
-                        UPDATE customers 
+                        UPDATE customers
                         SET name = ${googleUser.name},
                             google_id = COALESCE(google_id, ${googleUser.sub}),
                             avatar_url = COALESCE(avatar_url, ${googleUser.picture || null}),
@@ -98,12 +157,13 @@ export const googleAuthRoutes = (db: Sql) =>
                     path: '/'
                 });
 
-                // Redirect to frontend
-                return Response.redirect('/login.html?auth=success&token=' + jwtToken, 302);
+                // Redirect to frontend (use configured FRONTEND_URL)
+                return Response.redirect(`${frontendUrl}/login.html?auth=success&token=${jwtToken}`, 302);
 
             } catch (error) {
                 console.error('Google OAuth Error:', error);
                 const message = (error as Error).message || 'Unknown error';
-                return Response.redirect('/login.html?auth=error&message=' + encodeURIComponent(message), 302);
+                return Response.redirect(`${frontendUrl}/login.html?auth=error&message=${encodeURIComponent(message)}`, 302);
             }
         });
+};

@@ -231,6 +231,7 @@
     <script src="/js/app.js"></script>
     <script>
         const { apiCall, formatCurrency, formatDate, getStatusBadgeClass, getStatusLabel } = window.app;
+        let pollingInterval;
 
         async function loadCustomerOrders() {
             const userStr = localStorage.getItem('user');
@@ -272,12 +273,24 @@
             if (btnText) btnText.style.display = 'none';
             if (btnSpinner) btnSpinner.style.display = 'inline-block';
 
+            if (pollingInterval) clearInterval(pollingInterval);
+
             try {
                 const result = await apiCall(`/public/track/${number}`);
                 if (result.success) {
                     updateUI(result.data);
                     resultArea.style.display = 'block';
                     resultArea.scrollIntoView({ behavior: 'smooth' });
+
+                    // Auto-refresh updates every 10 seconds
+                    pollingInterval = setInterval(async () => {
+                        try {
+                            const update = await apiCall(`/public/track/${number}`);
+                            if (update.success) updateUI(update.data);
+                        } catch (e) {
+                            console.error('Background update failed', e);
+                        }
+                    }, 10000);
                 }
             } catch (error) {
                 errorArea.textContent = 'Data tidak ditemukan atau terjadi kesalahan';

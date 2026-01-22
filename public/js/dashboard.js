@@ -176,5 +176,5 @@
   }
 
   // Auto-refresh stats
-  setInterval(loadDashboardData, 30000);
+  setInterval(loadDashboardData, 5000);
 })();
