@@ -156,12 +156,27 @@
                     const galContainer = document.getElementById('gallery-container');
 
                     if (widgetJson.success && widgetJson.data) {
-                        // Display Elfsight Widget
-                        galContainer.innerHTML = `
-                            <div style="width: 100%; grid-column: 1 / -1;">
-                                ${widgetJson.data}
-                            </div>
-                        `;
+                        // Display Elfsight Widget - need to properly execute script tags
+                        galContainer.innerHTML = '';
+
+                        // Create a temporary div to parse the widget HTML
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.width = '100%';
+                        tempDiv.style.gridColumn = '1 / -1';
+                        tempDiv.innerHTML = widgetJson.data;
+
+                        // Extract and execute script tags
+                        const scripts = tempDiv.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.textContent = oldScript.textContent;
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+
+                        galContainer.appendChild(tempDiv);
                     } else {
                         // Fallback to database gallery
                         const resGal = await fetch('/api/public/gallery');

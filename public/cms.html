@@ -263,6 +263,7 @@
             document.getElementById('orders-section').style.display = section === 'orders' ? 'block' : 'none';
             document.getElementById('testimonials-section').style.display = section === 'testimonials' ? 'block' : 'none';
             document.getElementById('gallery-section').style.display = section === 'gallery' ? 'block' : 'none';
+            document.getElementById('instagram-section').style.display = section === 'instagram' ? 'block' : 'none';
 
             document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
 
@@ -277,6 +278,7 @@
             if (section === 'orders') loadOrders();
             if (section === 'testimonials') loadTestimonials();
             if (section === 'gallery') loadGallery();
+            if (section === 'instagram') loadInstagramSettings();
         }
 
         async function loadOrders() {
