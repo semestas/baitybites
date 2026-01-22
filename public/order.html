@@ -279,9 +279,9 @@
             const items = products
                 .filter(p => (quantities[p.id] || 0) > 0)
                 .map(p => ({
-                    product_id: p.id,
-                    quantity: quantities[p.id],
-                    price: p.price
+                    product_id: Number(p.id),
+                    quantity: Number(quantities[p.id]),
+                    price: Number(p.price)
                 }));
 
             if (items.length === 0) {
