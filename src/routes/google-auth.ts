@@ -23,32 +23,28 @@ export const googleAuthRoutes = (db: Sql) => {
         redirectUri
     });
 
-    // Determine if we are running locally
+    // Determine environment
     const isLocal = process.env.HOST === 'localhost' || process.env.NODE_ENV === 'development';
 
-    // If local, ignore .env production URLs and use localhost
-    const backendUrl = isLocal
+    // In production (Netlify), we treat everything as same-domain via proxy
+    // Local: http://localhost:3000
+    // Prod: https://baitybites.netlify.app (proxying to Render)
+
+    const baseUrl = isLocal
         ? `http://localhost:${process.env.PORT || 3000}`
-        : (process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`);
+        : 'https://baitybites.netlify.app';
 
-    const frontendUrl = isLocal
-        ? `http://localhost:${process.env.PORT || 3000}`
-        : (process.env.FRONTEND_URL || backendUrl);
+    // The redirect URI sent to Google must match the Proxy URL (Netlify) not Render directly
+    const finalRedirectUri = `${baseUrl}/api/auth/google/callback`;
 
-    // Determine the final redirect URI for Google
-    const defaultRedirectUri = `${backendUrl}/api/auth/google/callback`;
-    const finalRedirectUri = redirectUri || defaultRedirectUri;
-
-    console.log('Setup Google Auth with:', {
+    console.log('Setup Google Auth Proxy Aware:', {
         isLocal,
-        clientId: clientId ? clientId.substring(0, 10) : 'MISSING',
-        hasSecret: !!clientSecret,
-        callbackUrl: finalRedirectUri,
-        returnTo: frontendUrl
+        baseUrl,
+        callbackUrl: finalRedirectUri
     });
 
     return new Elysia({ prefix: '/auth' })
-        .get('/version', () => ({ version: DEPLOY_VERSION }))
+        .get('/version', () => ({ version: "2.0.0-netlify-proxy-fix" }))
         .use(authPlugin)
         .use(
             oauth2({
@@ -61,10 +57,10 @@ export const googleAuthRoutes = (db: Sql) => {
                 cookie: {
                     path: '/',
                     httpOnly: true,
-                    // Explicitly set domain to avoid ambiguity
-                    domain: isLocal ? undefined : 'baitybites-api.onrender.com',
+                    // No need for explicit domain or secure=true hacks anymore
+                    // because Netlify Proxy makes it same-origin
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax' // Revert to standard Lax
+                    sameSite: 'lax'
                 }
             })
         )
@@ -85,7 +81,7 @@ export const googleAuthRoutes = (db: Sql) => {
                     step_1: "Go to Google Cloud Console > APIs & Services > Credentials",
                     step_2: "Edit your OAuth 2.0 Client ID",
                     step_3: "Ensure 'Authorized JavaScript origins' has:",
-                    expected_origin: backendUrl,
+                    expected_origin: baseUrl,
                     step_4: "Ensure 'Authorized redirect URIs' has EXACTLY:",
                     expected_redirect_uri: finalRedirectUri
                 },
@@ -96,7 +92,7 @@ export const googleAuthRoutes = (db: Sql) => {
         .get('/google/login', ({ oauth2 }) => {
             return oauth2.redirect('Google', ['email', 'profile']);
         })
-        .get('/google/callback', async ({ oauth2, jwt, cookie: { token } }) => {
+        .get('/google/callback', async ({ oauth2, jwt, cookie: { token }, request }) => {
             try {
                 // oauth2.authorize handles state and code validation
                 const googleToken = await oauth2.authorize('Google');
@@ -122,10 +118,11 @@ export const googleAuthRoutes = (db: Sql) => {
                 let [customer] = await db`SELECT * FROM customers WHERE email = ${googleUser.email} LIMIT 1`;
 
                 if (!customer) {
+                    const fullName = googleUser.name;
                     // Create new customer
                     [customer] = await db`
                         INSERT INTO customers (name, email, google_id, avatar_url, auth_provider, is_verified)
-                        VALUES (${googleUser.name}, ${googleUser.email}, ${googleUser.sub}, ${googleUser.picture || null}, 'google', true)
+                        VALUES (${fullName}, ${googleUser.email}, ${googleUser.sub}, ${googleUser.picture || null}, 'google', true)
                         RETURNING *
                     `;
                 } else {
@@ -160,13 +157,24 @@ export const googleAuthRoutes = (db: Sql) => {
                     path: '/'
                 });
 
-                // Redirect to frontend (use configured FRONTEND_URL)
-                return Response.redirect(`${frontendUrl}/login.html?auth=success&token=${jwtToken}`, 302);
+                // Redirect to frontend (use configured frontend URL which is baseUrl)
+                return Response.redirect(`${baseUrl}/login.html?auth=success&token=${jwtToken}`, 302);
 
             } catch (error) {
                 console.error('Google OAuth Error:', error);
+
+                // Detailed debug info for "State Mismatch"
+                if (error instanceof Error && error.message.includes('mismatch')) {
+                    console.error('Debug Mismatch - Headers:', request.headers.toJSON());
+                }
+
                 const message = (error as Error).message || 'Unknown error';
-                return Response.redirect(`${frontendUrl}/login.html?auth=error&message=${encodeURIComponent(message)}`, 302);
+                // Add specific tip if state mismatch
+                const finalMessage = message.includes('state') || message.includes('mismatch')
+                    ? 'Session expired or cookie blocked. Please try again.'
+                    : message;
+
+                return Response.redirect(`${baseUrl}/login.html?auth=error&message=${encodeURIComponent(finalMessage)}`, 302);
             }
         });
 };

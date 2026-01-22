@@ -1,0 +1,6 @@
+# Netlify Proxy Rules
+# Forward all /api requests to Render Backend
+/api/*  https://baitybites-api.onrender.com/api/:splat  200
+
+# Handle SPA Routing (for frontend consistency)
+/*  /index.html  200
