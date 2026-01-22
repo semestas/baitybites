@@ -145,13 +145,14 @@
                     .toUpperCase();
             }
 
-            // Check if DOM is already loaded, otherwise wait for it
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', loadCustomers);
             } else {
-                // DOM is already loaded, call immediately
                 loadCustomers();
             }
+
+            // Auto-refresh every 10 seconds to keep 'Last Order' updated
+            setInterval(loadCustomers, 10000);
         })();
     </script>
 </body>

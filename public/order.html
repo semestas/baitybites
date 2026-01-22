@@ -112,22 +112,81 @@
                     </div>
                 </div>
 
-                <!-- Success Modal -->
-                <div id="successModal" class="modal-overlay" style="display: none;">
-                    <div class="modal text-center p-5">
-                        <div style="font-size: 5rem; margin-bottom: 1rem;">🎉</div>
-                        <h2>Pesanan Berhasil!</h2>
-                        <p class="mb-3">Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.</p>
-                        <div class="p-3 bg-neutral-100 rounded-lg mb-4">
-                            <h4 class="text-muted mb-1">Nomor Order</h4>
-                            <h2 id="successOrderNumber" class="text-primary mb-2">PO-XXXX</h2>
-                            <h4 class="text-muted mb-1">Nomor Invoice</h4>
-                            <h3 id="successInvoiceNumber" class="text-dark">INV-XXXX</h3>
+                <!-- Recent Orders for Logged-in Users -->
+                <div id="recentOrdersSection" class="mt-4 animate-fade-in" style="display: none;">
+                    <div class="card">
+                        <div class="card-header flex justify-between items-center">
+                            <h3 class="card-title">Pesanan Terbaru Anda</h3>
+                            <button onclick="loadRecentOrders()" class="btn btn-outline btn-sm">Refresh</button>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <button id="btnCopy" class="btn btn-secondary">Salin Nomor Order</button>
-                            <a id="btnTrackLink" href="#" class="btn btn-primary">Lacak Sekarang</a>
-                            <a href="/" class="btn btn-outline">Kembali ke Beranda</a>
+                        <div class="card-body">
+                            <div id="recentOrdersList" class="flex flex-col gap-2">
+                                <p class="text-center text-muted">Memuat pesanan...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redesigned Success Modal -->
+                <div id="successModal" class="modal-overlay"
+                    style="display: none; align-items: center; justify-content: center;">
+                    <div class="modal animate-scale-up"
+                        style="max-width: 450px; padding: 0; overflow: hidden; border-radius: 1.5rem; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                        <div
+                            style="background: var(--gradient-primary); padding: 3rem 2rem; text-align: center; color: white; position: relative;">
+                            <div
+                                style="font-size: 5rem; line-height: 1; margin-bottom: 1rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+                                🎉</div>
+                            <h2 style="margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.025em;">Pesanan
+                                Berhasil!</h2>
+                            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Terima kasih telah memesan di BaityBites</p>
+
+                            <!-- Decorative curves -->
+                            <div
+                                style="position: absolute; bottom: -1px; left: 0; right: 0; height: 20px; background: white; border-radius: 20px 20px 0 0;">
+                            </div>
+                        </div>
+
+                        <div style="padding: 2rem; background: white;">
+                            <div class="text-center mb-6">
+                                <p class="text-muted mb-4" style="font-size: 0.9rem;">Silakan simpan nomor order Anda
+                                    untuk melacak proses produksi & pengiriman.</p>
+
+                                <div
+                                    style="background: var(--neutral-50); padding: 1.5rem; border-radius: 1rem; border: 2px dashed var(--neutral-200); position: relative;">
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <span
+                                            style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neutral-500); letter-spacing: 0.05em;">Nomor
+                                            Order</span>
+                                        <div id="successOrderNumber"
+                                            style="font-size: 1.5rem; font-weight: 800; color: var(--primary-600); margin-top: 0.25rem;">
+                                            PO-XXXX</div>
+                                    </div>
+                                    <div>
+                                        <span
+                                            style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neutral-500); letter-spacing: 0.05em;">Nomor
+                                            Invoice</span>
+                                        <div id="successInvoiceNumber"
+                                            style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-800); margin-top: 0.25rem;">
+                                            INV-XXXX</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <button id="btnCopy" class="btn btn-primary btn-lg"
+                                    style="width: 100%; justify-content: center; background: #059669; border: none; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);">
+                                    <span>Salin Nomor Order</span>
+                                </button>
+                                <a id="btnTrackLink" href="#" class="btn btn-primary btn-lg"
+                                    style="width: 100%; justify-content: center;">
+                                    <span>Lacak Pesanan</span>
+                                </a>
+                                <button onclick="location.reload()" class="btn btn-outline btn-lg"
+                                    style="width: 100%; justify-content: center; border-color: var(--neutral-200); color: var(--neutral-600);">
+                                    <span>Tutup</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -273,6 +332,45 @@
             document.getElementById('totalText').textContent = formatCurrency(total);
         }
 
+        async function loadRecentOrders() {
+            const userStr = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            if (!userStr || !token) return;
+
+            const section = document.getElementById('recentOrdersSection');
+            const list = document.getElementById('recentOrdersList');
+            section.style.display = 'block';
+
+            try {
+                const result = await apiCall('/customer/orders');
+                if (result.success) {
+                    if (result.data.length === 0) {
+                        list.innerHTML = '<p class="text-center text-muted p-4">Belum ada pesanan.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = result.data.slice(0, 5).map(o => `
+                        <div class="card p-3 flex justify-between items-center" style="border-color: var(--neutral-200); margin-bottom: 0.5rem; transition: none;">
+                            <div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+                                    <h4 style="margin: 0;">${o.order_number}</h4>
+                                    <span class="badge ${getStatusBadgeClass(o.status)}" style="font-size: 0.7rem;">${getStatusLabel(o.status)}</span>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.8rem;">
+                                    ${new Date(o.order_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • 
+                                    <strong>${formatCurrency(o.total_amount)}</strong>
+                                </div>
+                            </div>
+                            <a href="/track.html?number=${o.invoice_number || o.order_number}" class="btn btn-outline btn-sm">Lacak</a>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load recent orders:', e);
+                list.innerHTML = '<p class="text-center text-danger p-4">Gagal memuat data.</p>';
+            }
+        }
+
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -312,14 +410,21 @@
                 if (result.success) {
                     document.getElementById('successOrderNumber').textContent = result.data.order_number;
                     document.getElementById('successInvoiceNumber').textContent = result.data.invoice_number;
-                    document.getElementById('btnTrackLink').href = '/track.html?number=' + result.data.invoice_number;
+                    document.getElementById('btnTrackLink').href = '/track.html?number=' + (result.data.invoice_number || result.data.order_number);
 
                     document.getElementById('btnCopy').onclick = () => {
                         navigator.clipboard.writeText(result.data.order_number);
-                        alert('Nomor order berhasil dicopy!');
+                        if (window.app.showNotification) {
+                            window.app.showNotification('Nomor order berhasil dicopy!', 'success');
+                        } else {
+                            alert('Nomor order berhasil dicopy!');
+                        }
                     };
 
                     document.getElementById('successModal').style.display = 'flex';
+
+                    // Refresh data after order
+                    loadRecentOrders();
                 }
             } catch (error) {
                 // apiCall handles error notification
@@ -343,6 +448,7 @@
             await autoFillUser();
             checkLoyaltyNotice();
             await loadProducts();
+            await loadRecentOrders();
         })();
     </script>
 </body>
