@@ -97,12 +97,12 @@
             div[class*="elfsight-app"] {
                 .eapps-instagram-feed-container {
                     background-color: #f0f0f0 !important;
+                }
 
-                    a[href^="https://elfsight.com/instagram-feed-instashow"] {
-                        display: none !important;
-                        mix-blend-mode: color !important;
+                a[href*="https://elfsight"] {
+                    display: none !important;
+                    mix-blend-mode: color !important;
 
-                    }
                 }
             }
         }

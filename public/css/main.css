@@ -185,7 +185,7 @@ h4 {
 .gallery-section .gallery-grid:has(div[class*=elfsight-app]) div[class*=elfsight-app] .eapps-instagram-feed-container {
   background-color: #f0f0f0 !important;
 }
-.gallery-section .gallery-grid:has(div[class*=elfsight-app]) div[class*=elfsight-app] .eapps-instagram-feed-container a[href^="https://elfsight.com/instagram-feed-instashow"] {
+.gallery-section .gallery-grid:has(div[class*=elfsight-app]) div[class*=elfsight-app] a[href*="https://elfsight"] {
   display: none !important;
   mix-blend-mode: color !important;
 }
