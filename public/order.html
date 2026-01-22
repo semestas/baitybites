@@ -58,29 +58,69 @@
                             </div>
                         </div>
 
+                        <!-- Customer Info Preview (Hidden by default) -->
+                        <div id="customer-info-preview" class="animate-fade-in"
+                            style="display: none; background: #fff; border: 1px solid var(--neutral-200); padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem; color: var(--neutral-800);">Konfirmasi Data
+                                        Pengiriman</h3>
+                                    <p class="text-muted" style="font-size: 0.85rem; margin-top: 0.25rem;">Pesanan akan
+                                        dikirim ke detail di bawah ini.</p>
+                                </div>
+                                <a href="/profile.html" class="btn btn-outline btn-sm"
+                                    style="font-size: 0.8rem; height: 32px;">Edit Data</a>
+                            </div>
+                            <div style="display: grid; gap: 0.75rem;">
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="min-width: 80px; color: var(--neutral-500); font-size: 0.85rem;">Nama
+                                    </div>
+                                    <div id="preview-name" style="font-weight: 600; color: var(--neutral-900);">-</div>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="min-width: 80px; color: var(--neutral-500); font-size: 0.85rem;">
+                                        WhatsApp</div>
+                                    <div id="preview-phone" style="font-weight: 600; color: var(--neutral-900);">-</div>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="min-width: 80px; color: var(--neutral-500); font-size: 0.85rem;">Email
+                                    </div>
+                                    <div id="preview-email" style="font-weight: 600; color: var(--neutral-900);">-</div>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="min-width: 80px; color: var(--neutral-500); font-size: 0.85rem;">Alamat
+                                    </div>
+                                    <div id="preview-address" style="line-height: 1.4; color: var(--neutral-900);">-
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="orderForm">
-                            <div class="grid grid-2">
+                            <div id="customer-form-fields">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
-                                    <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
                                         required>
                                 </div>
+
                                 <div class="form-group">
-                                    <label class="form-label">Nomor WhatsApp</label>
-                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                    <label class="form-label">Alamat Pengiriman</label>
+                                    <textarea id="address" class="form-textarea"
+                                        placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Alamat Pengiriman</label>
-                                <textarea id="address" class="form-textarea"
-                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
                             </div>
 
                             <div class="mb-4">
@@ -235,14 +275,32 @@
                 try {
                     const user = JSON.parse(userStr);
                     if (user.role === 'customer' || user.role === 'guest') {
-                        if (user.name) document.getElementById('name').value = user.name;
-                        if (user.email) document.getElementById('email').value = user.email;
-                        if (user.phone) document.getElementById('phone').value = user.phone;
-                        if (user.address) document.getElementById('address').value = user.address;
+                        const nameEl = document.getElementById('name');
+                        const emailEl = document.getElementById('email');
+                        const phoneEl = document.getElementById('phone');
+                        const addressEl = document.getElementById('address');
+
+                        if (user.name) nameEl.value = user.name;
+                        if (user.email) emailEl.value = user.email;
+                        if (user.phone) phoneEl.value = user.phone;
+                        if (user.address) addressEl.value = user.address;
+
+                        // Check if we should show the preview instead of the form
+                        // Only for customers who have completed their profiles (name, phone, address)
+                        if (user.role === 'customer' && user.name && user.phone && user.address) {
+                            document.getElementById('customer-form-fields').style.display = 'none';
+                            const preview = document.getElementById('customer-info-preview');
+                            preview.style.display = 'block';
+
+                            document.getElementById('preview-name').textContent = user.name;
+                            document.getElementById('preview-phone').textContent = user.phone;
+                            document.getElementById('preview-email').textContent = user.email || '-';
+                            document.getElementById('preview-address').textContent = user.address;
+                        }
 
                         // Disable email if logged in with Google to maintain consistency
                         if (user.email && user.role === 'customer' && (user.google_id || user.auth_provider === 'google')) {
-                            document.getElementById('email').disabled = true;
+                            emailEl.disabled = true;
                         }
 
                         // Add helpful notice for first-time Google users

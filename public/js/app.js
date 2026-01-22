@@ -149,7 +149,7 @@ function logout() {
 
 // Check authentication
 function checkAuth() {
-    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/privacy', '/tos'];
+    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -200,7 +200,7 @@ async function checkVersion() {
             vTag.style.fontSize = '0.7rem';
             vTag.style.opacity = '0.5';
             vTag.style.marginTop = '1rem';
-            vTag.innerHTML = `Client: v1.1.0 | Server: ${data.version || 'unknown'}`;
+            vTag.innerHTML = `Client: v1.2.0 | Server: ${data.version || 'unknown'}`;
             footer.appendChild(vTag);
         });
     } catch (e) {
@@ -210,7 +210,7 @@ async function checkVersion() {
 
 // Header initialization for public pages
 function initPublicHeader() {
-    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/privacy.html', '/tos.html', '/index', '/order', '/track', '/privacy', '/tos'];
+    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/order', '/track', '/profile', '/privacy', '/tos'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -235,6 +235,7 @@ function initPublicHeader() {
             <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
             <a href="/order.html" class="nav-link ${window.location.pathname.endsWith('order.html') ? 'active' : ''}">Pesan</a>
             <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
+            <a href="/profile.html" class="nav-link ${window.location.pathname.endsWith('profile.html') ? 'active' : ''}">Profil</a>
             <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
                 <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
                 <button onclick="logout()" class="btn btn-outline btn-sm" style="color: white; border-color: white;">Logout</button>

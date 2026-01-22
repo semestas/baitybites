@@ -49,4 +49,43 @@ export const customerRoutes = (db: Sql) =>
                 avatar_url: t.Optional(t.String()),
                 role: t.Optional(t.String())
             })
+        })
+        .put('/profile', async (context: any) => {
+            const { body, user, set } = context;
+            if (!user || user.role !== 'customer') {
+                set.status = 401;
+                return { success: false, message: 'Unauthorized' };
+            }
+
+            const { name, phone, address } = body as any;
+
+            try {
+                const [customer] = await db`
+                    UPDATE customers 
+                    SET name = ${name}, phone = ${phone}, address = ${address}
+                    WHERE id = ${user.id}
+                    RETURNING *
+                `;
+
+                if (!customer) {
+                    set.status = 404;
+                    return { success: false, message: 'Customer not found' };
+                }
+
+                return {
+                    success: true,
+                    message: 'Profil berhasil diperbarui',
+                    data: customer
+                };
+            } catch (error) {
+                console.error('Profile update error:', error);
+                set.status = 500;
+                return { success: false, message: 'Gagal memperbarui profil' };
+            }
+        }, {
+            body: t.Object({
+                name: t.String(),
+                phone: t.String(),
+                address: t.String()
+            })
         });

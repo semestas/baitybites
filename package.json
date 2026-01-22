@@ -1,6 +1,6 @@
 {
   "name": "baitybites",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Order Management System for BaityBites",
   "module": "index.ts",
   "type": "module",

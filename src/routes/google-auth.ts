@@ -10,7 +10,7 @@ interface GoogleUser {
     picture?: string;
 }
 
-const DEPLOY_VERSION = "1.5.0-revert-lax-explicit-domain";
+const DEPLOY_VERSION = "2.1.0-customer-profile-feature";
 
 export const googleAuthRoutes = (db: Sql) => {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();

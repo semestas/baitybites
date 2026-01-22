@@ -147,6 +147,12 @@ const app = new Elysia()
             headers: { "Content-Type": "text/html; charset=utf-8" }
         });
     })
+    .get("/profile.html", () => {
+        const html = readFileSync(join(PUBLIC_DIR, "profile.html"), "utf-8");
+        return new Response(html, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
     // Redirect clean URLs to .html files
     .get("/login", ({ redirect }) => redirect("/login.html"))
     .get("/cms", ({ redirect }) => redirect("/cms.html"))
@@ -156,6 +162,7 @@ const app = new Elysia()
     .get("/track", ({ redirect }) => redirect("/track.html"))
     .get("/privacy", ({ redirect }) => redirect("/privacy.html"))
     .get("/tos", ({ redirect }) => redirect("/tos.html"))
+    .get("/profile", ({ redirect }) => redirect("/profile.html"))
     // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
     .get("/css/*", ({ params }) => {
         const filePath = join(PUBLIC_DIR, "css", (params as any)["*"]);

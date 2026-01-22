@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pelanggan - BaityBites</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body style="background: var(--neutral-50);">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px;">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container" style="max-width: 600px;">
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">Profil Saya</h2>
+                        <p class="text-muted">Kelola informasi pribadi Anda untuk pemesanan yang lebih cepat.</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label class="form-label">Nama Lengkap</label>
+                                <input type="text" id="name" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" disabled
+                                    style="background: var(--neutral-100); cursor: not-allowed;">
+                                <small class="text-muted">Email tidak dapat diubah.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nomor WhatsApp</label>
+                                <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea id="address" class="form-textarea"
+                                    placeholder="Alamat lengkap tujuan pengiriman" required
+                                    style="min-height: 120px;"></textarea>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                    <span id="btnText">Simpan Perubahan</span>
+                                    <div id="btnSpinner" class="spinner"
+                                        style="width: 30px; height: 30px; display: none; border-top-color: white;">
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a href="/order.html" class="btn btn-outline">Kembali ke Pemesanan</a>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+            <div class="container">
+                <p>&copy; 2026 Baitybites. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        const { apiCall, showNotification } = window.app;
+
+        async function loadProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const result = await apiCall('/auth/me');
+                if (result.success) {
+                    const user = result.data;
+                    document.getElementById('name').value = user.name || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('phone').value = user.phone || '';
+                    document.getElementById('address').value = user.address || '';
+
+                    // Update local user data
+                    localStorage.setItem('user', JSON.stringify(user));
+                }
+            } catch (e) {
+                console.error('Failed to load profile');
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+
+            const payload = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+
+            try {
+                const result = await apiCall('/customer/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                if (result.success) {
+                    showNotification('Profil berhasil diperbarui!', 'success');
+                    // Update local storage
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        const user = JSON.parse(userStr);
+                        localStorage.setItem('user', JSON.stringify({ ...user, ...result.data }));
+                    }
+                }
+            } catch (error) {
+                console.error('Update profile failed:', error);
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+
+</html>
