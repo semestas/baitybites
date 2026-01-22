@@ -10,6 +10,7 @@ import { cmsRoutes } from "./src/routes/cms";
 import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
 import { googleAuthRoutes } from "./src/routes/google-auth";
+import { InstagramService } from "./src/services/instagram";
 
 // Initialize database
 const db = await initDatabase();
@@ -186,6 +187,14 @@ const app = new Elysia()
         env: process.env.NODE_ENV || 'development'
     }))
     .listen(process.env.PORT || 9876);
+
+// --- Background Job: Instagram Sync (Every 1 Hour) ---
+const igService = new InstagramService(db);
+setInterval(async () => {
+    console.log("[Job] Starting automatic Instagram sync...");
+    const res = await igService.syncGallery();
+    console.log("[Job] Instagram sync result:", res.message);
+}, 1000 * 60 * 60); // 1 hour
 
 const port = app.server?.port || process.env.PORT || 9876;
 

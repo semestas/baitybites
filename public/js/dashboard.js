@@ -147,25 +147,10 @@
     window.location.href = `/orders.html?id=${orderId}`;
   };
 
-  function isAdmin() {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return false;
-    try {
-      const user = JSON.parse(userStr);
-      return user.role === 'admin';
-    } catch (e) {
-      return false;
-    }
-  }
-
   // Initialize
   const init = () => {
     console.log('Initializing Dashboard Layout...');
-    if (!isAdmin()) {
-      // Modern browsers support :has, for older ones we use a simpler fallback if needed
-      const recentOrdersCard = document.querySelector('.card:has(#recentOrdersTable)');
-      if (recentOrdersCard) recentOrdersCard.style.display = 'none';
-    }
+    // Redirection is now handled by checkAuth() in app.js
     loadDashboardData();
   };
 

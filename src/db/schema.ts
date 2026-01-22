@@ -270,7 +270,26 @@ export async function initDatabase() {
       description TEXT,
       is_active BOOLEAN DEFAULT TRUE,
       display_order INTEGER DEFAULT 0,
+      source TEXT DEFAULT 'local', -- 'local' or 'instagram'
+      external_id TEXT,             -- Instagram Media ID
+      engagement_score INTEGER DEFAULT 0, -- Likes + Comments for sorting
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
+  try {
+    await sql`ALTER TABLE gallery ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'local'`;
+    await sql`ALTER TABLE gallery ADD COLUMN IF NOT EXISTS external_id TEXT`;
+    await sql`ALTER TABLE gallery ADD COLUMN IF NOT EXISTS engagement_score INTEGER DEFAULT 0`;
+  } catch (e) {
+    console.error("Migration error on gallery table:", e);
+  }
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `;
 

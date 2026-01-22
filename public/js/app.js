@@ -69,8 +69,11 @@ function getStatusLabel(status) {
     return statusMap[status] || status;
 }
 
-// API call wrapper
-async function apiCall(endpoint, options = {}) {
+// API call wrapper with retry logic for cold starts
+async function apiCall(endpoint, options = {}, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [5000, 10000, 15000]; // 5s, 10s, 15s
+
     try {
         const token = localStorage.getItem('token');
         const isFormData = options.body instanceof FormData;
@@ -83,7 +86,8 @@ async function apiCall(endpoint, options = {}) {
 
         const response = await fetch(`${API_BASE}${endpoint}`, {
             ...options,
-            headers
+            headers,
+            signal: options.signal || AbortSignal.timeout(30000) // 30s timeout
         });
 
         if (!response.ok) {
@@ -92,6 +96,21 @@ async function apiCall(endpoint, options = {}) {
                 localStorage.removeItem('token');
                 window.location.href = '/login.html';
                 return;
+            }
+
+            // Handle 504 Gateway Timeout (cold start)
+            if (response.status === 504 && retryCount < MAX_RETRIES) {
+                const delay = RETRY_DELAYS[retryCount];
+                const waitSeconds = delay / 1000;
+
+                console.log(`Server is waking up... Retry ${retryCount + 1}/${MAX_RETRIES} in ${waitSeconds}s`);
+                showNotification(
+                    `Server sedang memuat... Mencoba lagi dalam ${waitSeconds} detik (${retryCount + 1}/${MAX_RETRIES})`,
+                    'info'
+                );
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return apiCall(endpoint, options, retryCount + 1);
             }
 
             let errorData;
@@ -107,6 +126,23 @@ async function apiCall(endpoint, options = {}) {
 
         return await response.json();
     } catch (error) {
+        // Handle network errors and timeouts
+        if (error.name === 'TimeoutError' || error.message.includes('504')) {
+            if (retryCount < MAX_RETRIES) {
+                const delay = RETRY_DELAYS[retryCount];
+                const waitSeconds = delay / 1000;
+
+                console.log(`Connection timeout. Retry ${retryCount + 1}/${MAX_RETRIES} in ${waitSeconds}s`);
+                showNotification(
+                    `Koneksi timeout. Mencoba lagi dalam ${waitSeconds} detik...`,
+                    'info'
+                );
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return apiCall(endpoint, options, retryCount + 1);
+            }
+        }
+
         console.error('API call failed:', error);
         showNotification('Error: ' + error.message, 'error');
         throw error;
@@ -142,14 +178,48 @@ function showNotification(message, type = 'info') {
 
 // Logout function
 function logout() {
+    // Clear authentication data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login.html';
+
+    // Redirect all users (including admins) to landing page
+    window.location.href = '/';
+}
+
+// Role constants
+const ROLES = {
+    ADMIN: 'admin',
+    CUSTOMER: 'customer',
+    GUEST: 'guest'
+};
+
+// Role check helpers
+function isAdmin() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return false;
+    try {
+        const user = JSON.parse(userStr);
+        return user.role === ROLES.ADMIN;
+    } catch (e) {
+        return false;
+    }
+}
+
+function getUser() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    try {
+        return JSON.parse(userStr);
+    } catch (e) {
+        return null;
+    }
 }
 
 // Check authentication
 function checkAuth() {
     const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html'];
+
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -160,9 +230,26 @@ function checkAuth() {
         normalizedPath + '.html' === page
     );
 
+    const isAdminPage = adminPages.some(page =>
+        currentPath === page ||
+        currentPath.endsWith(page) ||
+        normalizedPath === page ||
+        normalizedPath + '.html' === page
+    );
+
     const token = localStorage.getItem('token');
+    const user = getUser();
+
+    // 1. Not logged in -> Redirect to login if not public
     if (!token && !isPublicPage) {
         window.location.href = '/login.html';
+        return;
+    }
+
+    // 2. Logged in but trying to access admin page without being admin
+    if (token && isAdminPage && user?.role !== ROLES.ADMIN) {
+        window.location.href = '/';
+        return;
     }
 }
 
@@ -268,6 +355,9 @@ function initPublicHeader() {
     }
 }
 
+// Run authentication check on all pages
+window.addEventListener('load', checkAuth);
+
 // Export for use in other modules
 window.app = {
     apiCall,
@@ -279,5 +369,8 @@ window.app = {
     showNotification,
     logout,
     checkAuth,
+    isAdmin,
+    getUser,
+    ROLES,
     initPublicHeader
 };

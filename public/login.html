@@ -128,26 +128,47 @@
     <script>
         // const { showNotification } = window.app;
 
-        // Check if redirected with token
+        // Check if user is already logged in
         window.addEventListener('load', () => {
+            // Check if already authenticated using global helpers
+            const { isAdmin, getUser } = window.app;
+            const user = getUser();
+
+            if (user) {
+                // If admin is already logged in, redirect to dashboard
+                if (isAdmin()) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // If customer/guest is logged in, redirect to home
+                    window.location.href = '/';
+                }
+                return;
+            }
+
+            // Check if redirected with token from OAuth
             const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
+            const oauthToken = params.get('token');
             const authStatus = params.get('auth');
 
-            if (authStatus === 'success' && token) {
-                localStorage.setItem('token', token);
+            if (authStatus === 'success' && oauthToken) {
+                localStorage.setItem('token', oauthToken);
                 // We show notification and redirect
                 showNotification('Login Google Berhasil!', 'success');
 
                 // Fetch user data to store in localStorage
                 fetch('/api/auth/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${oauthToken}` }
                 })
                     .then(res => res.json())
                     .then(result => {
                         if (result.success) {
                             localStorage.setItem('user', JSON.stringify(result.data));
-                            setTimeout(() => window.location.href = '/', 1000);
+                            // Redirect using global logic
+                            if (result.data.role === 'admin') {
+                                window.location.href = '/dashboard.html';
+                            } else {
+                                window.location.href = '/';
+                            }
                         }
                     });
             } else if (authStatus === 'error') {
@@ -202,7 +223,13 @@
                 if (result.success) {
                     localStorage.setItem('token', result.data.token);
                     localStorage.setItem('user', JSON.stringify(result.data.user));
-                    window.location.href = '/';
+
+                    // Redirect based on role
+                    if (result.data.user.role === 'admin') {
+                        window.location.href = '/dashboard.html';
+                    } else {
+                        window.location.href = '/';
+                    }
                 } else {
                     errorMessage.textContent = result.message || 'Login gagal';
                     errorMessage.style.display = 'block';

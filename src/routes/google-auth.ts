@@ -1,4 +1,4 @@
-import { Elysia, t } from 'elysia';
+import { Elysia } from 'elysia';
 import { oauth2 } from 'elysia-oauth2';
 import { authPlugin } from '../middleware/auth';
 import type { Sql } from '../db/schema';
@@ -9,8 +9,6 @@ interface GoogleUser {
     email: string;
     picture?: string;
 }
-
-const DEPLOY_VERSION = "2.1.0-customer-profile-feature";
 
 export const googleAuthRoutes = (db: Sql) => {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();

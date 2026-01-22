@@ -1,5 +1,6 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
+import { InstagramService } from '../services/instagram';
 
 export const cmsRoutes = (db: Sql) =>
     new Elysia({ prefix: '/cms' })
@@ -175,18 +176,37 @@ export const cmsRoutes = (db: Sql) =>
             return { success: true, data: items };
         })
         .post('/gallery', async ({ body }: { body: any }) => {
+            const { title, description, display_order, image } = body;
+
+            let imageUrl = '';
+            if (image && image instanceof File) {
+                const safeName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                const fileName = `${Date.now()}-${safeName}`;
+                // Folder logic (ensure directory exists)
+                const dir = 'public/uploads/gallery';
+                const fileNameWithDir = `${dir}/${fileName}`;
+
+                await Bun.write(fileNameWithDir, image);
+                imageUrl = `/uploads/gallery/${fileName}`;
+            } else if (typeof body.image_url === 'string') {
+                imageUrl = body.image_url;
+            }
+
+            if (!imageUrl) throw new Error('Image is required');
+
             const [item] = await db`
                 INSERT INTO gallery (image_url, title, description, display_order)
-                VALUES (${body.image_url}, ${body.title || null}, ${body.description || null}, ${body.display_order || 0})
+                VALUES (${imageUrl}, ${title || null}, ${description || null}, ${Number(display_order) || 0})
                 RETURNING *
             `;
-            return { success: true, data: item };
+            return { success: true, data: item, message: 'Foto berhasil ditambahkan' };
         }, {
             body: t.Object({
-                image_url: t.String(),
+                image: t.Optional(t.File()),
+                image_url: t.Optional(t.String()),
                 title: t.Optional(t.String()),
                 description: t.Optional(t.String()),
-                display_order: t.Optional(t.Number())
+                display_order: t.Optional(t.Numeric())
             })
         })
         .put('/gallery/:id', async ({ params, body }: { params: any, body: any }) => {
@@ -419,5 +439,33 @@ export const cmsRoutes = (db: Sql) =>
         }, {
             body: t.Object({
                 stock: t.Number()
+            })
+        })
+
+        // Instagram Integration Routes
+        .post('/instagram/sync', async () => {
+            const igService = new InstagramService(db);
+            return await igService.syncGallery();
+        })
+        .get('/instagram/settings', async () => {
+            const [token] = await db`SELECT value FROM settings WHERE key = 'instagram_access_token' LIMIT 1`;
+            return {
+                success: true,
+                data: {
+                    has_token: !!token,
+                    token: token ? '••••••••' + token.value.slice(-4) : null
+                }
+            };
+        })
+        .put('/instagram/token', async ({ body }) => {
+            await db`
+                INSERT INTO settings (key, value) 
+                VALUES ('instagram_access_token', ${body.token})
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
+            `;
+            return { success: true, message: 'Token Instagram berhasil disimpan' };
+        }, {
+            body: t.Object({
+                token: t.String()
             })
         });
