@@ -93,7 +93,16 @@ async function apiCall(endpoint, options = {}) {
                 window.location.href = '/login.html';
                 return;
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
+
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                errorData = { message: `HTTP error! status: ${response.status}` };
+            }
+
+            const errorMsg = errorData.message || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMsg);
         }
 
         return await response.json();
