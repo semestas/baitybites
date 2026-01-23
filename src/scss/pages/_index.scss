@@ -138,7 +138,7 @@
 .testimony-section {
     @include section-padding;
     // Soft warm gradient background (Cream to very light orange)
-    background: linear-gradient(180deg, #fffbf0 0%, #fff7ed 100%);
+    background: linear-gradient(180deg, #fffbf0 0%, #ebdbc8 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,7 +165,31 @@
             border-radius: $radius-lg;
             box-shadow: 0 10px 30px rgba(245, 150, 56, 0.08); // Soft orange shadow
             border: 1px solid rgba(245, 150, 56, 0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+
+            &:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(245, 150, 56, 0.12);
+                border-color: rgba(245, 150, 56, 0.2);
+            }
+
+            .testimony-rating {
+                display: flex;
+                gap: 4px;
+
+                .star {
+                    width: 18px;
+                    height: 18px;
+                    fill: var(--neutral-300);
+
+                    &.filled {
+                        fill: #ffc107; // Gold
+                    }
+                }
+            }
 
 
 
@@ -173,7 +197,7 @@
                 display: flex;
                 gap: 15px;
                 align-items: center;
-                margin-bottom: 25px;
+                margin-top: auto; // Push to bottom for alignment
 
                 img {
                     width: 60px;
@@ -183,32 +207,74 @@
                 }
 
                 h4 {
-                    margin: 0;
-                    font-size: 1.25rem;
+                    margin: 0 0 4px 0;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: $text-dark;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+
+                    .verified-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 16px;
+                        height: 16px;
+                        background: #1da1f2; // Verified blue
+                        color: white;
+                        border-radius: 50%;
+                        padding: 2px;
+
+                        svg {
+                            width: 12px;
+                            height: 12px;
+                            fill: currentColor;
+                            stroke: currentColor;
+                            stroke-width: 2;
+                        }
+                    }
                 }
 
-                p {
-                    margin: 0;
-                    color: $primary;
-                    font-size: 0.9rem;
+                .user-meta {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 0.85rem;
+                    color: $text-muted;
+
+                    .role {
+                        color: $primary;
+                        font-weight: 500;
+                    }
+
+                    .dot {
+                        opacity: 0.5;
+                    }
+
+                    .date {
+                        opacity: 0.8;
+                    }
                 }
             }
 
             .quote {
                 font-style: italic;
                 color: $text-body;
-                line-height: 1.8;
-                font-size: 1.1rem;
+                line-height: 1.6;
+                font-size: 1.05rem;
                 position: relative;
+                flex-grow: 1;
+                margin: 0;
 
                 &::before {
-                    content: '"';
-                    font-size: 4rem;
+                    content: '“';
+                    font-size: 3rem;
                     position: absolute;
-                    top: -20px;
-                    left: -10px;
+                    top: -15px;
+                    left: -20px;
                     opacity: 0.1;
-                    font-family: serif;
+                    font-family: 'Outfit', sans-serif;
                     color: $primary;
                 }
             }
@@ -216,39 +282,63 @@
     }
 
     .testimony-form-card {
-        max-width: 700px;
+        max-width: 800px;
         width: 100%;
-        padding: 3rem 2rem;
+        margin-top: 2rem;
+        padding: 4rem 2rem;
         background: $white;
-        border-radius: $radius-lg;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); // Deeper shadow for lift
-        border: 2px dashed rgba($primary, 0.2); // Playful dashed border
+        border-radius: $radius-xl;
+        box-shadow: 0 25px 50px -12px rgba(245, 150, 56, 0.15);
+        border: 2px dashed rgba($primary, 0.3);
         text-align: center;
         position: relative;
         overflow: hidden;
 
-        // Subtle background decoration
-        &::before {
+        // Pattern background
+        background-image: radial-gradient(rgba($primary, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+
+        &::before,
+        &::after {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba($primary, 0.1) 0%, transparent 70%);
-            transform: translate(30%, -30%);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba($primary, 0.08) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        &::before {
+            top: -50px;
+            right: -50px;
+        }
+
+        &::after {
+            bottom: -50px;
+            left: -50px;
         }
 
         h3 {
-            font-size: 2rem;
+            font-size: 2.25rem;
+            font-weight: 700;
             color: $text-dark;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            font-family: 'Outfit', sans-serif;
+            position: relative;
+            z-index: 1;
         }
 
         p {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: $text-muted;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
 
         // Ensure button sits above any pseudo-elements
@@ -355,19 +445,19 @@
 
         &:hover,
         &:hover~label {
-            color: $primary;
+            color: #ffc107;
             transform: scale(1.1);
         }
     }
 
     input:checked~label {
-        color: $primary;
+        color: #ffc107;
     }
 
     input:checked+label:hover,
     input:checked+label:hover~label,
     input:checked~label:hover,
     input:checked~label:hover~label {
-        color: color.adjust($primary, $lightness: 10%);
+        color: color.adjust(#ffc107, $lightness: -10%);
     }
 }

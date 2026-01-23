@@ -267,17 +267,47 @@
                     const resTest = await fetch('/api/public/testimonials');
                     const testJson = await resTest.json();
                     const testContainer = document.getElementById('testimony-container');
+
                     if (testJson.success) {
+                        const renderStars = (rating) => {
+                            let stars = '';
+                            for (let i = 1; i <= 5; i++) {
+                                stars += `<svg class="star ${i <= rating ? 'filled' : ''}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+                            }
+                            return stars;
+                        };
+
+                        const formatDate = (dateStr) => {
+                            const date = new Date(dateStr);
+                            const now = new Date();
+                            const diffTime = Math.abs(now - date);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                            if (diffDays < 1) return 'Hari ini';
+                            if (diffDays < 7) return `${diffDays} hari yang lalu`;
+                            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        };
+
                         testContainer.innerHTML = testJson.data.map((t, idx) => `
                         <div class="testimony-card">
+                            <div class="testimony-rating">
+                                ${renderStars(t.rating)}
+                            </div>
+                            <p class="quote">"${t.content}"</p>
                             <div class="user-info">
                                 <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}">
                                 <div>
-                                    <h4>${t.name}</h4>
-                                    <p>${t.role || 'Pelanggan'}</p>
+                                    <h4>
+                                        ${t.name}
+                                        ${t.role === 'Verified Customer' ? '<span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>' : ''}
+                                    </h4>
+                                    <div class="user-meta">
+                                        <span class="role">${t.role || 'Pelanggan'}</span>
+                                        <span class="dot">•</span>
+                                        <span class="date">${formatDate(t.created_at)}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="quote">"${t.content}"</p>
                         </div>
                     `).join('');
                     }
