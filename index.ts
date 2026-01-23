@@ -202,7 +202,6 @@ console.log(`
 🚀 Baitybites Order Management System
 🌐 Server running at http://localhost:${port}
 📊 Database: PostgreSQL (Neon)
-👤 Default Admin: admin / admin123
 🔧 Environment: ${process.env.NODE_ENV || 'development'}
 📁 Public directory: ${PUBLIC_DIR}
 `);

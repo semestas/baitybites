@@ -2,7 +2,10 @@ import postgres from "postgres";
 import fs from "fs";
 import path from "path";
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_oVXIAqks0cO6@ep-hidden-rice-ah924vab-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+    throw new Error("DATABASE_URL environment variable is required");
+}
 const sql = postgres(connectionString);
 
 async function downloadImage(url: string, filename: string) {
