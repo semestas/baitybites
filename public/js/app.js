@@ -253,27 +253,71 @@ function checkAuth() {
     }
 }
 
-// Initialize on page load
+// Load Footer Settings (Socials & Contact)
+async function loadFooterSettings() {
+    try {
+        // Don't run on CMS or Dashboard if they don't have the footer structure
+        if (window.location.pathname.includes('cms.html') || window.location.pathname.includes('dashboard.html')) return;
+
+        const result = await apiCall('/public/settings');
+        if (result.success && result.data) {
+            const s = result.data;
+
+            // Update Social Links
+            const socialContainer = document.getElementById('footer-socials');
+            if (socialContainer) {
+                let html = '';
+
+                // Instagram
+                if (s.social_instagram) {
+                    const handle = s.social_instagram.includes('instagram.com/') ? '@' + s.social_instagram.split('instagram.com/')[1].replace(/\/$/, '') : 'Instagram';
+                    html += `<a href="${s.social_instagram}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        <span>${handle}</span>
+                    </a>`;
+                }
+
+                // Facebook
+                if (s.social_facebook) {
+                    html += `<a href="${s.social_facebook}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s; margin-left: 1rem;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>`;
+                }
+
+                // TikTok
+                if (s.social_tiktok) {
+                    html += `<a href="${s.social_tiktok}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s; margin-left: 1rem;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+                    </a>`;
+                }
+
+                if (html) socialContainer.innerHTML = html;
+            }
+
+            // Update Contact Info
+            const contactContainer = document.getElementById('footer-contact');
+            if (contactContainer) {
+                let html = '';
+                if (s.contact_email) html += `<div style="margin-bottom: 0.5rem;">📧 ${s.contact_email}</div>`;
+                if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem;">📞 ${s.contact_phone}</div>`;
+                if (s.contact_address) html += `<div>📍 ${s.contact_address}</div>`;
+
+                if (html) contactContainer.innerHTML = html;
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to load footer settings');
+    }
+}
+
+// Global init for pages
 document.addEventListener('DOMContentLoaded', () => {
-    // Check auth
     checkAuth();
-
-    // Initialize Header for public pages
     initPublicHeader();
-
-    // Check version
+    loadFooterSettings(); // <--- Added here
     checkVersion();
 
-    // Update active nav link (for static navs)
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.getAttribute('href') === currentPath ||
-            (currentPath === '/' && link.getAttribute('href') === '/')) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
+    // ... rest of init code
 });
 
 // Check and display deployment version

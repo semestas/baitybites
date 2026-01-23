@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../abstracts/variables' as *;
 
 .hero-section {
@@ -136,7 +137,8 @@
 
 .testimony-section {
     @include section-padding;
-    background: radial-gradient(circle at 90% 80%, rgba($secondary, 0.04) 0%, transparent 50%), $gray-light;
+    // Soft warm gradient background (Cream to very light orange)
+    background: linear-gradient(180deg, #fffbf0 0%, #fff7ed 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -152,21 +154,20 @@
     .testimony-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 40px;
+        gap: 1.5rem;
         width: 100%;
         max-width: 1200px;
+        margin-bottom: 1.5rem; // Increased space to avoid overlap with CTA card
 
         .testimony-card {
             background: $white;
             padding: 40px;
             border-radius: $radius-lg;
-            box-shadow: $shadow-md;
-            border: 1px solid $gray-border;
+            box-shadow: 0 10px 30px rgba(245, 150, 56, 0.08); // Soft orange shadow
+            border: 1px solid rgba(245, 150, 56, 0.1);
             transition: transform 0.3s ease;
 
-            &.offset {
-                transform: translateY(20px);
-            }
+
 
             .user-info {
                 display: flex;
@@ -208,8 +209,52 @@
                     left: -10px;
                     opacity: 0.1;
                     font-family: serif;
+                    color: $primary;
                 }
             }
+        }
+    }
+
+    .testimony-form-card {
+        max-width: 700px;
+        width: 100%;
+        padding: 3rem 2rem;
+        background: $white;
+        border-radius: $radius-lg;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); // Deeper shadow for lift
+        border: 2px dashed rgba($primary, 0.2); // Playful dashed border
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+
+        // Subtle background decoration
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba($primary, 0.1) 0%, transparent 70%);
+            transform: translate(30%, -30%);
+        }
+
+        h3 {
+            font-size: 2rem;
+            color: $text-dark;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: $text-muted;
+            margin-bottom: 2rem;
+        }
+
+        // Ensure button sits above any pseudo-elements
+        .cta-button {
+            position: relative;
+            z-index: 2;
         }
     }
 }
@@ -282,5 +327,47 @@
 
     .testimony-section .testimony-grid .testimony-card.offset {
         transform: translateY(0);
+    }
+}
+
+// Star Rating Styles
+.rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 0.25rem;
+
+    input {
+        display: none;
+    }
+
+    label {
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        color: #d1d5db; // neutral-300
+        transition: color 0.15s ease-in-out, transform 0.15s;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        &:hover,
+        &:hover~label {
+            color: $primary;
+            transform: scale(1.1);
+        }
+    }
+
+    input:checked~label {
+        color: $primary;
+    }
+
+    input:checked+label:hover,
+    input:checked+label:hover~label,
+    input:checked~label:hover,
+    input:checked~label:hover~label {
+        color: color.adjust($primary, $lightness: 10%);
     }
 }

@@ -148,4 +148,15 @@ export const publicRoutes = (db: Sql) =>
                 success: true,
                 data: widget ? widget.value : null
             };
+        })
+        .get('/settings', async () => {
+            const settingsList = await db`
+                SELECT key, value FROM settings 
+                WHERE key IN ('contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok')
+            `;
+            const settings = settingsList.reduce((acc: any, curr: any) => {
+                acc[curr.key] = curr.value;
+                return acc;
+            }, {});
+            return { success: true, data: settings };
         });

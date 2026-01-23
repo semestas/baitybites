@@ -113,6 +113,7 @@
                 <a href="#orders" class="active" onclick="switchSection('orders', event)">📦 Kelola Pesanan</a>
                 <a href="#gallery" onclick="switchSection('gallery', event)">🖼️ Galeri Foto</a>
                 <a href="#instagram" onclick="switchSection('instagram', event)">📷 Instagram Settings</a>
+                <a href="#settings" onclick="switchSection('settings', event)">⚙️ Setting Kontak</a>
                 <a href="#testimonials" onclick="switchSection('testimonials', event)">💬 Moderasi Testimoni</a>
                 <a href="/dashboard" class="mt-4" style="border-top: 1px solid #444; padding-top: 20px;">⬅️ Dashboard
                     Utama</a>
@@ -223,6 +224,58 @@
                     <div id="syncStatus" class="mt-4"></div>
                 </div>
             </section>
+
+            <!-- General Settings Section -->
+            <section id="settings-section" class="section-card" style="display:none;">
+                <div class="mb-4">
+                    <h2>⚙️ Pengaturan Kontak & Sosial Media</h2>
+                    <p class="text-muted">Informasi ini akan ditampilkan di footer website.</p>
+                </div>
+
+                <form id="settingsForm" onsubmit="saveSettings(event)">
+                    <div class="grid grid-2 gap-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h4 class="mb-3">📞 Kontak Informasi</h4>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Email Support</label>
+                                <input type="email" id="contact_email" class="form-input"
+                                    placeholder="admin@baitybites.com">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Nomor WhatsApp / Telepon</label>
+                                <input type="text" id="contact_phone" class="form-input" placeholder="+62 812...">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Alamat Fisik</label>
+                                <textarea id="contact_address" class="form-input" rows="3"
+                                    placeholder="Jl. Contoh No. 123..."></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="mb-3">🌐 Sosial Media (Username/Link)</h4>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Instagram URL</label>
+                                <input type="text" id="social_instagram" class="form-input"
+                                    placeholder="https://instagram.com/...">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Facebook URL</label>
+                                <input type="text" id="social_facebook" class="form-input"
+                                    placeholder="https://facebook.com/...">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">TikTok URL</label>
+                                <input type="text" id="social_tiktok" class="form-input"
+                                    placeholder="https://tiktok.com/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button type="submit" class="btn btn-primary">💾 Simpan Pengaturan</button>
+                    </div>
+                </form>
+            </section>
         </main>
     </div>
 
@@ -264,6 +317,7 @@
             document.getElementById('testimonials-section').style.display = section === 'testimonials' ? 'block' : 'none';
             document.getElementById('gallery-section').style.display = section === 'gallery' ? 'block' : 'none';
             document.getElementById('instagram-section').style.display = section === 'instagram' ? 'block' : 'none';
+            document.getElementById('settings-section').style.display = section === 'settings' ? 'block' : 'none';
 
             document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
 
@@ -279,6 +333,7 @@
             if (section === 'testimonials') loadTestimonials();
             if (section === 'gallery') loadGallery();
             if (section === 'instagram') loadInstagramSettings();
+            if (section === 'settings') loadSettings();
         }
 
         async function loadOrders() {
@@ -495,6 +550,46 @@
             } catch (e) {
                 console.error(e);
                 statusEl.innerHTML = '<div class="badge badge-pending">❌ Gagal sinkronisasi</div>';
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const res = await apiCall('/cms/settings');
+                if (res.success) {
+                    const data = res.data;
+                    document.getElementById('contact_email').value = data.contact_email || '';
+                    document.getElementById('contact_phone').value = data.contact_phone || '';
+                    document.getElementById('contact_address').value = data.contact_address || '';
+                    document.getElementById('social_instagram').value = data.social_instagram || '';
+                    document.getElementById('social_facebook').value = data.social_facebook || '';
+                    document.getElementById('social_tiktok').value = data.social_tiktok || '';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveSettings(e) {
+            e.preventDefault();
+            const payload = {
+                contact_email: document.getElementById('contact_email').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                contact_address: document.getElementById('contact_address').value,
+                social_instagram: document.getElementById('social_instagram').value,
+                social_facebook: document.getElementById('social_facebook').value,
+                social_tiktok: document.getElementById('social_tiktok').value
+            };
+
+            try {
+                const res = await apiCall('/cms/settings', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                if (res.success) {
+                    alert(res.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Gagal menyimpan pengaturan');
             }
         }
 
