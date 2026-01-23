@@ -12,11 +12,24 @@ function formatCurrency(amount) {
 }
 
 function formatDate(dateString) {
+    if (!dateString) return '-';
     return new Intl.DateTimeFormat('id-ID', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     }).format(new Date(dateString));
+}
+
+function formatRelativeDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 1) return 'Hari ini';
+    if (diffDays < 7) return `${diffDays} hari yang lalu`;
+    return formatDate(dateStr);
 }
 
 function formatDateTime(dateString) {
@@ -67,6 +80,50 @@ function getStatusLabel(status) {
         'delivered': 'Terkirim'
     };
     return statusMap[status] || status;
+}
+
+// UI Helpers
+function getAvatarGradient(name) {
+    const gradients = [
+        'linear-gradient(135deg, #f59638, #ec6817)',
+        'linear-gradient(135deg, #4caf50, #2e7d32)',
+        'linear-gradient(135deg, #2196f3, #1976d2)',
+        'linear-gradient(135deg, #9c27b0, #7b1fa2)',
+        'linear-gradient(135deg, #e91e63, #c2185b)'
+    ];
+    const charCode = (name || '').charCodeAt(0) || 0;
+    return gradients[charCode % gradients.length];
+}
+
+function renderRatingStars(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        stars += `<svg class="star ${i <= rating ? 'filled' : ''}" viewBox="0 0 24 24" style="width:18px;height:18px;fill:${i <= rating ? '#ffc107' : '#d1d5db'}"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    }
+    return stars;
+}
+
+function handleImageError(img) {
+    const name = img.getAttribute('alt') || 'User';
+    const initials = name.charAt(0).toUpperCase();
+    const gradient = getAvatarGradient(name);
+
+    const div = document.createElement('div');
+    div.className = 'letter-avatar';
+    div.style.cssText = `
+        background: ${gradient};
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+    `;
+    div.textContent = initials;
+
+    img.replaceWith(div);
 }
 
 // API call wrapper with retry logic for cold starts
@@ -331,7 +388,7 @@ async function checkVersion() {
             vTag.style.fontSize = '0.7rem';
             vTag.style.opacity = '0.5';
             vTag.style.marginTop = '1rem';
-            vTag.innerHTML = `Client: v1.2.0 | Server: ${data.version || 'unknown'}`;
+            vTag.innerHTML = `Client: v1.4.0 | Server: ${data.version || 'unknown'}`;
             footer.appendChild(vTag);
         });
     } catch (e) {
@@ -407,6 +464,7 @@ window.app = {
     apiCall,
     formatCurrency,
     formatDate,
+    formatRelativeDate,
     formatDateTime,
     getStatusBadgeClass,
     getStatusLabel,
@@ -416,5 +474,15 @@ window.app = {
     isAdmin,
     getUser,
     ROLES,
-    initPublicHeader
+    initPublicHeader,
+    getAvatarGradient,
+    renderRatingStars,
+    handleImageError
 };
+
+// Global image error handler
+document.addEventListener('error', (e) => {
+    if (e.target.tagName === 'IMG') {
+        handleImageError(e.target);
+    }
+}, true);

@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baitybites - Risol Mayo Premium</title>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/main.css">
 </head>
@@ -117,14 +121,30 @@
 
                             <!-- Logged In User Display -->
                             <div id="loggedInUserDisplay"
-                                style="display: none; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--neutral-100); border-radius: var(--radius-md); border: 1px solid var(--neutral-200);">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span class="text-muted" style="font-size: 0.8rem;">Posting sebagai:</span>
-                                    <strong id="currentUserName" style="font-size: 1rem;">User Name</strong>
+                                style="display: none; align-items: center; justify-content: space-between; padding: 1rem; background: var(--primary-50); border-radius: var(--radius-md); border: 1px solid var(--primary-100);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div id="modalAvatarWrapper"
+                                        style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid white; box-shadow: var(--shadow-sm);">
+                                        <img id="modalUserAvatar" src="" alt=""
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="text-muted"
+                                            style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Posting
+                                            sebagai:</span>
+                                        <strong id="currentUserName"
+                                            style="font-size: 1.1rem; color: var(--primary-900);">User Name</strong>
+                                    </div>
                                 </div>
                                 <button type="button" onclick="enableAliasMode()" class="btn btn-outline btn-sm"
-                                    style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">Gunakan Nama Samaran</button>
+                                    style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 20px; background: white;">Ubah
+                                    Nama</button>
                             </div>
+                            <small id="aliasHint" class="text-muted"
+                                style="display: none; margin-top: 0.5rem; font-size: 0.75rem;">
+                                <i style="color: var(--primary-500);">Tip:</i> Jika nama Google Anda bukan nama asli,
+                                Anda bisa mengubahnya di sini.
+                            </small>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Testimoni</label>
@@ -173,210 +193,7 @@
         </div>
 
         <script src="/js/app.js"></script>
-        <script>
-            function showTestimonyForm() {
-                const userStr = localStorage.getItem('user');
-                const nameInputWrapper = document.getElementById('nameInputWrapper');
-                const loggedInUserDisplay = document.getElementById('loggedInUserDisplay');
-                const testNameInput = document.getElementById('testName');
-                const currentUserNameSpan = document.getElementById('currentUserName');
-
-                if (userStr) {
-                    // Logged In
-                    const user = JSON.parse(userStr);
-
-                    nameInputWrapper.style.display = 'none';
-                    loggedInUserDisplay.style.display = 'flex';
-                    currentUserNameSpan.textContent = user.name;
-
-                    // Pre-fill hidden input but remove required attribute to avoid browser validation errors on hidden field
-                    testNameInput.value = user.name;
-                    testNameInput.removeAttribute('required');
-                } else {
-                    // Guest
-                    nameInputWrapper.style.display = 'block';
-                    loggedInUserDisplay.style.display = 'none';
-
-                    testNameInput.value = '';
-                    testNameInput.setAttribute('required', 'true');
-                }
-
-                document.getElementById('testimonyModal').style.display = 'flex';
-            }
-
-            function enableAliasMode() {
-                const nameInputWrapper = document.getElementById('nameInputWrapper');
-                const loggedInUserDisplay = document.getElementById('loggedInUserDisplay');
-                const testNameInput = document.getElementById('testName');
-
-                loggedInUserDisplay.style.display = 'none';
-                nameInputWrapper.style.display = 'block';
-
-                testNameInput.focus();
-                testNameInput.select();
-                testNameInput.setAttribute('required', 'true');
-            }
-
-            function hideTestimonyForm() {
-                document.getElementById('testimonyModal').style.display = 'none';
-            }
-
-            async function loadContent() {
-                try {
-                    // Check for Elfsight Widget first
-                    const widgetRes = await fetch('/api/public/instagram-widget');
-                    const widgetJson = await widgetRes.json();
-                    const galContainer = document.getElementById('gallery-container');
-
-                    if (widgetJson.success && widgetJson.data) {
-                        // Display Elfsight Widget - need to properly execute script tags
-                        galContainer.innerHTML = '';
-
-                        // Create a temporary div to parse the widget HTML
-                        const tempDiv = document.createElement('div');
-                        tempDiv.style.width = '100%';
-                        tempDiv.style.gridColumn = '1 / -1';
-                        tempDiv.innerHTML = widgetJson.data;
-
-                        // Extract and execute script tags
-                        const scripts = tempDiv.querySelectorAll('script');
-                        scripts.forEach(oldScript => {
-                            const newScript = document.createElement('script');
-                            Array.from(oldScript.attributes).forEach(attr => {
-                                newScript.setAttribute(attr.name, attr.value);
-                            });
-                            newScript.textContent = oldScript.textContent;
-                            oldScript.parentNode.replaceChild(newScript, oldScript);
-                        });
-
-                        galContainer.appendChild(tempDiv);
-                    } else {
-                        // Fallback to database gallery
-                        const resGal = await fetch('/api/public/gallery');
-                        const galJson = await resGal.json();
-                        if (galJson.success) {
-                            galContainer.innerHTML = galJson.data.map(item => `
-                            <div class="gallery-item">
-                                <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
-                            </div>
-                        `).join('');
-                        }
-                    }
-
-                    // Load Testimonials
-                    const resTest = await fetch('/api/public/testimonials');
-                    const testJson = await resTest.json();
-                    const testContainer = document.getElementById('testimony-container');
-
-                    if (testJson.success) {
-                        const renderStars = (rating) => {
-                            let stars = '';
-                            for (let i = 1; i <= 5; i++) {
-                                stars += `<svg class="star ${i <= rating ? 'filled' : ''}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
-                            }
-                            return stars;
-                        };
-
-                        const formatDate = (dateStr) => {
-                            const date = new Date(dateStr);
-                            const now = new Date();
-                            const diffTime = Math.abs(now - date);
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                            if (diffDays < 1) return 'Hari ini';
-                            if (diffDays < 7) return `${diffDays} hari yang lalu`;
-                            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                        };
-
-                        testContainer.innerHTML = testJson.data.map((t, idx) => `
-                        <div class="testimony-card">
-                            <div class="testimony-rating">
-                                ${renderStars(t.rating)}
-                            </div>
-                            <p class="quote">"${t.content}"</p>
-                            <div class="user-info">
-                                <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}">
-                                <div>
-                                    <h4>
-                                        ${t.name}
-                                        ${t.role === 'Verified Customer' ? '<span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>' : ''}
-                                    </h4>
-                                    <div class="user-meta">
-                                        <span class="role">${t.role || 'Pelanggan'}</span>
-                                        <span class="dot">•</span>
-                                        <span class="date">${formatDate(t.created_at)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    }
-                } catch (e) {
-                    console.error('Gagal memuat konten:', e);
-                }
-            }
-
-            loadContent();
-
-            // Magic Sparkles Animation
-            const button = document.querySelector('.cta-button');
-            button.addEventListener('mousemove', (e) => {
-                if (Math.random() > 0.8) createSparkle(e.clientX, e.clientY);
-            });
-
-            function createSparkle(x, y) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                const size = Math.random() * 8 + 4;
-                sparkle.style.width = size + 'px';
-                sparkle.style.height = size + 'px';
-                sparkle.style.left = x + 'px';
-                sparkle.style.top = y + 'px';
-                const color = ['#f59638', '#fff', '#ec6817'][Math.floor(Math.random() * 3)];
-                sparkle.style.background = color;
-                sparkle.style.boxShadow = `0 0 10px ${color}`;
-                document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 800);
-            }
-
-            setInterval(() => {
-                const content = document.querySelector('.hero-content');
-                if (content) {
-                    const rect = content.getBoundingClientRect();
-                    createSparkle(rect.left + Math.random() * rect.width, rect.top + Math.random() * rect.height);
-                }
-            }, 1500);
-
-            // Testimony Form Submission
-            document.getElementById('testimonyForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const { apiCall, showNotification } = window.app;
-                const userStr = localStorage.getItem('user');
-                const user = userStr ? JSON.parse(userStr) : null;
-
-                const payload = {
-                    name: document.getElementById('testName').value,
-                    content: document.getElementById('testContent').value,
-                    rating: parseInt(document.querySelector('input[name="rating"]:checked')?.value || 5),
-                    avatar_url: user?.avatar_url || null,
-                    role: user?.is_google ? 'Verified Customer' : 'Pelanggan'
-                };
-
-                try {
-                    const result = await apiCall('/customer/testimony', {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (result.success) {
-                        showNotification('Terima kasih! Testimoni Anda sedang dimoderasi.', 'success');
-                        hideTestimonyForm();
-                    }
-                } catch (error) {
-                    console.error('Testimony submit error:', error);
-                }
-            });
-        </script>
+        <script src="/js/home.js"></script>
         <footer style="background: var(--neutral-900); color: white; padding: 4rem 0; text-align: center;">
             <div class="container">
                 <img src="/assets/logo.png" alt="Baitybites Logo"
