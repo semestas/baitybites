@@ -37,12 +37,24 @@
             z-index: 50;
         }
 
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 99px;
-            text-transform: uppercase;
-            font-weight: bold;
+        .btn-icon {
+            background: #374151;
+            border: none;
+            color: #9ca3af;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #4b5563;
+            color: #f97316;
+            transform: scale(1.1);
         }
 
         .tab-nav {
@@ -177,19 +189,106 @@
             color: #f97316;
         }
 
-        .notification-toast {
+        .alert-overlay {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #10b981;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .kitchen-alert {
+            background: #1f2937;
+            border: 2px solid rgba(249, 115, 22, 0.5);
+            border-radius: 2rem;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .alert-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .alert-order-num {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .alert-status-state {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #f97316;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-desc {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #e5e7eb;
+            margin-bottom: 2rem;
+        }
+
+        .alert-close-btn {
+            background: #f97316;
+            color: white;
+            border: none;
             padding: 1rem 2rem;
-            border-radius: 99px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            display: none;
-            animation: bounceIn 0.5s;
+            border-radius: 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .alert-close-btn:active {
+            transform: scale(0.96);
+        }
+
+        .order-card.overdue-border {
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .overdue-pulse {
+            animation: pulse-red 2s infinite;
+            font-weight: 800;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         @keyframes slideIn {
@@ -201,6 +300,29 @@
             to {
                 transform: translateY(0);
                 opacity: 1;
+            }
+        }
+
+        .highlight-pulse {
+            animation: card-pulse .5s ease-out;
+            z-index: 10;
+        }
+
+        @keyframes card-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            }
+
+            30% {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px #f97316;
+                border-color: #f97316;
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
             }
         }
 
@@ -223,8 +345,14 @@
 </head>
 
 <body>
-    <div id="toast" class="notification-toast">
-        🔔 Pesanan Baru Diterima!
+    <div id="alert-overlay" class="alert-overlay" style="display: none;">
+        <div id="toast" class="kitchen-alert">
+            <div class="alert-icon" id="alert-icon">🔔</div>
+            <div id="alert-order-number" class="alert-order-num">#ORD-XXXX</div>
+            <div id="alert-status-state" class="alert-status-state">[STATUS]</div>
+            <div id="alert-description" class="alert-desc">Keterangan alert</div>
+            <button class="alert-close-btn" onclick="hideAlert()">MENGERTI</button>
+        </div>
     </div>
 
     <header class="app-header">
@@ -232,7 +360,13 @@
             <img src="/assets/logo.png" style="height: 32px;">
             <span style="font-weight: bold;">Kitchen</span>
         </div>
-        <div id="connectionStatus" style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <button id="soundToggle" class="btn-icon" onclick="toggleAudio()" title="Test/Enable Sound">
+                <i data-lucide="volume-2" id="soundIcon"></i>
+            </button>
+            <div id="connectionStatus" style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;">
+            </div>
+        </div>
     </header>
 
     <div class="tab-nav">

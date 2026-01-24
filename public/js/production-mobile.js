@@ -3,27 +3,66 @@
     let currentTab = 'incoming';
     let ordersCache = { incoming: [], queue: [] };
     let lastOrderCount = 0;
+    let currentAlertTargetId = null;
+    let currentAlertTargetTab = null;
 
     // Audio Context for notifications
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playNotificationSound() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.5);
+        if (audioCtx.state === 'suspended') return; // Don't play if blocked/muted
+
+        const now = audioCtx.currentTime;
+
+        // --- Note 1: Friendly Chime Start ---
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(660, now); // E5
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(0.2, now + 0.05);
+        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+        // --- Note 2: Friendly Chime End ---
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880, now + 0.1); // A5
+        gain2.gain.setValueAtTime(0, now + 0.1);
+        gain2.gain.linearRampToValueAtTime(0.15, now + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+
+        osc1.start(now);
+        osc1.stop(now + 0.8);
+        osc2.start(now + 0.1);
+        osc2.stop(now + 1.0);
+    }
+
+    window.toggleAudio = function () {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().then(() => {
+                const icon = document.getElementById('soundIcon');
+                icon.setAttribute('data-lucide', 'volume-2');
+                icon.style.color = '#f97316';
+                lucide.createIcons();
+                playNotificationSound(); // Test sound
+            });
+        } else {
+            // Since we can't truly "mute" a generated osc easily without more state,
+            // we just play a test sound or show it's active.
+            playNotificationSound();
+        }
     }
 
     // Tracks orders that have already triggered an overdue notification
     const notifiedOverdueOrders = new Set();
+    const notifiedNearOverdueOrders = new Set();
 
     async function loadData() {
         try {
@@ -39,14 +78,17 @@
                 renderCurrentTab();
 
                 // Check for new orders
-                const totalOrders = (incoming?.length || 0) + (queue?.length || 0);
+                const latestIncoming = incoming || [];
+                const latestQueue = queue || [];
+                const totalOrders = latestIncoming.length + latestQueue.length;
+
                 if (totalOrders > lastOrderCount && lastOrderCount !== 0) {
-                    showToast('🔔 Pesanan Baru Masuk!');
-                    playNotificationSound();
+                    const newOrder = latestIncoming[0] || latestQueue[0];
+                    showToast(newOrder?.order_number, 'Pesanan Masuk', 'Perlu konfirmasi segera', `order-${newOrder?.id}`, 'incoming');
                 }
                 lastOrderCount = totalOrders;
 
-                // Check for overdue production status
+                // Check for overdue/near-overdue production status
                 const currentQueueIds = new Set();
                 ordersCache.queue.forEach(order => {
                     currentQueueIds.add(order.id);
@@ -56,10 +98,15 @@
                         const elapsed = Math.floor((new Date() - start) / 60000);
                         const target = order.estimations.total_mins;
 
+                        // Case 1: Overdue
                         if (elapsed >= target && !notifiedOverdueOrders.has(order.id)) {
-                            showToast(`⚠️ Pesanan #${order.order_number} butuh perhatian!`);
-                            playNotificationSound();
+                            showToast(order.order_number, 'Waktu Selesai', 'Segera kemas pesanan ini!', `order-${order.id}`, 'production');
                             notifiedOverdueOrders.add(order.id);
+                        }
+                        // Case 2: Almost Done (1 minute remaining)
+                        else if (elapsed === target - 1 && target > 1 && !notifiedNearOverdueOrders.has(order.id)) {
+                            showToast(order.order_number, 'Hampir Selesai', 'Bersiap untuk mengepak', `order-${order.id}`, 'production');
+                            notifiedNearOverdueOrders.add(order.id);
                         }
                     }
                 });
@@ -67,6 +114,9 @@
                 // Cleanup notified set for removed/completed orders
                 for (let id of notifiedOverdueOrders) {
                     if (!currentQueueIds.has(id)) notifiedOverdueOrders.delete(id);
+                }
+                for (let id of notifiedNearOverdueOrders) {
+                    if (!currentQueueIds.has(id)) notifiedNearOverdueOrders.delete(id);
                 }
 
                 // Update connection status
@@ -93,7 +143,7 @@
         container.innerHTML = `
             <div class="order-grid">
                 ${ordersCache.incoming.map(order => `
-                    <div class="order-card">
+                    <div class="order-card" id="order-${order.id}">
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <div class="font-bold text-lg text-white">#${order.order_number}</div>
@@ -140,6 +190,7 @@
                 ${ordersCache.queue.map(order => {
             let actionBtn = '';
             let timeline = '';
+            let isOverdue = false;
 
             // Logic button & timeline based on status
             if (order.status === 'confirmed') {
@@ -149,14 +200,16 @@
                 actionBtn = `<button class="action-btn btn-pack" onclick="updateStatus(${order.id}, 'packaging')"><i data-lucide="package"></i> SELESAI MASAK</button>`;
                 const start = new Date(order.prod_start);
                 const elapsed = Math.floor((new Date() - start) / 60000);
-                timeline = `<span class="timer-badge text-orange-400">🔥 Masak: ${elapsed} mnt</span>`;
+                const target = order.estimations.total_mins;
+                isOverdue = elapsed >= target;
+                timeline = `<span class="timer-badge ${isOverdue ? 'overdue-pulse text-red-500' : 'text-orange-400'}">🔥 Masak: ${elapsed} mnt</span>`;
             } else if (order.status === 'packaging') {
                 actionBtn = `<button class="action-btn bg-purple-600 text-white" onclick="updateStatus(${order.id}, 'shipping')"><i data-lucide="truck"></i> SIAP KIRIM</button>`;
                 timeline = `<span class="timer-badge text-green-400">📦 Packing</span>`;
             }
 
             return `
-                <div class="order-card priority">
+                <div class="order-card priority ${isOverdue ? 'overdue-border' : ''}" id="order-${order.id}">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <div class="font-bold text-lg text-white">#${order.order_number}</div>
@@ -200,12 +253,14 @@
 
     window.switchTab = function (tab) {
         currentTab = tab;
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active'); // Warning: simplistic
-        // Better active toggle
         const buttons = document.querySelectorAll('.tab-btn');
-        if (tab === 'incoming') { buttons[0].classList.add('active'); buttons[1].classList.remove('active'); }
-        else { buttons[0].classList.remove('active'); buttons[1].classList.add('active'); }
+        if (tab === 'incoming') {
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        } else {
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+        }
 
         renderCurrentTab();
     }
@@ -215,11 +270,59 @@
         else renderProduction();
     }
 
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 3000);
+
+    window.hideAlert = function () {
+        document.getElementById('alert-overlay').style.display = 'none';
+
+        if (currentAlertTargetId) {
+            // First, ensure we are on the correct tab
+            if (currentAlertTargetTab && currentAlertTargetTab !== currentTab) {
+                window.switchTab(currentAlertTargetTab);
+            }
+
+            // Small delay to allow list to render before scrolling
+            setTimeout(() => {
+                const target = document.getElementById(currentAlertTargetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.classList.add('highlight-pulse');
+
+                    // Strictly remove the highlight after 1 second
+                    setTimeout(() => {
+                        target.classList.remove('highlight-pulse');
+                    }, 1000);
+                }
+                currentAlertTargetId = null;
+                currentAlertTargetTab = null;
+            }, currentAlertTargetTab === currentTab ? 0 : 100);
+        }
+    }
+
+    function showToast(orderNum, statusState, description, targetId, targetTab) {
+        const overlay = document.getElementById('alert-overlay');
+        const orderEl = document.getElementById('alert-order-number');
+        const stateEl = document.getElementById('alert-status-state');
+        const descEl = document.getElementById('alert-description');
+        const iconEl = document.getElementById('alert-icon');
+
+        currentAlertTargetId = targetId;
+        currentAlertTargetTab = targetTab;
+
+        orderEl.textContent = orderNum ? `#${orderNum}` : '';
+        stateEl.textContent = statusState;
+        descEl.textContent = description;
+
+        // Choose icon based on statusState
+        if (statusState.toLowerCase().includes('selesai') || statusState.toLowerCase().includes('hampir')) {
+            iconEl.textContent = '🔔';
+        } else if (statusState.toLowerCase().includes('masuk')) {
+            iconEl.textContent = '📦';
+        } else {
+            iconEl.textContent = '⚠️';
+        }
+
+        overlay.style.display = 'flex';
+        playNotificationSound();
     }
 
     // Public Actions
