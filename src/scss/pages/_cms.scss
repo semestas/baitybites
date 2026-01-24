@@ -576,8 +576,8 @@
         }
 
         .field-value-text {
-            font-size: 1.05rem;
-            font-weight: 600;
+            // font-size: 1.05rem;
+            // font-weight: 600;
             color: #1a202c;
             word-break: break-all;
             flex: 1;
@@ -598,7 +598,7 @@
             border-radius: 6px;
 
             &:hover {
-                background: #f1f5f9;
+                background: #88939e;
                 opacity: 1;
                 color: $primary;
             }
