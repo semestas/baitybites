@@ -6,107 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMS - Kelola Konten BaityBites</title>
     <link rel="icon" type="image/png" href="/assets/favicon.png">
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .cms-grid {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            background: #2d3436;
-            color: white;
-            padding: 20px;
-        }
-
-        .sidebar-nav a {
-            display: block;
-            padding: 12px;
-            color: #dfe6e9;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active {
-            background: #f59638;
-            color: white;
-        }
-
-        .content-area {
-            padding: 40px;
-            background: #f8f9fa;
-        }
-
-        .section-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .badge-pending {
-            background: #ffeaa7;
-            color: #d63031;
-        }
-
-        .badge-approved {
-            background: #55efc4;
-            color: #00b894;
-        }
-
-        .gallery-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .gallery-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .gallery-item .actions {
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        .input-sm {
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 
 <body>
     <div class="cms-grid">
         <aside class="sidebar">
             <div class="mb-4 text-center">
-                <img src="/assets/logo.png" alt="Logo" style="height: 60px;">
+                <img src="/assets/logo.png" alt="Logo" class="sidebar-logo">
                 <h3 class="mt-2 text-white">Admin CMS</h3>
             </div>
             <nav class="sidebar-nav">
@@ -115,8 +22,7 @@
                 <a href="#instagram" onclick="switchSection('instagram', event)">📷 Instagram Settings</a>
                 <a href="#settings" onclick="switchSection('settings', event)">⚙️ Setting Kontak</a>
                 <a href="#testimonials" onclick="switchSection('testimonials', event)">💬 Moderasi Testimoni</a>
-                <a href="/dashboard" class="mt-4" style="border-top: 1px solid #444; padding-top: 20px;">⬅️ Dashboard
-                    Utama</a>
+                <a href="/dashboard" class="nav-back mt-4">⬅️ Dashboard Utama</a>
             </nav>
         </aside>
 
@@ -133,8 +39,7 @@
                             <tr>
                                 <th>Order #</th>
                                 <th>Customer</th>
-                                <th>Status</th>
-                                <th>Update Progress</th>
+                                <th style="text-align: center;">Status</th>
                             </tr>
                         </thead>
                         <tbody id="orders-list"></tbody>
@@ -165,9 +70,9 @@
                 </div>
 
                 <!-- Option 1: Elfsight Widget (Recommended) -->
-                <div class="card mb-4" style="background: #e8f5e9; border: 2px solid #4caf50;">
+                <div class="ig-integration-card">
                     <h4>✨ Opsi 1: Elfsight Widget (Direkomendasikan - Paling Mudah)</h4>
-                    <p style="line-height: 1.8; margin-bottom: 15px;">
+                    <p>
                         Cara tercepat dan termudah tanpa perlu API token. Cukup copy-paste widget code dari Elfsight.
                     </p>
                     <ol style="line-height: 1.8;">
@@ -178,26 +83,34 @@
                         <li>Paste di kolom bawah ini</li>
                     </ol>
 
-                    <div class="form-group mt-3">
-                        <label class="form-label">Elfsight Widget Code</label>
-                        <textarea id="elfsightWidget" class="form-input" rows="4" placeholder='<script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
-<div class="elfsight-app-xxxxx-xxxxx"></div>'></textarea>
-                        <small class="text-muted">Paste kode lengkap dari Elfsight (termasuk script tag)</small>
+                    <div class="editable-field" id="field-elfsightWidget">
+                        <label class="field-label">Elfsight Widget Code</label>
+                        <div class="field-display">
+                            <div class="field-value-text" id="text-elfsightWidget">Loading...</div>
+                            <button type="button" class="btn-edit-inline"
+                                onclick="startInlineEdit('elfsightWidget')">✏️</button>
+                        </div>
+                        <div class="field-edit-box">
+                            <textarea id="elfsightWidget" class="form-input" rows="5"></textarea>
+                            <div class="edit-controls">
+                                <button type="button" class="btn btn-outline btn-xs"
+                                    onclick="cancelInlineEdit('elfsightWidget')">Batal</button>
+                                <button type="button" class="btn btn-primary btn-xs"
+                                    onclick="saveElfsightWidget()">Simpan</button>
+                            </div>
+                        </div>
                     </div>
-
-                    <button class="btn btn-primary" onclick="saveElfsightWidget()">💾 Simpan Widget</button>
                     <div id="elfsightStatus" class="mt-2"></div>
                 </div>
 
                 <!-- Option 2: API Integration (Advanced) -->
-                <div class="card mb-4" style="background: #fff3e0; border: 2px solid #ff9800;">
+                <div class="ig-integration-card api">
                     <h4>🔧 Opsi 2: API Integration (Advanced)</h4>
-                    <p style="line-height: 1.8; margin-bottom: 15px;">
+                    <p>
                         Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post terpopuler
                     </p>
                     <details>
-                        <summary style="cursor: pointer; font-weight: bold; margin-bottom: 10px;">📋 Cara Mendapatkan
-                            Access Token</summary>
+                        <summary class="detail-summary">📋 Cara Mendapatkan Access Token</summary>
                         <ol style="line-height: 1.8; margin-top: 10px;">
                             <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
                                     Developers</a></li>
@@ -232,47 +145,124 @@
                     <p class="text-muted">Informasi ini akan ditampilkan di footer website.</p>
                 </div>
 
-                <form id="settingsForm" onsubmit="saveSettings(event)">
-                    <div class="grid grid-2 gap-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <form id="settingsForm" onsubmit="event.preventDefault();">
+                    <div class="grid grid-2 gap-4">
                         <div>
                             <h4 class="mb-3">📞 Kontak Informasi</h4>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Email Support</label>
-                                <input type="email" id="contact_email" class="form-input"
-                                    placeholder="admin@baitybites.com">
+
+                            <div class="editable-field" id="field-contact_email">
+                                <label class="field-label">Email Support</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-contact_email">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('contact_email')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="email" id="contact_email" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('contact_email')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('contact_email')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Nomor WhatsApp / Telepon</label>
-                                <input type="text" id="contact_phone" class="form-input" placeholder="+62 812...">
+
+                            <div class="editable-field" id="field-contact_phone">
+                                <label class="field-label">Nomor WhatsApp / Telepon</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-contact_phone">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('contact_phone')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="contact_phone" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('contact_phone')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('contact_phone')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Alamat Fisik</label>
-                                <textarea id="contact_address" class="form-input" rows="3"
-                                    placeholder="Jl. Contoh No. 123..."></textarea>
+
+                            <div class="editable-field" id="field-contact_address">
+                                <label class="field-label">Alamat Fisik</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-contact_address"
+                                        style="white-space: pre-wrap;">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('contact_address')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <textarea id="contact_address" class="form-input" rows="3"></textarea>
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('contact_address')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('contact_address')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                         <div>
                             <h4 class="mb-3">🌐 Sosial Media (Username/Link)</h4>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Instagram URL</label>
-                                <input type="text" id="social_instagram" class="form-input"
-                                    placeholder="https://instagram.com/...">
+
+                            <div class="editable-field" id="field-social_instagram">
+                                <label class="field-label">Instagram URL</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-social_instagram">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('social_instagram')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_instagram" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('social_instagram')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('social_instagram')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Facebook URL</label>
-                                <input type="text" id="social_facebook" class="form-input"
-                                    placeholder="https://facebook.com/...">
+
+                            <div class="editable-field" id="field-social_facebook">
+                                <label class="field-label">Facebook URL</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-social_facebook">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('social_facebook')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_facebook" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('social_facebook')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('social_facebook')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label">TikTok URL</label>
-                                <input type="text" id="social_tiktok" class="form-input"
-                                    placeholder="https://tiktok.com/...">
+
+                            <div class="editable-field" id="field-social_tiktok">
+                                <label class="field-label">TikTok URL</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-social_tiktok">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('social_tiktok')">✏️</button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_tiktok" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('social_tiktok')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('social_tiktok')">Simpan</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-4 text-right">
-                        <button type="submit" class="btn btn-primary">💾 Simpan Pengaturan</button>
                     </div>
                 </form>
             </section>
@@ -336,30 +326,84 @@
             if (section === 'settings') loadSettings();
         }
 
+        const statusLabels = {
+            'confirmed': 'Konfirmasi',
+            'production': 'Mulai Produksi',
+            'packaging': 'Pengemasan',
+            'shipping': 'Pengiriman',
+            'completed': 'Selesai'
+        };
+
         async function loadOrders() {
             try {
                 const json = await apiCall('/cms/orders');
                 const container = document.getElementById('orders-list');
                 if (json.success) {
-                    container.innerHTML = json.data.map(o => `
+                    container.innerHTML = json.data.map(o => {
+                        const steps = ['confirmed', 'production', 'packaging', 'shipping', 'completed'];
+                        const currentStepIndex = steps.indexOf(o.status);
+
+                        const isCompleted = o.status === 'completed';
+
+                        return `
                         <tr>
                             <td><strong>${o.order_number}</strong></td>
                             <td>${o.customer_name}</td>
-                            <td><span class="badge ${o.status === 'completed' ? 'badge-approved' : 'badge-pending'}">${o.status}</span></td>
-                            <td>
-                                <select onchange="updateStatus(${o.id}, this.value)" class="input-sm">
-                                    <option value="">Ubah Status...</option>
-                                    <option value="confirmed">Konfirmasi</option>
-                                    <option value="production">Mulai Produksi</option>
-                                    <option value="packaging">Pengemasan</option>
-                                    <option value="shipping">Pengiriman</option>
-                                    <option value="completed">Selesai</option>
-                                </select>
+                            <td style="text-align: center; overflow: visible;">
+                                <div class="status-popover-container" id="popover-${o.id}">
+                                    <button class="status-trigger-badge ${o.status} ${isCompleted ? 'is-completed' : ''}" 
+                                            ${isCompleted ? '' : `onclick="toggleStatusPopover(event, ${o.id})"`}>
+                                        ${o.status.toUpperCase()}
+                                    </button>
+                                    
+                                    ${isCompleted ? '' : `
+                                    <div class="status-popover ${o.status}">
+                                        <div class="timeline-steps">
+                                            ${steps.map((step, index) => {
+                            let stateClass = '';
+                            if (index < currentStepIndex) stateClass = 'completed';
+                            else if (index === currentStepIndex) stateClass = 'current active';
+
+                            return `
+                                                <div class="timeline-step ${stateClass}" onclick="selectStatusFromTimeline(${o.id}, '${step}')">
+                                                    <div class="step-circle" title="${statusLabels[step]}"></div>
+                                                    <div class="step-label">${statusLabels[step]}</div>
+                                                </div>
+                                                `;
+                        }).join('')}
+                                        </div>
+                                    </div>
+                                    `}
+                                </div>
                             </td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 }
             } catch (e) { console.error(e); }
+        }
+
+        function toggleStatusPopover(e, id) {
+            e.stopPropagation();
+            // Close all others
+            document.querySelectorAll('.status-popover').forEach(el => {
+                const parent = el.closest('.status-popover-container');
+                if (parent && parent.id !== `popover-${id}`) {
+                    el.classList.remove('show');
+                }
+            });
+
+            const container = document.getElementById(`popover-${id}`);
+            const popover = container.querySelector('.status-popover');
+            popover.classList.toggle('show');
+        }
+
+        function selectStatusFromTimeline(id, status) {
+            updateStatus(id, status);
+
+            // Close popover
+            const container = document.getElementById(`popover-${id}`);
+            const popover = container.querySelector('.status-popover');
+            popover.classList.remove('show');
         }
 
         async function updateStatus(id, status) {
@@ -370,7 +414,7 @@
                     body: JSON.stringify({ status })
                 });
                 if (res.success) {
-                    alert('Status diperbarui!');
+                    // alert('Status diperbarui!'); // Removed for smoother UX
                     loadOrders();
                 }
             } catch (e) { console.error(e); }
@@ -382,12 +426,15 @@
                 const container = document.getElementById('testimonials-list');
                 if (json.success) {
                     container.innerHTML = json.data.map(t => `
-                        <div class="flex items-center justify-between border-b py-3">
-                            <div>
-                                <strong>${t.name}</strong> <span class="text-muted">(${t.role})</span>
-                                <p class="mt-1">"${t.content}"</p>
+                        <div class="testimonial-item">
+                            <div class="testimonial-content">
+                                <div class="testimonial-header">
+                                    <strong>${t.name}</strong>
+                                    <span class="role-badge">${t.role}</span>
+                                </div>
+                                <p class="testimonial-text">"${t.content}"</p>
                             </div>
-                            <div>
+                            <div class="testimonial-actions">
                                 <button class="btn ${t.is_approved ? 'btn-outline' : 'btn-primary'} btn-sm" 
                                         onclick="toggleApprove(${t.id}, ${!t.is_approved})">
                                     ${t.is_approved ? 'Batalkan' : 'Setujui'}
@@ -474,10 +521,26 @@
         };
 
         // --- Elfsight Widget Functions ---
+        function startInlineEdit(fieldId) {
+            document.getElementById(`field-${fieldId}`).classList.add('is-editing');
+            const input = document.getElementById(fieldId);
+            input.focus();
+            if (input.tagName === 'TEXTAREA') {
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        }
+
+        function cancelInlineEdit(fieldId) {
+            document.getElementById(`field-${fieldId}`).classList.remove('is-editing');
+            // If it was a settings field, reload to undo local changes
+            if (fieldId !== 'elfsightWidget') loadSettings();
+            else loadInstagramSettings();
+        }
+
         async function saveElfsightWidget() {
             const widget = document.getElementById('elfsightWidget').value.trim();
             if (!widget) {
-                alert('Mohon paste kode widget dari Elfsight');
+                alert('Mohon masukkan kode widget Elfsight');
                 return;
             }
             try {
@@ -486,8 +549,10 @@
                     body: JSON.stringify({ widget })
                 });
                 if (res.success) {
+                    document.getElementById('text-elfsightWidget').textContent = widget;
+                    cancelInlineEdit('elfsightWidget');
                     document.getElementById('elfsightStatus').innerHTML =
-                        '<div class="badge badge-approved">✅ Widget berhasil disimpan!</div>';
+                        '<div class="badge badge-approved">✅ Tersimpan!</div>';
                     setTimeout(() => {
                         document.getElementById('elfsightStatus').innerHTML = '';
                     }, 3000);
@@ -509,6 +574,9 @@
                 const widgetRes = await apiCall('/cms/instagram/widget');
                 if (widgetRes.success && widgetRes.data) {
                     document.getElementById('elfsightWidget').value = widgetRes.data;
+                    document.getElementById('text-elfsightWidget').textContent = widgetRes.data.substring(0, 50) + '...';
+                } else {
+                    document.getElementById('text-elfsightWidget').textContent = 'Belum ada widget';
                 }
             } catch (e) {
                 console.error(e);
@@ -558,18 +626,20 @@
                 const res = await apiCall('/cms/settings');
                 if (res.success) {
                     const data = res.data;
-                    document.getElementById('contact_email').value = data.contact_email || '';
-                    document.getElementById('contact_phone').value = data.contact_phone || '';
-                    document.getElementById('contact_address').value = data.contact_address || '';
-                    document.getElementById('social_instagram').value = data.social_instagram || '';
-                    document.getElementById('social_facebook').value = data.social_facebook || '';
-                    document.getElementById('social_tiktok').value = data.social_tiktok || '';
+                    const fields = ['contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
+
+                    fields.forEach(f => {
+                        const val = data[f] || '---';
+                        document.getElementById(f).value = data[f] || '';
+                        document.getElementById(`text-${f}`).textContent = val;
+                    });
                 }
             } catch (e) { console.error(e); }
         }
 
-        async function saveSettings(e) {
-            e.preventDefault();
+        async function saveIndividualSetting(fieldId) {
+            const value = document.getElementById(fieldId).value;
+            // Since the backend likely expects the full settings object, we'll fetch current values
             const payload = {
                 contact_email: document.getElementById('contact_email').value,
                 contact_phone: document.getElementById('contact_phone').value,
@@ -585,17 +655,25 @@
                     body: JSON.stringify(payload)
                 });
                 if (res.success) {
-                    alert(res.message);
+                    document.getElementById(`text-${fieldId}`).textContent = value || '---';
+                    cancelInlineEdit(fieldId);
                 }
             } catch (error) {
                 console.error(error);
-                alert('Gagal menyimpan pengaturan');
+                alert('Gagal menyimpan perubahan');
             }
         }
 
         // Initial Load
         switchSection('orders');
         loadInstagramSettings();
+
+        // Close popovers when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.status-popover-container')) {
+                document.querySelectorAll('.status-popover').forEach(el => el.classList.remove('show'));
+            }
+        });
     </script>
 </body>
 

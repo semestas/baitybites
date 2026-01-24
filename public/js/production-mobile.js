@@ -22,6 +22,9 @@
         oscillator.stop(audioCtx.currentTime + 0.5);
     }
 
+    // Tracks orders that have already triggered an overdue notification
+    const notifiedOverdueOrders = new Set();
+
     async function loadData() {
         try {
             const { apiCall } = window.app;
@@ -38,10 +41,33 @@
                 // Check for new orders
                 const totalOrders = (incoming?.length || 0) + (queue?.length || 0);
                 if (totalOrders > lastOrderCount && lastOrderCount !== 0) {
-                    showToast('Pesanan Baru Masuk!');
+                    showToast('🔔 Pesanan Baru Masuk!');
                     playNotificationSound();
                 }
                 lastOrderCount = totalOrders;
+
+                // Check for overdue production status
+                const currentQueueIds = new Set();
+                ordersCache.queue.forEach(order => {
+                    currentQueueIds.add(order.id);
+
+                    if (order.status === 'production') {
+                        const start = new Date(order.prod_start);
+                        const elapsed = Math.floor((new Date() - start) / 60000);
+                        const target = order.estimations.total_mins;
+
+                        if (elapsed >= target && !notifiedOverdueOrders.has(order.id)) {
+                            showToast(`⚠️ Pesanan #${order.order_number} butuh perhatian!`);
+                            playNotificationSound();
+                            notifiedOverdueOrders.add(order.id);
+                        }
+                    }
+                });
+
+                // Cleanup notified set for removed/completed orders
+                for (let id of notifiedOverdueOrders) {
+                    if (!currentQueueIds.has(id)) notifiedOverdueOrders.delete(id);
+                }
 
                 // Update connection status
                 document.getElementById('connectionStatus').style.background = '#10b981';
@@ -64,35 +90,41 @@
             return;
         }
 
-        container.innerHTML = ordersCache.incoming.map(order => `
-            <div class="order-card">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="font-bold text-lg text-white">#${order.order_number}</div>
-                        <div class="text-sm text-gray-400">${order.customer_name}</div>
-                    </div>
-                    <span class="status-badge bg-gray-700 text-gray-300">${order.status}</span>
-                </div>
-                
-                <div class="border-t border-gray-700 my-2 pt-2 space-y-2">
-                    ${order.items.map(item => `
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-300 text-lg">${item.product_name}</span>
-                            <span class="font-bold text-orange-500 text-lg">x${item.quantity}</span>
+        container.innerHTML = `
+            <div class="order-grid">
+                ${ordersCache.incoming.map(order => `
+                    <div class="order-card">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="font-bold text-lg text-white">#${order.order_number}</div>
+                                <div class="text-sm text-gray-400">${order.customer_name}</div>
+                            </div>
+                            <span class="status-badge bg-gray-700 text-gray-300">${order.status}</span>
                         </div>
-                    `).join('')}
-                </div>
+                        
+                        <div class="border-t border-gray-700 my-2 pt-2 space-y-2">
+                            ${order.items.map(item => `
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-300 text-lg">${item.product_name}</span>
+                                    <span class="font-bold text-orange-500 text-lg">x${item.quantity}</span>
+                                </div>
+                            `).join('')}
+                        </div>
 
-                <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
-                    <div>Total: ${window.app.formatCurrency(order.total_amount)}</div>
-                    <div>${new Date(order.created_at).toLocaleTimeString()}</div>
-                </div>
+                        <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+                            <div>Total: ${window.app.formatCurrency(order.total_amount)}</div>
+                            <div>${new Date(order.created_at).toLocaleTimeString()}</div>
+                        </div>
 
-                <button class="action-btn btn-confirm" onclick="confirmOrder(${order.id})">
-                    <i data-lucide="check-circle"></i> PO CONFIRM
-                </button>
+                        <div style="flex:1"></div>
+
+                        <button class="action-btn btn-confirm" onclick="confirmOrder(${order.id})">
+                            <i data-lucide="check-circle"></i> PO CONFIRM
+                        </button>
+                    </div>
+                `).join('')}
             </div>
-        `).join('');
+        `;
         lucide.createIcons();
     }
 
@@ -103,7 +135,9 @@
             return;
         }
 
-        container.innerHTML = ordersCache.queue.map(order => {
+        container.innerHTML = `
+            <div class="order-grid">
+                ${ordersCache.queue.map(order => {
             let actionBtn = '';
             let timeline = '';
 
@@ -122,32 +156,36 @@
             }
 
             return `
-            <div class="order-card priority">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="font-bold text-lg text-white">#${order.order_number}</div>
-                        <div class="flex gap-2 mt-1">
-                            ${timeline}
-                            <span class="timer-badge">🎯 Est: ${order.estimations.total_mins}m</span>
+                <div class="order-card priority">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="font-bold text-lg text-white">#${order.order_number}</div>
+                            <div class="flex gap-2 mt-1">
+                                ${timeline}
+                                <span class="timer-badge">🎯 Est: ${order.estimations.total_mins}m</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="border-t border-gray-700 my-2 pt-2 space-y-1">
-                    ${order.items.map(item => `
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-300 text-lg">${item.product_name}</span>
-                            <span class="bg-gray-800 px-2 py-1 rounded text-white font-bold">x${item.quantity}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                 
-                 ${order.notes ? `<div class="bg-red-900/30 text-red-200 p-2 text-sm rounded mt-2">📝 ${order.notes}</div>` : ''}
+                    
+                    <div class="border-t border-gray-700 my-2 pt-2 space-y-1">
+                        ${order.items.map(item => `
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-300 text-lg">${item.product_name}</span>
+                                <span class="bg-gray-800 px-2 py-1 rounded text-white font-bold">x${item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    ${order.notes ? `<div class="bg-red-900/30 text-red-200 p-2 text-sm rounded mt-2">📝 ${order.notes}</div>` : ''}
 
-                ${actionBtn}
+                    <div style="flex:1"></div>
+
+                    ${actionBtn}
+                </div>
+                `;
+        }).join('')}
             </div>
-            `;
-        }).join('');
+        `;
         lucide.createIcons();
     }
 
