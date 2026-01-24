@@ -110,6 +110,7 @@ function handleImageError(img) {
 
     const div = document.createElement('div');
     div.className = 'letter-avatar';
+    // Use class for size, only inline background/color
     div.style.cssText = `
         background: ${gradient};
         color: white;
@@ -117,11 +118,14 @@ function handleImageError(img) {
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        width: 100%;
-        height: 100%;
         border-radius: 50%;
     `;
     div.textContent = initials;
+
+    // Retain classes from original img to ensure size matching if classes are used
+    if (img.className) {
+        div.className += ' ' + img.className;
+    }
 
     img.replaceWith(div);
 }
