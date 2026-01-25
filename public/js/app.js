@@ -161,9 +161,14 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Unauthorized - redirect to login
+                // Unauthorized - clear token
                 localStorage.removeItem('token');
-                window.location.href = '/login.html';
+                localStorage.removeItem('user');
+
+                // Only redirect to login if we are NOT on a public page
+                if (!isPublicPath()) {
+                    window.location.href = '/login.html';
+                }
                 return;
             }
 
@@ -305,26 +310,32 @@ function getUser() {
     }
 }
 
-// Check authentication
-function checkAuth() {
+// Internal helper for public path detection
+function isPublicPath() {
     const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
-    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
-
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
-    const isPublicPage = publicPages.some(page =>
+    return publicPages.some(page =>
         currentPath === page ||
         currentPath.endsWith(page) ||
         normalizedPath === page ||
-        normalizedPath + '.html' === page
+        (normalizedPath + '.html') === page
     );
+}
 
+// Check authentication
+function checkAuth() {
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
+    const currentPath = window.location.pathname;
+    const normalizedPath = currentPath.replace(/\/$/, '') || '/';
+
+    const isPublicPage = isPublicPath();
     const isAdminPage = adminPages.some(page =>
         currentPath === page ||
         currentPath.endsWith(page) ||
         normalizedPath === page ||
-        normalizedPath + '.html' === page
+        (normalizedPath + '.html') === page
     );
 
     const token = localStorage.getItem('token');
@@ -600,9 +611,6 @@ function closeNav() {
     }
     if (overlay) overlay.classList.remove('active');
 }
-
-// Run authentication check on all pages
-window.addEventListener('load', checkAuth);
 
 // Export for use in other modules
 window.app = {
