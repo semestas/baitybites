@@ -48,7 +48,7 @@
 
   function updateStats(stats) {
     const utils = getUtils();
-    console.log('Updating stats cards:', stats);
+    // console.log('Updating stats cards:', stats);
 
     const elements = {
       totalOrders: document.getElementById('totalOrders'),
@@ -74,7 +74,7 @@
   }
 
   function updateOrderFlow(flowData) {
-    console.log('Updating order flow status:', flowData);
+    // console.log('Updating order flow status:', flowData);
     const flowContainer = document.getElementById('orderFlowStats');
     if (!flowContainer) return;
 
@@ -105,7 +105,7 @@
   }
 
   function updateRecentOrders(orders) {
-    console.log('Updating recent orders table:', orders);
+    // console.log('Updating recent orders table:', orders);
     const tableBody = document.getElementById('recentOrdersTable');
     if (!tableBody) return;
 

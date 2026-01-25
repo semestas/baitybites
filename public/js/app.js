@@ -1,6 +1,14 @@
 // Global API configuration
-// const API_BASE = window.location.origin + '/api';
 const API_BASE = window.location.origin + '/api';
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registered', reg))
+            .catch(err => console.error('Service Worker registration failed', err));
+    });
+}
 
 // Utility functions
 function formatCurrency(amount) {
@@ -503,6 +511,32 @@ function initPublicHeader() {
         if (window.innerWidth > 991) closeNav();
     });
 }
+
+// Responsive Tables: Add data-label to all cells based on header text
+function prepareResponsiveTables() {
+    document.querySelectorAll('.table').forEach(table => {
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        if (headers.length === 0) return;
+
+        table.querySelectorAll('tbody tr').forEach(row => {
+            row.querySelectorAll('td').forEach((cell, index) => {
+                if (headers[index] && !cell.getAttribute('data-label')) {
+                    cell.setAttribute('data-label', headers[index]);
+                }
+            });
+        });
+    });
+}
+
+// Watch for DOM changes to prepare new tables
+const tableObserver = new MutationObserver(() => {
+    prepareResponsiveTables();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    prepareResponsiveTables();
+    tableObserver.observe(document.body, { childList: true, subtree: true });
+});
 
 function toggleNav() {
     const nav = document.getElementById('mainNav');

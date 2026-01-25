@@ -181,6 +181,8 @@ const app = new Elysia()
         const filePath = join(PUBLIC_DIR, "uploads", decodeURIComponent((params as any)["*"]));
         return Bun.file(filePath);
     })
+    .get("/sw.js", () => Bun.file(join(PUBLIC_DIR, "sw.js")))
+    .get("/manifest.json", () => Bun.file(join(PUBLIC_DIR, "manifest.json")))
     .get("/api/health", () => ({
         status: "ok",
         timestamp: new Date().toISOString(),
