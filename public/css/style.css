@@ -246,10 +246,9 @@ p {
 .nav-link {
   color: white;
   text-decoration: none;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
-  font-weight: 500;
   position: relative;
 }
 

@@ -144,33 +144,38 @@
         container.innerHTML = `
             <div class="order-grid">
                 ${data.map(order => `
-                    <div class="order-card" id="order-${order.id}">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="order-card" data-status="${order.status}" id="order-${order.id}">
+                        <div class="order-header">
                             <div>
-                                <div class="font-bold text-lg text-white">#${order.order_number}</div>
-                                <div class="text-sm text-gray-400">${order.customer_name}</div>
+                                <div class="order-number">#${order.order_number}</div>
+                                <div class="order-customer">${order.customer_name}</div>
                             </div>
-                            <span class="status-badge bg-gray-700 text-gray-300">${order.status}</span>
+                            <span class="status-badge ${order.status}">Pending</span>
                         </div>
                         
-                        <div class="border-t border-gray-700 my-2 pt-2 space-y-2">
-                            ${order.items.map(item => `
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-300 text-lg">${item.product_name}</span>
-                                    <span class="font-bold text-orange-500 text-lg">x${item.quantity}</span>
-                                </div>
-                            `).join('')}
+                        <div style="border-top: 1px solid var(--border-color); margin: 0.75rem 0; padding-top: 0.75rem;">
+                            ${(() => {
+                const firstItem = order.items[0];
+                const remainingCount = order.items.length - 1;
+                return `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                                        <span style="color: var(--text-primary); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${firstItem.product_name}</span>
+                                        <span style="font-weight: 700; color: #f97316; font-size: 1rem; flex-shrink: 0;">Rp ${(firstItem.subtotal || 0).toLocaleString('id-ID')}</span>
+                                    </div>
+                                    ${remainingCount > 0 ? `<div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">+ ${remainingCount} other${remainingCount > 1 ? 's' : ''}</div>` : ''}
+                                `;
+            })()}
                         </div>
 
-                        <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
-                            <div>Total: ${window.app.formatCurrency(order.total_amount)}</div>
-                            <div>${new Date(order.created_at).toLocaleTimeString()}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
+                            <div>${window.app.formatCurrency(order.total_amount)}</div>
+                            <div>${new Date(order.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
                         </div>
 
                         <div style="flex:1"></div>
 
                         <button class="action-btn btn-confirm" onclick="confirmOrder(${order.id})">
-                            <i data-lucide="check-circle"></i> PO CONFIRM
+                            <i data-lucide="check-circle"></i> Set Confirmed
                         </button>
                     </div>
                 `).join('')}
@@ -196,41 +201,47 @@
             // Logic button & timeline based on status
             if (order.status === 'confirmed') {
                 actionBtn = `<button class="action-btn btn-cook" onclick="updateStatus(${order.id}, 'production')"><i data-lucide="flame"></i> MULAI MASAK</button>`;
-                timeline = `<span class="timer-badge">⏳ Menunggu Koki</span>`;
+                timeline = `<span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">⏳ Menunggu</span>`;
             } else if (order.status === 'production') {
                 actionBtn = `<button class="action-btn btn-pack" onclick="updateStatus(${order.id}, 'packaging')"><i data-lucide="package"></i> SELESAI MASAK</button>`;
                 const start = new Date(order.prod_start);
                 const elapsed = Math.floor((new Date() - start) / 60000);
                 const target = order.estimations.total_mins;
                 isOverdue = elapsed >= target;
-                timeline = `<span class="timer-badge ${isOverdue ? 'overdue-pulse-text' : 'text-orange-400'}">🔥 Masak: ${elapsed} mnt</span>`;
+                timeline = `<span style="background: ${isOverdue ? '#fee2e2' : '#fef3c7'}; color: ${isOverdue ? '#991b1b' : '#92400e'}; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">🔥 Masak: ${elapsed} mnt</span>`;
             } else if (order.status === 'packaging') {
                 actionBtn = `<button class="action-btn bg-purple-600 text-white" onclick="updateStatus(${order.id}, 'shipping')"><i data-lucide="truck"></i> SIAP KIRIM</button>`;
-                timeline = `<span class="timer-badge text-green-400">📦 Packing</span>`;
+                timeline = `<span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">📦 Packing</span>`;
             }
 
             return `
-                <div class="order-card priority ${isOverdue ? 'overdue-border' : ''}" id="order-${order.id}">
-                    <div class="flex justify-between items-start mb-2">
+                <div class="order-card ${isOverdue ? 'overdue-border' : ''}" data-status="${order.status}" id="order-${order.id}">
+                    <div class="order-header">
                         <div>
-                            <div class="font-bold text-lg text-white">#${order.order_number}</div>
-                            <div class="flex gap-2 mt-1">
-                                ${timeline}
-                                <span class="timer-badge">🎯 Est: ${order.estimations.total_mins}m</span>
+                            <div class="order-number">#${order.order_number}</div>
+                            <div style="display: flex; gap: 0.25rem; margin-top: 0.5rem; align-items: center; max-width: 100%; overflow: hidden;">
+                                ${timeline.replace('style="', 'style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; ')}
+                                <span class="timer-badge" style="flex: 1; background: var(--bg-hover); color: var(--text-secondary); padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; flex-shrink: 0;">🎯 Est: ${order.estimations.total_mins}m</span>
                             </div>
                         </div>
+                        <span class="status-badge ${order.status}">${order.status === 'confirmed' ? 'Ready' : order.status === 'production' ? 'Cooking' : 'Packing'}</span>
                     </div>
                     
-                    <div class="border-t border-gray-700 my-2 pt-2 space-y-1">
-                        ${order.items.map(item => `
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-300 text-lg">${item.product_name}</span>
-                                <span class="bg-gray-800 px-2 py-1 rounded text-white font-bold">x${item.quantity}</span>
-                            </div>
-                        `).join('')}
+                    <div style="border-top: 1px solid var(--border-color); margin: 0.75rem 0; padding-top: 0.75rem;">
+                        ${(() => {
+                    const firstItem = order.items[0];
+                    const remainingCount = order.items.length - 1;
+                    return `
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                                    <span style="color: var(--text-primary); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${firstItem.product_name}</span>
+                                    <span style="background: var(--bg-hover); padding: 0.25rem 0.5rem; border-radius: 0.375rem; color: var(--text-primary); font-weight: 700; flex-shrink: 0;">×${firstItem.quantity}</span>
+                                </div>
+                                ${remainingCount > 0 ? `<div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">+ ${remainingCount} other${remainingCount > 1 ? 's' : ''}</div>` : ''}
+                            `;
+                })()}
                     </div>
                     
-                    ${order.notes ? `<div class="bg-red-900/30 text-red-200 p-2 text-sm rounded mt-2">📝 ${order.notes}</div>` : ''}
+                    ${order.notes ? `<div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 0.5rem; font-size: 0.875rem; border-radius: 0.5rem; margin-top: 0.5rem; border: 1px solid rgba(239, 68, 68, 0.2);">📝 ${order.notes}</div>` : ''}
 
                     <div style="flex:1"></div>
 
