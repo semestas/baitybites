@@ -685,6 +685,10 @@ p {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .table td:last-child::before {
+    display: none;
+  }
 }
 
 .table td {
