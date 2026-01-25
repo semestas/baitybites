@@ -265,6 +265,68 @@ p {
   color: white;
 }
 
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  z-index: 1001;
+}
+
+@media (max-width: 991px) {
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--gradient-dark);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 80px var(--spacing-lg) var(--spacing-lg);
+    transition: right var(--transition-base);
+    box-shadow: var(--shadow-2xl);
+    z-index: 1000;
+  }
+
+  .nav.active {
+    right: 0;
+  }
+
+  .nav-link {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .user-menu {
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    border-left: none !important;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-md);
+  }
+
+  .user-menu span {
+    padding: 0 var(--spacing-md);
+    opacity: 0.7;
+    font-size: 0.8rem;
+  }
+}
+
 /* ===================================
    Cards
    =================================== */

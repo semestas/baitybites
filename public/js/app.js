@@ -423,7 +423,7 @@ async function checkVersion() {
 
 // Header initialization for public pages
 function initPublicHeader() {
-    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/order', '/track', '/profile', '/privacy', '/tos'];
+    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -436,8 +436,19 @@ function initPublicHeader() {
 
     if (!isPublicPage) return;
 
+    const headerContent = document.querySelector('.header-content');
     const nav = document.getElementById('mainNav');
-    if (!nav) return;
+    if (!nav || !headerContent) return;
+
+    // Add Toggle Button if not exists
+    if (!document.getElementById('mobileNavToggle')) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'mobileNavToggle';
+        toggleBtn.className = 'nav-toggle';
+        toggleBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        toggleBtn.onclick = toggleNav;
+        headerContent.appendChild(toggleBtn);
+    }
 
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
@@ -464,6 +475,13 @@ function initPublicHeader() {
         `;
     }
 
+    // Close menu when link is clicked
+    nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('active');
+        });
+    });
+
     // Handle scroll for transparent header
     if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
         const header = document.querySelector('.header');
@@ -478,6 +496,13 @@ function initPublicHeader() {
                 }
             });
         }
+    }
+}
+
+function toggleNav() {
+    const nav = document.getElementById('mainNav');
+    if (nav) {
+        nav.classList.toggle('active');
     }
 }
 
