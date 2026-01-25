@@ -478,7 +478,7 @@ function initPublicHeader() {
     // Close menu when link is clicked
     nav.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-            nav.classList.remove('active');
+            closeNav();
         });
     });
 
@@ -497,13 +497,52 @@ function initPublicHeader() {
             });
         }
     }
+
+    // Auto-close menu if resized to desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 991) closeNav();
+    });
 }
 
 function toggleNav() {
     const nav = document.getElementById('mainNav');
-    if (nav) {
-        nav.classList.toggle('active');
+    const toggle = document.getElementById('mobileNavToggle');
+
+    // Create overlay if not exists
+    let overlay = document.getElementById('navOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'navOverlay';
+        overlay.className = 'nav-overlay';
+        overlay.onclick = closeNav;
+        document.body.appendChild(overlay);
     }
+
+    if (nav) {
+        const isActive = nav.classList.toggle('active');
+        if (toggle) toggle.classList.toggle('active');
+        overlay.classList.toggle('active');
+
+        // Toggle icon between hamburger and close
+        if (isActive) {
+            toggle.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+        } else {
+            toggle.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        }
+    }
+}
+
+function closeNav() {
+    const nav = document.getElementById('mainNav');
+    const toggle = document.getElementById('mobileNavToggle');
+    const overlay = document.getElementById('navOverlay');
+
+    if (nav) nav.classList.remove('active');
+    if (toggle) {
+        toggle.classList.remove('active');
+        toggle.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+    }
+    if (overlay) overlay.classList.remove('active');
 }
 
 // Run authentication check on all pages
