@@ -202,7 +202,7 @@
                 const elapsed = Math.floor((new Date() - start) / 60000);
                 const target = order.estimations.total_mins;
                 isOverdue = elapsed >= target;
-                timeline = `<span class="timer-badge ${isOverdue ? 'overdue-pulse text-red-500' : 'text-orange-400'}">🔥 Masak: ${elapsed} mnt</span>`;
+                timeline = `<span class="timer-badge ${isOverdue ? 'overdue-pulse-text' : 'text-orange-400'}">🔥 Masak: ${elapsed} mnt</span>`;
             } else if (order.status === 'packaging') {
                 actionBtn = `<button class="action-btn bg-purple-600 text-white" onclick="updateStatus(${order.id}, 'shipping')"><i data-lucide="truck"></i> SIAP KIRIM</button>`;
                 timeline = `<span class="timer-badge text-green-400">📦 Packing</span>`;
@@ -327,18 +327,22 @@
 
     // Public Actions
     window.confirmOrder = async (id) => {
-        if (!confirm('Verifikasi pembayaran & pesanan sudah benar?')) return;
-        // Move directly to confirmed status
+        const order = ordersCache.incoming.find(o => o.id === id);
+        if (!confirm(`Verifikasi pembayaran & pesanan #${order?.order_number || id} sudah benar?`)) return;
         await updateStatus(id, 'confirmed');
     };
 
     window.updateStatus = async (id, status) => {
+        const order = [...ordersCache.incoming, ...ordersCache.queue].find(o => o.id === id);
         try {
-            const { apiCall } = window.app;
+            const { apiCall, showNotification, getStatusLabel } = window.app;
             await apiCall(`/cms/orders/${id}/status`, {
                 method: 'PUT',
                 body: JSON.stringify({ status })
             });
+
+            showNotification(`Melanjutkan Pesanan #${order?.order_number || id} ke proses ${getStatusLabel(status)}`, 'success');
+
             loadData(); // Refresh immediately
         } catch (e) {
             alert('Gagal update status');

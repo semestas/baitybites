@@ -212,29 +212,50 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
 
 // Notification system
 function showNotification(message, type = 'info') {
+    // Inject keyframes if not already present
+    if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            @keyframes toastFadeIn {
+                from { opacity: 0; transform: translate(-50%, -20px); }
+                to { opacity: 1; transform: translate(-50%, 0); }
+            }
+            @keyframes toastFadeOut {
+                from { opacity: 1; transform: translate(-50%, 0); }
+                to { opacity: 0; transform: translate(-50%, -20px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
     position: fixed;
     top: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 1rem 1.5rem;
     background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
     color: white;
     border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     z-index: 10000;
-    animation: slideIn 0.3s ease-out;
-    max-width: 400px;
+    animation: toastFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 90%;
+    width: max-content;
+    text-align: center;
+    font-weight: 600;
   `;
     notification.textContent = message;
 
     document.body.appendChild(notification);
 
     setTimeout(() => {
-        notification.style.animation = 'fadeOut 0.3s ease-out';
+        notification.style.animation = 'toastFadeOut 0.3s ease-out forwards';
         setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, 4000);
 }
 
 // Logout function
