@@ -1,5 +1,5 @@
 /**
- * BaityBites Profile Page Logic
+ * Baitybites Profile Page Logic
  */
 
 function toggleEditMode(isEdit) {

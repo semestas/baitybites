@@ -1,7 +1,7 @@
 # Authentication Flow Implementation Summary
 
 ## Overview
-Implemented role-based authentication redirects for the BaityBites Order Management System.
+Implemented role-based authentication redirects for the Baitybites Order Management System.
 
 ## Changes Made
 

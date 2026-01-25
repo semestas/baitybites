@@ -1,5 +1,5 @@
 /**
- * BaityBites Order Page Logic
+ * Baitybites Order Page Logic
  * Refactored for production efficiency
  */
 
@@ -73,7 +73,7 @@ async function autoFillUser() {
                             <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
                                 <div style="font-size: 1.5rem;">✨</div>
                                 <div>
-                                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia BaityBites!</p>
+                                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia Baitybites!</p>
                                     <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Selamat berbelanja!</p>
                                 </div>
                             </div>

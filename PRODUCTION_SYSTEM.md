@@ -1,4 +1,4 @@
-# Dokumentasi Sistem Estimasi Produksi BaityBites
+# Dokumentasi Sistem Estimasi Produksi Baitybites
 
 Dokumen ini menjelaskan logika bisnis dan teknis di balik sistem pelacakan produksi dan estimasi waktu yang diterapkan pada **Production Dashboard**.
 
@@ -81,4 +81,4 @@ Dashboard menggunakan **Lucide Icons** dengan kode warna untuk membedakan tahapa
 *   📦 **Packing** (Oranye): Waktu mulai kemas (`pack_start`).
 
 ---
-*Dokumen ini dibuat otomatis sebagai referensi logika bisnis sistem produksi BaityBites.*
+*Dokumen ini dibuat otomatis sebagai referensi logika bisnis sistem produksi Baitybites.*

@@ -2,7 +2,7 @@
 description: Setup Google OAuth Authentication
 ---
 
-# Google OAuth Authentication Setup untuk BaityBites
+# Google OAuth Authentication Setup untuk Baitybites
 
 Workflow ini menjelaskan langkah-langkah untuk mengimplementasikan Google OAuth authentication agar pelanggan dapat mendaftar dan login menggunakan akun Google.
 

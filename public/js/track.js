@@ -1,5 +1,5 @@
 /**
- * BaityBites Tracking Page Logic
+ * Baitybites Tracking Page Logic
  */
 
 let pollingInterval;

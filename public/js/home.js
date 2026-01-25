@@ -1,5 +1,5 @@
 /**
- * BaityBites Home Page Logic
+ * Baitybites Home Page Logic
  * Optimized for production: 
  * - IntersectionObserver for animations
  * - Centralized UI helpers via window.app
@@ -79,7 +79,7 @@ async function loadContent() {
             if (galJson.success) {
                 galContainer.innerHTML = galJson.data.map(item => `
                     <div class="gallery-item">
-                        <img src="${item.image_url}" alt="${item.title || 'Galeri BaityBites'}">
+                        <img src="${item.image_url}" alt="${item.title || 'Galeri Baitybites'}">
                     </div>
                 `).join('');
             }

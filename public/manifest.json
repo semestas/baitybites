@@ -1,8 +1,8 @@
 {
-    "name": "BaityBites Production",
-    "short_name": "BB Prod",
-    "description": "Production Keeper System for BaityBites",
-    "start_url": "/production-mobile.html",
+    "name": "Baitybites Kitchen",
+    "short_name": "BB Kitchen",
+    "description": "Production Keeper System for Baitybites",
+    "start_url": "/kitchen.html",
     "display": "standalone",
     "background_color": "#1f2937",
     "theme_color": "#f97316",

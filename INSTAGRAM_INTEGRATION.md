@@ -1,7 +1,7 @@
 # Instagram Gallery Integration Guide
 
 ## Overview
-BaityBites now supports **two methods** for Instagram gallery integration:
+Baitybites now supports **two methods** for Instagram gallery integration:
 
 1. **Elfsight Widget** (Recommended - Easiest)
 2. **Instagram Graph API** (Advanced - Automated)
@@ -25,7 +25,7 @@ BaityBites now supports **two methods** for Instagram gallery integration:
    - Customize the appearance (grid layout, number of posts, etc.)
    - Copy the widget code provided
 
-2. **Install in BaityBites**
+2. **Install in Baitybites**
    - Go to CMS → Instagram Settings
    - Find "Opsi 1: Elfsight Widget"
    - Paste the complete widget code (including `<script>` tags)
@@ -62,7 +62,7 @@ BaityBites now supports **two methods** for Instagram gallery integration:
      - `pages_read_engagement`
    - Copy the Long-Lived Access Token
 
-2. **Configure in BaityBites**
+2. **Configure in Baitybites**
    - Go to CMS → Instagram Settings
    - Find "Opsi 2: API Integration"
    - Paste your access token
