@@ -463,11 +463,12 @@ function initPublicHeader() {
 
     if (user) {
         // Logged in
+        const isAdmin = user.role === 'admin';
         nav.innerHTML = `
             <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
-            <a href="/order.html" class="nav-link ${window.location.pathname.endsWith('order.html') ? 'active' : ''}">Pesan</a>
+            ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : '<a href="/order.html" class="nav-link ' + (window.location.pathname.endsWith('order.html') ? 'active' : '') + '">Pesan</a>'}
             <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
-            <a href="/profile.html" class="nav-link ${window.location.pathname.endsWith('profile.html') ? 'active' : ''}">Profil</a>
+            ${isAdmin ? '' : '<a href="/profile.html" class="nav-link ' + (window.location.pathname.endsWith('profile.html') ? 'active' : '') + '">Profil</a>'}
             <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
                 <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
                 <button onclick="logout()" class="btn btn-outline btn-sm" style="color: white; border-color: white;">Logout</button>
@@ -510,6 +511,27 @@ function initPublicHeader() {
     window.addEventListener('resize', () => {
         if (window.innerWidth > 991) closeNav();
     });
+
+    // Hide all Order buttons/links for Admin
+    if (user && user.role === 'admin') {
+        const orderSelectors = [
+            'a[href*="order.html"]',
+            'a[href="/order"]',
+            '.cta-button[href*="order"]',
+            '.btn[href*="order"]'
+        ];
+
+        const orderElements = document.querySelectorAll(orderSelectors.join(','));
+        orderElements.forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Specifically for the hero section button group, adjust layout if empty
+        const btnGroup = document.querySelector('.button-group');
+        if (btnGroup && btnGroup.children.length === 0) {
+            btnGroup.style.display = 'none';
+        }
+    }
 }
 
 // Responsive Tables: Add data-label to all cells based on header text

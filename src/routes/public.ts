@@ -1,10 +1,21 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
 import { generateOrderNumber, generateInvoiceNumber } from '../utils/helpers';
+import { authPlugin } from '../middleware/auth';
 
 export const publicRoutes = (db: Sql) =>
     new Elysia({ prefix: '/public' })
-        .post('/order', async ({ body, set }) => {
+        .use(authPlugin)
+        .post('/order', async ({ body, set, user }) => {
+            // Block admins from placing orders
+            if (user && user.role === 'admin') {
+                set.status = 403;
+                return {
+                    success: false,
+                    message: 'Administrator tidak diperbolehkan membuat pesanan. Silakan gunakan akun pelanggan untuk transaksi asli.'
+                };
+            }
+
             const { name, email, phone, address, items, notes } = body as any;
 
             try {

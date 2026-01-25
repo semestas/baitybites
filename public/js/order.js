@@ -26,6 +26,13 @@ async function autoFillUser() {
     if (userStr) {
         try {
             const user = JSON.parse(userStr);
+
+            // Block admins from placing orders
+            if (user.role === 'admin') {
+                showAdminWarning();
+                return;
+            }
+
             if (user.role === 'customer' || user.role === 'guest') {
                 const nameEl = document.getElementById('name');
                 const emailEl = document.getElementById('email');
@@ -87,6 +94,40 @@ async function autoFillUser() {
         } catch (e) {
             console.error('Failed to parse user for auto-fill');
         }
+    }
+}
+
+function showAdminWarning() {
+    const orderForm = document.getElementById('orderForm');
+    const loyaltyNotice = document.getElementById('loyalty-notice');
+    if (loyaltyNotice) loyaltyNotice.style.display = 'none';
+
+    const warning = document.createElement('div');
+    warning.className = 'animate-fade-in';
+    warning.style.cssText = `
+        background: #fff1f2;
+        border: 2px solid #fda4af;
+        border-radius: 1.5rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        color: #9f1239;
+        margin: 2rem 0;
+    `;
+    warning.innerHTML = `
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚖️</div>
+        <h2 style="margin-bottom: 1rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
+        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+            Untuk menjaga integritas rekapitulasi data transaksi, akun <strong>Administrator</strong> tidak diperbolehkan membuat pesanan.<br>
+            Pastikan data laporan 100% berasal dari transaksi pelanggan asli.
+        </p>
+        <div class="flex flex-col gap-3" style="max-width: 300px; margin: 0 auto;">
+            <a href="/dashboard.html" class="btn btn-primary" style="width: 100%;">Kembali ke Dashboard</a>
+            <button onclick="logout()" class="btn btn-outline" style="width: 100%; border-color: #fda4af; color: #9f1239;">Logout & Pesan sbg Pelanggan</button>
+        </div>
+    `;
+
+    if (orderForm) {
+        orderForm.parentNode.replaceChild(warning, orderForm);
     }
 }
 
