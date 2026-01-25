@@ -272,18 +272,28 @@ export const cmsRoutes = (db: Sql) =>
             })
         })
 
-        // --- Customer Management ---
-        .get('/customers', async () => {
-            const customers = await db`
+        .get('/customers/:id', async ({ params }) => {
+            const [customer] = await db`
                 SELECT c.*, 
                        COUNT(o.id)::int as total_orders, 
+                       COALESCE(SUM(o.total_amount), 0) as total_spent,
                        MAX(o.order_date) as last_order
                 FROM customers c
                 LEFT JOIN orders o ON c.id = o.customer_id
+                WHERE c.id = ${params.id}
                 GROUP BY c.id
-                ORDER BY c.created_at DESC
             `;
-            return { success: true, data: customers };
+
+            if (!customer) return { success: false, message: 'Customer not found' };
+
+            const orders = await db`
+                SELECT o.* 
+                FROM orders o 
+                WHERE o.customer_id = ${params.id}
+                ORDER BY o.created_at DESC
+            `;
+
+            return { success: true, data: { ...customer, orders } };
         })
 
         // --- Order & Process Management ---
