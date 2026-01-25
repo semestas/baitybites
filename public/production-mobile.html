@@ -152,6 +152,24 @@
             color: white;
         }
 
+        .sort-select {
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sort-select:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+        }
+
         .timer-badge {
             background: #374151;
             padding: 0.25rem 0.5rem;
@@ -361,7 +379,13 @@
             <img src="/assets/logo.png" style="height: 32px;">
             <span style="font-weight: bold;">Kitchen</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <select id="sortOption" class="sort-select" onchange="handleSortChange(this.value)">
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama (FIFO)</option>
+                <option value="items">Banyak Item</option>
+                <option value="urgent" id="opt-urgent" style="display:none;">Paling Mendesak</option>
+            </select>
             <button id="soundToggle" class="btn-icon" onclick="toggleAudio()" title="Test/Enable Sound">
                 <i data-lucide="volume-2" id="soundIcon"></i>
             </button>

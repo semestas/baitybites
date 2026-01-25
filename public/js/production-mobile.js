@@ -5,6 +5,7 @@
     let lastOrderCount = 0;
     let currentAlertTargetId = null;
     let currentAlertTargetTab = null;
+    let currentSort = 'newest';
 
     // Audio Context for notifications
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -133,16 +134,16 @@
         document.getElementById('count-production').textContent = ordersCache.queue.length;
     }
 
-    function renderIncoming() {
+    function renderIncoming(data) {
         const container = document.getElementById('app-content');
-        if (ordersCache.incoming.length === 0) {
+        if (data.length === 0) {
             container.innerHTML = emptyState('Tidak ada pesanan baru.');
             return;
         }
 
         container.innerHTML = `
             <div class="order-grid">
-                ${ordersCache.incoming.map(order => `
+                ${data.map(order => `
                     <div class="order-card" id="order-${order.id}">
                         <div class="flex justify-between items-start mb-2">
                             <div>
@@ -178,16 +179,16 @@
         lucide.createIcons();
     }
 
-    function renderProduction() {
+    function renderProduction(data) {
         const container = document.getElementById('app-content');
-        if (ordersCache.queue.length === 0) {
+        if (data.length === 0) {
             container.innerHTML = emptyState('Dapur sedang santai.');
             return;
         }
 
         container.innerHTML = `
             <div class="order-grid">
-                ${ordersCache.queue.map(order => {
+                ${data.map(order => {
             let actionBtn = '';
             let timeline = '';
             let isOverdue = false;
@@ -254,20 +255,67 @@
     window.switchTab = function (tab) {
         currentTab = tab;
         const buttons = document.querySelectorAll('.tab-btn');
+        const optUrgent = document.getElementById('opt-urgent');
+
         if (tab === 'incoming') {
             buttons[0].classList.add('active');
             buttons[1].classList.remove('active');
+            optUrgent.style.display = 'none';
+            if (currentSort === 'urgent') {
+                currentSort = 'newest';
+                document.getElementById('sortOption').value = 'newest';
+            }
         } else {
             buttons[0].classList.remove('active');
             buttons[1].classList.add('active');
+            optUrgent.style.display = 'block';
         }
 
         renderCurrentTab();
     }
 
+    window.handleSortChange = function (val) {
+        currentSort = val;
+        renderCurrentTab();
+    }
+
+    function getSortedData() {
+        let data = currentTab === 'incoming' ? [...ordersCache.incoming] : [...ordersCache.queue];
+
+        data.sort((a, b) => {
+            if (currentSort === 'newest') {
+                return new Date(b.created_at) - new Date(a.created_at);
+            }
+            if (currentSort === 'oldest') {
+                return new Date(a.created_at) - new Date(b.created_at);
+            }
+            if (currentSort === 'items') {
+                const countA = a.items.reduce((sum, i) => sum + i.quantity, 0);
+                const countB = b.items.reduce((sum, i) => sum + i.quantity, 0);
+                return countB - countA;
+            }
+            if (currentSort === 'urgent' && currentTab === 'production') {
+                // Production target urgency
+                const startA = new Date(a.prod_start);
+                const elapsedA = Math.floor((new Date() - startA) / 60000);
+                const urgentA = a.estimations.total_mins - elapsedA;
+
+                const startB = new Date(b.prod_start);
+                const elapsedB = Math.floor((new Date() - startB) / 60000);
+                const urgentB = b.estimations.total_mins - elapsedB;
+
+                return urgentA - urgentB; // Lower (or negative) value means more urgent
+            }
+            return 0;
+        });
+
+        return data;
+    }
+
     function renderCurrentTab() {
-        if (currentTab === 'incoming') renderIncoming();
-        else renderProduction();
+        const sortedData = getSortedData();
+        if (currentTab === 'incoming') renderIncoming(sortedData);
+        else renderProduction(sortedData);
     }
 
 
