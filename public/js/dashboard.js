@@ -1,14 +1,14 @@
 
 // Dashboard initialization and data loading
 (function () {
-  console.log('Dashboard script loaded with Lucide Icons integration');
+
 
   // Utility to get utilities safely
   const getUtils = () => window.app || {};
 
   // Load dashboard data
   async function loadDashboardData() {
-    console.log('Attempting to load dashboard data...');
+
     try {
       const utils = getUtils();
       if (!utils.apiCall) {
@@ -17,7 +17,7 @@
       }
 
       const result = await utils.apiCall('/cms/stats');
-      console.log('Dashboard stats result:', result);
+
 
       if (result && result.success) {
         const { stats, flow, recentOrders } = result.data;
@@ -149,7 +149,7 @@
 
   // Initialize
   const init = () => {
-    console.log('Initializing Dashboard Layout...');
+
     // Redirection is now handled by checkAuth() in app.js
     loadDashboardData();
   };

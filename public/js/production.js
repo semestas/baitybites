@@ -1,6 +1,5 @@
 
 (function () {
-    console.log('Production script loaded with Estimation & Timestamps');
 
     const getUtils = () => window.app || {};
 
