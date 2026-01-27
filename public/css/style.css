@@ -48,6 +48,15 @@
   --error: #ef4444;
   --info: #3b82f6;
 
+  /* Status Colors */
+  --status-pending: #f59e0b;
+  --status-confirmed: #3b82f6;
+  --status-production: #8b5cf6;
+  --status-packaging: #f97316;
+  --status-shipping: #06b6d4;
+  --status-completed: #10b981;
+  --status-cancelled: #ef4444;
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #f59638 0%, #ec6817 100%);
   --gradient-secondary: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
@@ -1394,8 +1403,12 @@ p {
 
   .tracker-step.active {
     margin-top: 0;
-    padding: 1rem !important;
+    padding: 1.25rem !important;
     width: calc(100% - 1rem) !important;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
 
   .step-dot,
@@ -1448,32 +1461,106 @@ p {
 }
 
 /* Completed State */
-.tracker-step.completed .step-dot {
+.tracker-step.is-done .step-dot {
   background: var(--success);
 }
 
-.tracker-step.completed .step-label {
+.tracker-step.is-done .step-icon {
+  color: #10b981;
+}
+
+.tracker-step.is-done .step-label {
   color: var(--neutral-800);
 }
 
-/* Active State */
+/* Active State Base */
+.tracker-step.active {
+  /* Dynamic Fallbacks */
+  --active-color: var(--active-status-color, var(--status-confirmed));
+  --active-bg: var(--active-status-bg, #eff6ff);
+  --active-border: var(--active-status-border, #dbeafe);
+  --active-shadow: var(--active-status-shadow, rgba(59, 130, 246, 0.1));
+  --active-icon-shadow: var(--active-status-icon-shadow, rgba(59, 130, 246, 0.4));
+
+  background: var(--active-bg);
+  border: 1px solid var(--active-border);
+  border-radius: 1.25rem;
+  padding: 1rem 0.5rem;
+  margin-top: -1.25rem;
+  box-shadow: 0 10px 15px -3px var(--active-shadow), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Status-specific overrides for active state */
+.tracker-step.active.pending {
+  --active-status-color: var(--status-pending);
+  --active-status-bg: #fffbeb;
+  --active-status-border: #fef3c7;
+  --active-status-shadow: rgba(245, 158, 11, 0.1);
+  --active-status-icon-shadow: rgba(245, 158, 11, 0.4);
+}
+
+.tracker-step.active.confirmed {
+  --active-status-color: var(--status-confirmed);
+  --active-status-bg: #eff6ff;
+  --active-status-border: #dbeafe;
+  --active-status-shadow: rgba(59, 130, 246, 0.1);
+  --active-status-icon-shadow: rgba(59, 130, 246, 0.4);
+}
+
+.tracker-step.active.production {
+  --active-status-color: var(--status-production);
+  --active-status-bg: #f5f3ff;
+  --active-status-border: #ede9fe;
+  --active-status-shadow: rgba(139, 92, 246, 0.1);
+  --active-status-icon-shadow: rgba(139, 92, 246, 0.4);
+}
+
+.tracker-step.active.packaging {
+  --active-status-color: var(--status-packaging);
+  --active-status-bg: #fff7ed;
+  --active-status-border: #ffedd5;
+  --active-status-shadow: rgba(249, 115, 22, 0.1);
+  --active-status-icon-shadow: rgba(249, 115, 22, 0.4);
+}
+
+.tracker-step.active.shipping {
+  --active-status-color: var(--status-shipping);
+  --active-status-bg: #ecfeff;
+  --active-status-border: #cffafe;
+  --active-status-shadow: rgba(6, 182, 212, 0.1);
+  --active-status-icon-shadow: rgba(6, 182, 212, 0.4);
+}
+
+.tracker-step.active.completed {
+  --active-status-color: var(--status-completed);
+  --active-status-bg: #f0fdf4;
+  --active-status-border: #dcfce7;
+  --active-status-shadow: rgba(16, 185, 129, 0.1);
+  --active-status-icon-shadow: rgba(16, 185, 129, 0.4);
+}
+
 .tracker-step.active .step-label {
-  color: var(--primary-600);
+  color: var(--active-color);
   font-weight: 700;
-  transform: scale(1.1);
+  transform: translateY(-2px);
+  margin-bottom: 26px;
 }
 
 .tracker-step.active .step-dot {
-  background: #fbbf24;
-  transform: scale(1.3);
-  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+  background: var(--active-color);
+  transform: scale(1.4);
+  box-shadow: 0 0 0 6px var(--active-border);
 }
 
 .tracker-step.active .step-icon {
-  background: white;
-  padding: 8px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  width: 44px;
-  height: 44px;
+  background: var(--active-color);
+  color: white;
+  padding: 10px;
+  border-radius: 14px;
+  box-shadow: 0 8px 16px -4px var(--active-icon-shadow);
+  width: 52px;
+  height: 52px;
+  margin-top: 5px;
 }

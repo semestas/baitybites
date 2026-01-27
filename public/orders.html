@@ -9,6 +9,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -101,12 +102,12 @@
         };
 
         const STATUS_ICONS = {
-            'pending': '⏳',
-            'confirmed': '💳',
-            'production': '🍳',
-            'packaging': '📦',
-            'shipping': '🛵',
-            'completed': '📋'
+            'pending': 'clock',
+            'confirmed': 'credit-card',
+            'production': 'flame',
+            'packaging': 'package',
+            'shipping': 'truck',
+            'completed': 'check-circle'
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -212,6 +213,7 @@
                     </div>
                 </div>
             `}).join('');
+            lucide.createIcons();
         }
 
         function renderEmptyState(message) {
@@ -266,17 +268,22 @@
                     <div class="tracker-line-progress" style="width: ${progressWidth}%;"></div>
                     ${STATUS_FLOW.map((step, index) => {
                 let stateClass = '';
-                if (index < currentStepIndex) stateClass = 'completed';
+                if (index < currentStepIndex) stateClass = 'is-done';
                 if (index === currentStepIndex) stateClass = 'active';
 
                 // Click to update status (mock functionality)
                 const action = `onclick="updateStatus(${order.id}, '${step}')" style="cursor: pointer" title="Set to ${step}"`;
 
+                const statusColor = getStatusColor(step);
+                // We use inline variables to ensure the active theme matches the status color perfectly
                 return `
-                        <div class="tracker-step ${stateClass}" ${action}>
+                        <div class="tracker-step ${stateClass} ${step}" ${action} 
+                             style="--active-status-color: ${statusColor}; --active-status-bg: ${statusColor}15; --active-status-border: ${statusColor}33; --active-status-shadow: ${statusColor}20;">
                             <div class="step-label">${STATUS_LABELS[step]}</div>
                             <div class="step-dot"></div>
-                            <div class="step-icon">${STATUS_ICONS[step]}</div>
+                            <div class="step-icon">
+                                <i data-lucide="${STATUS_ICONS[step]}"></i>
+                            </div>
                         </div>
                         `;
             }).join('')}
@@ -317,6 +324,7 @@
             `;
 
             document.getElementById('orderModal').style.display = 'flex';
+            lucide.createIcons();
         }
 
         function closeOrderModal() {

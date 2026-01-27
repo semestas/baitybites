@@ -106,7 +106,7 @@ function getAvatarGradient(name) {
 function renderRatingStars(rating) {
     let stars = '';
     for (let i = 1; i <= 5; i++) {
-        stars += `<svg class="star ${i <= rating ? 'filled' : ''}" viewBox="0 0 24 24" style="width:18px;height:18px;fill:${i <= rating ? '#ffc107' : '#d1d5db'}"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+        stars += `<i data-lucide="star" class="${i <= rating ? 'filled' : ''}" style="width:18px;height:18px;fill:${i <= rating ? '#ffc107' : 'none'};color:${i <= rating ? '#ffc107' : '#d1d5db'}"></i>`;
     }
     return stars;
 }
@@ -261,9 +261,11 @@ function showNotification(message, type = 'info') {
     text-align: center;
     font-weight: 600;
   `;
-    notification.textContent = message;
+    const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
+    notification.innerHTML = `<i data-lucide="${iconName}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 10px;"></i> <span>${message}</span>`;
 
     document.body.appendChild(notification);
+    if (window.lucide) lucide.createIcons();
 
     setTimeout(() => {
         notification.style.animation = 'toastFadeOut 0.3s ease-out forwards';
@@ -373,7 +375,7 @@ async function loadFooterSettings() {
                 if (s.social_instagram) {
                     const handle = s.social_instagram.includes('instagram.com/') ? '@' + s.social_instagram.split('instagram.com/')[1].replace(/\/$/, '') : 'Instagram';
                     html += `<a href="${s.social_instagram}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        <i data-lucide="instagram" style="width: 20px; height: 20px;"></i>
                         <span>${handle}</span>
                     </a>`;
                 }
@@ -381,29 +383,35 @@ async function loadFooterSettings() {
                 // Facebook
                 if (s.social_facebook) {
                     html += `<a href="${s.social_facebook}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s; margin-left: 1rem;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        <i data-lucide="facebook" style="width: 20px; height: 20px;"></i>
                     </a>`;
                 }
 
                 // TikTok
                 if (s.social_tiktok) {
                     html += `<a href="${s.social_tiktok}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; opacity: 0.8; transition: opacity 0.3s; margin-left: 1rem;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+                        <i data-lucide="music" style="width: 20px; height: 20px;"></i>
                     </a>`;
                 }
 
-                if (html) socialContainer.innerHTML = html;
+                if (html) {
+                    socialContainer.innerHTML = html;
+                    if (window.lucide) lucide.createIcons();
+                }
             }
 
             // Update Contact Info
             const contactContainer = document.getElementById('footer-contact');
             if (contactContainer) {
                 let html = '';
-                if (s.contact_email) html += `<div style="margin-bottom: 0.5rem;">📧 ${s.contact_email}</div>`;
-                if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem;">📞 ${s.contact_phone}</div>`;
-                if (s.contact_address) html += `<div>📍 ${s.contact_address}</div>`;
+                if (s.contact_email) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="mail" style="width: 16px; height: 16px;"></i> ${s.contact_email}</div>`;
+                if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="phone" style="width: 16px; height: 16px;"></i> ${s.contact_phone}</div>`;
+                if (s.contact_address) html += `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> ${s.contact_address}</div>`;
 
-                if (html) contactContainer.innerHTML = html;
+                if (html) {
+                    contactContainer.innerHTML = html;
+                    if (window.lucide) lucide.createIcons();
+                }
             }
         }
     } catch (e) {
@@ -415,10 +423,9 @@ async function loadFooterSettings() {
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initGlobalHeader();
-    loadFooterSettings(); // <--- Added here
+    loadFooterSettings();
     checkVersion();
-
-    // ... rest of init code
+    if (window.lucide) lucide.createIcons();
 });
 
 // Check and display deployment version
@@ -654,7 +661,8 @@ window.app = {
     initGlobalHeader,
     getAvatarGradient,
     renderRatingStars,
-    handleImageError
+    handleImageError,
+    initIcons: () => { if (window.lucide) lucide.createIcons(); }
 };
 
 // Global image error handler

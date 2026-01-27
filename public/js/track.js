@@ -27,6 +27,7 @@ async function loadCustomerOrders() {
                     <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
                 </div>
             `).join('');
+            if (window.app && window.app.initIcons) window.app.initIcons();
         }
     } catch (e) {
         console.error('Failed to load customer orders:', e);
@@ -106,10 +107,10 @@ function updateUI(data) {
 
     steps.forEach((step, index) => {
         const el = document.getElementById('step-' + step);
-        el.classList.remove('active', 'completed');
+        el.classList.remove('active', 'is-done');
 
         if (index < currentIndex) {
-            el.classList.add('completed');
+            el.classList.add('is-done');
         } else if (index === currentIndex) {
             el.classList.add('active');
         }
@@ -122,6 +123,8 @@ function updateUI(data) {
     } else {
         shippingText.textContent = 'Menunggu kurir';
     }
+
+    if (window.app && window.app.initIcons) window.app.initIcons();
 }
 
 // Global scope for onclick

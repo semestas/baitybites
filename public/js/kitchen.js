@@ -205,17 +205,17 @@
             // Logic button & timeline based on status
             if (order.status === 'confirmed') {
                 actionBtn = `<button class="action-btn btn-cook" onclick="updateStatus(${order.id}, 'production')"><i data-lucide="flame"></i> MULAI MASAK</button>`;
-                timeline = `<span class="status-wait">⏳ Menunggu</span>`;
+                timeline = `<span class="status-wait"><i data-lucide="clock" style="width:14px;height:14px;vertical-align:text-bottom;"></i> Menunggu</span>`;
             } else if (order.status === 'production') {
                 actionBtn = `<button class="action-btn btn-pack" onclick="updateStatus(${order.id}, 'packaging')"><i data-lucide="package"></i> SELESAI MASAK</button>`;
                 const start = new Date(order.prod_start);
                 const elapsed = Math.floor((new Date() - start) / 60000);
                 const target = order.estimations.total_mins;
                 isOverdue = elapsed >= target;
-                timeline = `<span class="${isOverdue ? 'status-overdue' : 'status-cooking'}">🔥 Masak: ${elapsed} mnt</span>`;
+                timeline = `<span class="${isOverdue ? 'status-overdue' : 'status-cooking'}"><i data-lucide="flame" style="width:14px;height:14px;vertical-align:text-bottom;"></i> Masak: ${elapsed} mnt</span>`;
             } else if (order.status === 'packaging') {
                 actionBtn = `<button class="action-btn btn-ship" onclick="updateStatus(${order.id}, 'shipping')"><i data-lucide="truck"></i> SIAP KIRIM</button>`;
-                timeline = `<span class="status-packing">📦 Packing</span>`;
+                timeline = `<span class="status-packing"><i data-lucide="package" style="width:14px;height:14px;vertical-align:text-bottom;"></i> Packing</span>`;
             }
 
             return `
@@ -232,7 +232,7 @@
                                 ${timeline.replace('class="', `class="time-status-truncate `)}
                             </div>
                             <div class="timer-badge-secondary">
-                                🎯 Est: ${order.estimations.total_mins}m
+                                <i data-lucide="target" style="width:12px;height:12px;vertical-align:text-bottom;"></i> Est: ${order.estimations.total_mins}m
                             </div>
                         </div>
                     </div>
@@ -251,7 +251,7 @@
                 })()}
                     </div>
                     
-                    ${order.notes ? `<div class="order-notes-box">📝 ${order.notes}</div>` : ''}
+                    ${order.notes ? `<div class="order-notes-box"><i data-lucide="info" style="width:14px;height:14px;vertical-align:text-bottom;"></i> ${order.notes}</div>` : ''}
 
                     <div class="flex-spacer"></div>
 
@@ -381,13 +381,16 @@
         descEl.textContent = description;
 
         // Choose icon based on statusState
+        let iconName = 'bell';
         if (statusState.toLowerCase().includes('selesai') || statusState.toLowerCase().includes('hampir')) {
-            iconEl.textContent = '🔔';
+            iconName = 'bell';
         } else if (statusState.toLowerCase().includes('masuk')) {
-            iconEl.textContent = '📦';
+            iconName = 'package';
         } else {
-            iconEl.textContent = '⚠️';
+            iconName = 'alert-triangle';
         }
+        iconEl.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        lucide.createIcons();
 
         overlay.classList.add('active');
         playNotificationSound();

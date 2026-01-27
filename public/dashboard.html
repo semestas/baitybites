@@ -10,6 +10,7 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#f59638">
   <link rel="stylesheet" href="/css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     /* Compact Stat Pills Styling */
     .stat-pill {
@@ -192,7 +193,7 @@
               <div class="stat-label">Total Orders</div>
               <div class="stat-value" id="totalOrders">0</div>
             </div>
-            <div class="stat-icon">📦</div>
+            <div class="stat-icon"><i data-lucide="package"></i></div>
           </div>
 
           <div class="stat-card compact-row" style="border-left-color: #4caf50;">
@@ -200,7 +201,7 @@
               <div class="stat-label">Completed</div>
               <div class="stat-value" id="completedOrders">0</div>
             </div>
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
           </div>
 
           <div class="stat-card compact-row" style="border-left-color: #3b82f6;">
@@ -208,7 +209,7 @@
               <div class="stat-label">In Progress</div>
               <div class="stat-value" id="inProgressOrders">0</div>
             </div>
-            <div class="stat-icon">⚙️</div>
+            <div class="stat-icon"><i data-lucide="settings"></i></div>
           </div>
 
           <div class="stat-card compact-row" style="border-left-color: #f1c40f;">
@@ -216,7 +217,7 @@
               <div class="stat-label">Revenue</div>
               <div class="stat-value" id="totalRevenue">Rp 0</div>
             </div>
-            <div class="stat-icon">💰</div>
+            <div class="stat-icon"><i data-lucide="banknote"></i></div>
           </div>
         </div>
 
@@ -266,7 +267,8 @@
         <!-- Quick Actions -->
         <div class="grid grid-3 mt-4 animate-fade-in">
           <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">📝</div>
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-500);"><i
+                data-lucide="file-text" size="48"></i></div>
             <h3>New Order</h3>
             <p class="text-muted">Create a new customer order</p>
             <button class="btn btn-primary" onclick="window.location.href='/orders.html?action=new'">
@@ -275,7 +277,8 @@
           </div>
 
           <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">👥</div>
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--secondary-500);"><i
+                data-lucide="users" size="48"></i></div>
             <h3>Manage Customers</h3>
             <p class="text-muted">View and manage customer data</p>
             <button class="btn btn-secondary" onclick="window.location.href='/customers.html'">
@@ -284,7 +287,8 @@
           </div>
 
           <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">🏭</div>
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--neutral-600);"><i
+                data-lucide="factory" size="48"></i></div>
             <h3>Production</h3>
             <p class="text-muted">Monitor production status</p>
             <button class="btn btn-outline" onclick="window.location.href='/production.html'">
@@ -308,7 +312,6 @@
   </div>
 
   <script src="/js/app.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="/js/dashboard.js"></script>
 </body>
 

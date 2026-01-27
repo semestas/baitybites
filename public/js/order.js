@@ -78,7 +78,7 @@ async function autoFillUser() {
 
                         notice.innerHTML = `
                             <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
-                                <div style="font-size: 1.5rem;">✨</div>
+                                <div style="font-size: 1.5rem; color: #0ea5e9;"><i data-lucide="sparkles"></i></div>
                                 <div>
                                     <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia Baitybites!</p>
                                     <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Selamat berbelanja!</p>
@@ -89,6 +89,7 @@ async function autoFillUser() {
                         const form = document.getElementById('orderForm');
                         form.parentNode.insertBefore(notice, form);
                     }
+                    if (window.lucide) lucide.createIcons();
                 }
             }
         } catch (e) {
@@ -114,7 +115,7 @@ function showAdminWarning() {
         margin: 2rem 0;
     `;
     warning.innerHTML = `
-        <div style="font-size: 4rem; margin-bottom: 1rem;">⚖️</div>
+        <div style="font-size: 4rem; margin-bottom: 1rem; color: #e11d48;"><i data-lucide="lock" size="64"></i></div>
         <h2 style="margin-bottom: 1rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
         <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
             Untuk menjaga integritas rekapitulasi data transaksi, akun <strong>Administrator</strong> tidak diperbolehkan membuat pesanan.<br>
@@ -128,6 +129,7 @@ function showAdminWarning() {
 
     if (orderForm) {
         orderForm.parentNode.replaceChild(warning, orderForm);
+        if (window.lucide) lucide.createIcons();
     }
 }
 
@@ -239,6 +241,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await loadProducts();
     await loadRecentOrders();
+
+    if (window.app && window.app.initIcons) window.app.initIcons();
 
     const orderForm = document.getElementById('orderForm');
     if (orderForm) {

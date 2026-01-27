@@ -9,6 +9,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -19,12 +20,18 @@
                 <h3 class="mt-2 text-white">Admin CMS</h3>
             </div>
             <nav class="sidebar-nav">
-                <a href="#orders" class="active" onclick="switchSection('orders', event)">📦 Kelola Pesanan</a>
-                <a href="#gallery" onclick="switchSection('gallery', event)">🖼️ Galeri Foto</a>
-                <a href="#instagram" onclick="switchSection('instagram', event)">📷 Instagram Settings</a>
-                <a href="#settings" onclick="switchSection('settings', event)">⚙️ Setting Kontak</a>
-                <a href="#testimonials" onclick="switchSection('testimonials', event)">💬 Moderasi Testimoni</a>
-                <a href="/dashboard" class="nav-back mt-4">⬅️ Dashboard Utama</a>
+                <a href="#orders" class="active" onclick="switchSection('orders', event)"><i data-lucide="package"
+                        class="sidebar-icon"></i> Kelola Pesanan</a>
+                <a href="#gallery" onclick="switchSection('gallery', event)"><i data-lucide="image"
+                        class="sidebar-icon"></i> Galeri Foto</a>
+                <a href="#instagram" onclick="switchSection('instagram', event)"><i data-lucide="instagram"
+                        class="sidebar-icon"></i> Instagram Settings</a>
+                <a href="#settings" onclick="switchSection('settings', event)"><i data-lucide="settings"
+                        class="sidebar-icon"></i> Setting Kontak</a>
+                <a href="#testimonials" onclick="switchSection('testimonials', event)"><i data-lucide="message-square"
+                        class="sidebar-icon"></i> Moderasi Testimoni</a>
+                <a href="/dashboard" class="nav-back mt-4"><i data-lucide="arrow-left" class="sidebar-icon"></i>
+                    Dashboard Utama</a>
             </nav>
         </aside>
 
@@ -67,13 +74,15 @@
             <!-- Instagram Settings Section -->
             <section id="instagram-section" class="section-card" style="display:none;">
                 <div class="mb-4">
-                    <h2>⚙️ Instagram Integration</h2>
+                    <h2><i data-lucide="instagram" style="vertical-align: middle; margin-right: 8px;"></i> Instagram
+                        Integration</h2>
                     <p class="text-muted">Pilih salah satu metode integrasi Instagram di bawah ini</p>
                 </div>
 
                 <!-- Option 1: Elfsight Widget (Recommended) -->
                 <div class="ig-integration-card">
-                    <h4>✨ Opsi 1: Elfsight Widget (Direkomendasikan - Paling Mudah)</h4>
+                    <h4><i data-lucide="sparkles" size="18" style="vertical-align: middle;"></i> Opsi 1: Elfsight Widget
+                        (Direkomendasikan - Paling Mudah)</h4>
                     <p>
                         Cara tercepat dan termudah tanpa perlu API token. Cukup copy-paste widget code dari Elfsight.
                     </p>
@@ -89,8 +98,8 @@
                         <label class="field-label">Elfsight Widget Code</label>
                         <div class="field-display">
                             <div class="field-value-text" id="text-elfsightWidget">Loading...</div>
-                            <button type="button" class="btn-edit-inline"
-                                onclick="startInlineEdit('elfsightWidget')">✏️</button>
+                            <button type="button" class="btn-edit-inline" onclick="startInlineEdit('elfsightWidget')"><i
+                                    data-lucide="edit-3"></i></button>
                         </div>
                         <div class="field-edit-box">
                             <textarea id="elfsightWidget" class="form-input" rows="5"></textarea>
@@ -107,12 +116,14 @@
 
                 <!-- Option 2: API Integration (Advanced) -->
                 <div class="ig-integration-card api">
-                    <h4>🔧 Opsi 2: API Integration (Advanced)</h4>
+                    <h4><i data-lucide="settings" size="18" style="vertical-align: middle;"></i> Opsi 2: API Integration
+                        (Advanced)</h4>
                     <p>
                         Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post terpopuler
                     </p>
                     <details>
-                        <summary class="detail-summary">📋 Cara Mendapatkan Access Token</summary>
+                        <summary class="detail-summary"><i data-lucide="file-text" size="16"></i> Cara Mendapatkan
+                            Access Token</summary>
                         <ol style="line-height: 1.8; margin-top: 10px;">
                             <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
                                     Developers</a></li>
@@ -132,8 +143,10 @@
                     </div>
 
                     <div class="flex gap-2">
-                        <button class="btn btn-primary" onclick="saveInstagramToken()">💾 Simpan Token</button>
-                        <button class="btn btn-secondary" onclick="syncInstagram()">🔄 Sinkronkan Sekarang</button>
+                        <button class="btn btn-primary" onclick="saveInstagramToken()"><i data-lucide="save"
+                                size="16"></i> Simpan Token</button>
+                        <button class="btn btn-secondary" onclick="syncInstagram()"><i data-lucide="refresh-cw"
+                                size="16"></i> Sinkronkan Sekarang</button>
                     </div>
 
                     <div id="syncStatus" class="mt-4"></div>
@@ -143,21 +156,23 @@
             <!-- General Settings Section -->
             <section id="settings-section" class="section-card" style="display:none;">
                 <div class="mb-4">
-                    <h2>⚙️ Pengaturan Kontak & Sosial Media</h2>
+                    <h2><i data-lucide="cog" size="24" style="vertical-align: middle;"></i> Pengaturan Kontak & Sosial
+                        Media</h2>
                     <p class="text-muted">Informasi ini akan ditampilkan di footer website.</p>
                 </div>
 
                 <form id="settingsForm" onsubmit="event.preventDefault();">
                     <div class="grid grid-2 gap-4">
                         <div>
-                            <h4 class="mb-3">📞 Kontak Informasi</h4>
+                            <h4 class="mb-3"><i data-lucide="phone" size="18"></i> Kontak Informasi</h4>
 
                             <div class="editable-field" id="field-contact_email">
                                 <label class="field-label">Email Support</label>
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-contact_email">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_email')">✏️</button>
+                                        onclick="startInlineEdit('contact_email')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="email" id="contact_email" class="form-input">
@@ -175,7 +190,8 @@
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-contact_phone">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_phone')">✏️</button>
+                                        onclick="startInlineEdit('contact_phone')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="contact_phone" class="form-input">
@@ -194,7 +210,8 @@
                                     <div class="field-value-text" id="text-contact_address"
                                         style="white-space: pre-wrap;">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_address')">✏️</button>
+                                        onclick="startInlineEdit('contact_address')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <textarea id="contact_address" class="form-input" rows="3"></textarea>
@@ -209,14 +226,15 @@
                         </div>
 
                         <div>
-                            <h4 class="mb-3">🌐 Sosial Media (Username/Link)</h4>
+                            <h4 class="mb-3"><i data-lucide="globe" size="18"></i> Sosial Media (Username/Link)</h4>
 
                             <div class="editable-field" id="field-social_instagram">
                                 <label class="field-label">Instagram URL</label>
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-social_instagram">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_instagram')">✏️</button>
+                                        onclick="startInlineEdit('social_instagram')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_instagram" class="form-input">
@@ -234,7 +252,8 @@
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-social_facebook">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_facebook')">✏️</button>
+                                        onclick="startInlineEdit('social_facebook')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_facebook" class="form-input">
@@ -252,7 +271,8 @@
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-social_tiktok">---</div>
                                     <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_tiktok')">✏️</button>
+                                        onclick="startInlineEdit('social_tiktok')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_tiktok" class="form-input">
@@ -554,7 +574,8 @@
                     document.getElementById('text-elfsightWidget').textContent = widget;
                     cancelInlineEdit('elfsightWidget');
                     document.getElementById('elfsightStatus').innerHTML =
-                        '<div class="badge badge-approved">✅ Tersimpan!</div>';
+                        '<div class="badge badge-approved"><i data-lucide="check" size="12"></i> Tersimpan!</div>';
+                    if (window.lucide) lucide.createIcons();
                     setTimeout(() => {
                         document.getElementById('elfsightStatus').innerHTML = '';
                     }, 3000);
@@ -570,7 +591,8 @@
             try {
                 const res = await apiCall('/cms/instagram/settings');
                 if (res.success && res.data.has_token) {
-                    document.getElementById('tokenStatus').textContent = '✅ Token tersimpan';
+                    document.getElementById('tokenStatus').innerHTML = '<span style="color: #10b981;"><i data-lucide="check-circle" size="14"></i> Token tersimpan</span>';
+                    if (window.lucide) lucide.createIcons();
                 }
                 // Load widget if exists
                 const widgetRes = await apiCall('/cms/instagram/widget');

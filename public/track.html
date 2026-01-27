@@ -9,6 +9,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .track-page {
             min-height: 100vh;
@@ -56,23 +57,90 @@
 
         .timeline-dot {
             position: absolute;
-            left: -38px;
-            top: 0;
-            width: 18px;
-            height: 18px;
+            left: -48px;
+            top: -5px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--neutral-300);
+            background: var(--neutral-100);
             border: 4px solid white;
-            box-shadow: 0 0 0 2px var(--neutral-200);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neutral-400);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-dot i {
+            width: 16px;
+            height: 16px;
+        }
+
+        .timeline-item.active {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 1rem;
+            padding: 1rem 1rem 1rem 3.5rem;
+            margin-left: -1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s ease;
+            --step-color: #3b82f6;
+        }
+
+        .timeline-item.active.pending {
+            background: #fffbeb;
+            border-color: #fef3c7;
+            --step-color: #f59e0b;
+        }
+
+        .timeline-item.active.paid {
+            background: #eff6ff;
+            border-color: #dbeafe;
+            --step-color: #3b82f6;
+        }
+
+        .timeline-item.active.production {
+            background: #f5f3ff;
+            border-color: #ede9fe;
+            --step-color: #8b5cf6;
+        }
+
+        .timeline-item.active.packaging {
+            background: #fff7ed;
+            border-color: #ffedd5;
+            --step-color: #f97316;
+        }
+
+        .timeline-item.active.shipping {
+            background: #ecfeff;
+            border-color: #cffafe;
+            --step-color: #06b6d4;
+        }
+
+        .timeline-item.active.completed {
+            background: #f0fdf4;
+            border-color: #dcfce7;
+            --step-color: #10b981;
         }
 
         .timeline-item.active .timeline-dot {
-            background: var(--primary-500);
-            box-shadow: 0 0 0 2px var(--primary-200);
+            background: var(--step-color);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(var(--step-color), 0.2);
+            transform: scale(1.2);
+            left: -18px;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1.2);
         }
 
-        .timeline-item.completed .timeline-dot {
-            background: var(--success);
+        .timeline-item.active .timeline-title {
+            color: var(--step-color);
+        }
+
+        .timeline-item.is-done .timeline-dot {
+            background: #10b981;
+            color: white;
             box-shadow: 0 0 0 2px #d1fae5;
         }
 
@@ -163,43 +231,43 @@
                             </div>
 
                             <div class="status-timeline">
-                                <div class="timeline-item" id="step-pending">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item pending" id="step-pending">
+                                    <div class="timeline-dot"><i data-lucide="clock"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Pesanan Diterima</div>
                                         <div class="timeline-date">Pencatatan PO Berhasil</div>
                                     </div>
                                 </div>
-                                <div class="timeline-item" id="step-paid">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item paid" id="step-paid">
+                                    <div class="timeline-dot"><i data-lucide="credit-card"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Pembayaran & Invoice</div>
                                         <div class="timeline-date">Verifikasi Pembayaran</div>
                                     </div>
                                 </div>
-                                <div class="timeline-item" id="step-production">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item production" id="step-production">
+                                    <div class="timeline-dot"><i data-lucide="flame"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Proses Produksi</div>
                                         <div class="timeline-date">Risol Mayo sedang dibuat</div>
                                     </div>
                                 </div>
-                                <div class="timeline-item" id="step-packaging">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item packaging" id="step-packaging">
+                                    <div class="timeline-dot"><i data-lucide="package"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Pengemasan</div>
                                         <div class="timeline-date">Pesanan sedang dikemas rapi</div>
                                     </div>
                                 </div>
-                                <div class="timeline-item" id="step-shipping">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item shipping" id="step-shipping">
+                                    <div class="timeline-dot"><i data-lucide="truck"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Pengiriman</div>
                                         <div class="timeline-date" id="resShippingText">Menunggu kurir</div>
                                     </div>
                                 </div>
-                                <div class="timeline-item" id="step-completed">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item completed" id="step-completed">
+                                    <div class="timeline-dot"><i data-lucide="check-circle"></i></div>
                                     <div class="timeline-content">
                                         <div class="timeline-title">Selesai</div>
                                         <div class="timeline-date">Pesanan telah sampai tujuan</div>

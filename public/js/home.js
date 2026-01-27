@@ -98,7 +98,7 @@ async function loadContent() {
                         <div>
                             <h4>
                                 ${t.name}
-                                ${t.role === 'Verified Customer' ? '<span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>' : ''}
+                                ${t.role === 'Verified Customer' ? '<span class="verified-badge"><i data-lucide="check-circle" size="14"></i></span>' : ''}
                             </h4>
                             <div class="user-meta">
                                 <span class="role">${t.role || 'Pelanggan'}</span>
@@ -109,6 +109,7 @@ async function loadContent() {
                     </div>
                 </div>
             `).join('');
+            if (window.app && window.app.initIcons) window.app.initIcons();
         }
     } catch (e) {
         console.error('Failed to load home content:', e);
