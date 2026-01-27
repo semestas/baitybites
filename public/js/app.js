@@ -484,6 +484,7 @@ function initGlobalHeader() {
         const isCust = normalizedPath.includes('customers');
         const isProd = normalizedPath.includes('products');
         const isWork = normalizedPath.includes('production');
+        const isKitchen = normalizedPath.includes('kitchen');
         const isCMS = normalizedPath.includes('cms');
 
         nav.innerHTML = `
@@ -492,6 +493,7 @@ function initGlobalHeader() {
             <a href="/customers.html" class="nav-link ${isCust ? 'active' : ''}">Customers</a>
             <a href="/products.html" class="nav-link ${isProd ? 'active' : ''}">Products</a>
             <a href="/production.html" class="nav-link ${isWork ? 'active' : ''}">Production</a>
+            <a href="/kitchen.html" class="nav-link ${isKitchen ? 'active' : ''}">Kitchen</a>
             <a href="/cms.html" class="nav-link ${isCMS ? 'active' : ''}">CMS</a>
             <button onclick="logout()" class="btn btn-primary btn-md">Logout</button>
         `;

@@ -1,0 +1,230 @@
+.track-page {
+    min-height: calc(100vh - 82px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--neutral-50);
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.track-container {
+    width: 100%;
+    max-width: 600px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.track-card {
+    background: white;
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-2xl);
+}
+
+.status-timeline {
+    margin-top: var(--spacing-2xl);
+    position: relative;
+    padding-left: 3rem;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--neutral-200);
+    }
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: var(--spacing-xl);
+
+    &.active {
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 1rem;
+        padding: 1rem 1rem 1rem 3.5rem;
+        margin-left: -1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s ease;
+        --step-color: #3b82f6;
+
+        &.pending {
+            background: #fffbeb;
+            border-color: #fef3c7;
+            --step-color: #f59e0b;
+        }
+
+        &.paid {
+            background: #eff6ff;
+            border-color: #dbeafe;
+            --step-color: #3b82f6;
+        }
+
+        &.production {
+            background: #f5f3ff;
+            border-color: #ede9fe;
+            --step-color: #8b5cf6;
+        }
+
+        &.packaging {
+            background: #fff7ed;
+            border-color: #ffedd5;
+            --step-color: #f97316;
+        }
+
+        &.shipping {
+            background: #ecfeff;
+            border-color: #cffafe;
+            --step-color: #06b6d4;
+        }
+
+        &.completed {
+            background: #f0fdf4;
+            border-color: #dcfce7;
+            --step-color: #10b981;
+        }
+
+        .timeline-dot {
+            background: var(--step-color);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(var(--step-color), 0.2);
+            transform: scale(1.2);
+            left: -18px;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .timeline-title {
+            color: var(--step-color);
+        }
+    }
+
+    &.is-done .timeline-dot {
+        background: #10b981;
+        color: white;
+        box-shadow: 0 0 0 2px #d1fae5;
+    }
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -48px;
+    top: -5px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--neutral-100);
+    border: 4px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-400);
+    transition: all 0.3s ease;
+
+    i {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.timeline-content {
+    padding-bottom: var(--spacing-sm);
+}
+
+.timeline-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+}
+
+.timeline-date {
+    font-size: 0.85rem;
+    color: var(--neutral-500);
+}
+
+.order-details {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--neutral-50);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--neutral-300);
+
+    .res-date-details {
+        font-size: 0.9rem;
+        color: var(--neutral-500);
+
+        .customer-name {
+            color: var(--neutral-900);
+            font-weight: 600;
+        }
+
+        .invoice-number {
+            font-weight: 600;
+        }
+    }
+}
+
+.track-header-logo {
+    height: 50px;
+}
+
+.track-form-logo {
+    height: 60px;
+    margin-bottom: 1rem;
+}
+
+.track-footer {
+    background: var(--neutral-900);
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    margin-top: 4rem;
+
+    .footer-content {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--neutral-500);
+    }
+
+    .footer-socials {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .footer-link {
+        color: var(--neutral-500);
+        text-decoration: none;
+
+        &:hover {
+            color: white;
+        }
+    }
+}
+
+.main-content-track {
+    padding: 0;
+}
+
+#trackNumber {
+    flex: 1;
+}
+
+#btnSpinner {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+}
+
+#customerOrdersArea {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--neutral-200);
+    padding-bottom: 1.5rem;
+}

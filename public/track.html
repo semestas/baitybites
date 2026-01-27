@@ -9,164 +9,9 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/main.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .track-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--neutral-50);
-            padding: var(--spacing-md);
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
 
-        .track-container {
-            width: 100%;
-            max-width: 600px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .track-card {
-            background: white;
-            padding: var(--spacing-2xl);
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-2xl);
-        }
-
-        .status-timeline {
-            margin-top: var(--spacing-2xl);
-            position: relative;
-            padding-left: 3rem;
-        }
-
-        .status-timeline::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--neutral-200);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: -48px;
-            top: -5px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--neutral-100);
-            border: 4px solid white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--neutral-400);
-            transition: all 0.3s ease;
-        }
-
-        .timeline-dot i {
-            width: 16px;
-            height: 16px;
-        }
-
-        .timeline-item.active {
-            background: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 1rem;
-            padding: 1rem 1rem 1rem 3.5rem;
-            margin-left: -1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s ease;
-            --step-color: #3b82f6;
-        }
-
-        .timeline-item.active.pending {
-            background: #fffbeb;
-            border-color: #fef3c7;
-            --step-color: #f59e0b;
-        }
-
-        .timeline-item.active.paid {
-            background: #eff6ff;
-            border-color: #dbeafe;
-            --step-color: #3b82f6;
-        }
-
-        .timeline-item.active.production {
-            background: #f5f3ff;
-            border-color: #ede9fe;
-            --step-color: #8b5cf6;
-        }
-
-        .timeline-item.active.packaging {
-            background: #fff7ed;
-            border-color: #ffedd5;
-            --step-color: #f97316;
-        }
-
-        .timeline-item.active.shipping {
-            background: #ecfeff;
-            border-color: #cffafe;
-            --step-color: #06b6d4;
-        }
-
-        .timeline-item.active.completed {
-            background: #f0fdf4;
-            border-color: #dcfce7;
-            --step-color: #10b981;
-        }
-
-        .timeline-item.active .timeline-dot {
-            background: var(--step-color);
-            color: white;
-            box-shadow: 0 0 0 4px rgba(var(--step-color), 0.2);
-            transform: scale(1.2);
-            left: -18px;
-            top: 50%;
-            transform: translate(-50%, -50%) scale(1.2);
-        }
-
-        .timeline-item.active .timeline-title {
-            color: var(--step-color);
-        }
-
-        .timeline-item.is-done .timeline-dot {
-            background: #10b981;
-            color: white;
-            box-shadow: 0 0 0 2px #d1fae5;
-        }
-
-        .timeline-content {
-            padding-bottom: var(--spacing-sm);
-        }
-
-        .timeline-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 2px;
-        }
-
-        .timeline-date {
-            font-size: 0.85rem;
-            color: var(--neutral-500);
-        }
-
-        .order-details {
-            margin-top: var(--spacing-xl);
-            padding: var(--spacing-lg);
-            background: var(--neutral-50);
-            border-radius: var(--radius-lg);
-            border: 1px dashed var(--neutral-300);
-        }
-    </style>
 </head>
 
 <body>
@@ -175,20 +20,19 @@
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" class="track-header-logo">
                     </a>
                     <nav class="nav" id="mainNav"></nav>
                 </div>
             </div>
         </header>
 
-        <main class="main-content" style="padding: 0;">
-            <div class="track-page" style="min-height: calc(100vh - 82px);">
+        <main class="main-content main-content-track">
+            <div class="track-page">
                 <div class="track-container">
                     <div class="track-card">
                         <div class="text-center mb-4">
-                            <img src="/assets/logo.png" alt="Baitybites Logo"
-                                style="height: 60px; margin-bottom: 1rem;">
+                            <img src="/assets/logo.png" alt="Baitybites Logo" class="track-form-logo">
                             <h1>Lacak Pesanan</h1>
                             <p class="text-muted">Masukkan Nomor Order atau Nomor Invoice untuk melihat progress PO
                                 Anda.</p>
@@ -197,17 +41,15 @@
                         <form id="trackForm" class="flex flex-col gap-2">
                             <div class="flex gap-2">
                                 <input type="text" id="trackNumber" class="form-input"
-                                    placeholder="Contoh: PO-2026... atau INV-2026..." required style="flex: 1;">
+                                    placeholder="Contoh: PO-2026... atau INV-2026..." required>
                                 <button type="submit" class="btn btn-primary">
                                     <span id="btnText">Lacak</span>
-                                    <div id="btnSpinner" class="spinner"
-                                        style="width: 20px; height: 20px; border-width: 2px; display: none;"></div>
+                                    <div id="btnSpinner" class="spinner" style="display: none;"></div>
                                 </button>
                             </div>
                         </form>
 
-                        <div id="customerOrdersArea"
-                            style="display: none; margin-bottom: 2rem; border-bottom: 1px solid var(--neutral-200); padding-bottom: 1.5rem;">
+                        <div id="customerOrdersArea" style="display: none;">
                             <h3 class="mb-3">Pesanan Terbaru Anda</h3>
                             <div id="customerOrdersList" class="flex flex-col gap-2">
                                 <!-- Will be populated by JS -->
@@ -222,11 +64,10 @@
                                     <h3 id="resOrderNumber">PO-XXXX</h3>
                                     <span id="resBadge" class="badge">Status</span>
                                 </div>
-                                <p class="text-muted" style="font-size: 0.9rem;">
-                                    Pelanggan: <span id="resCustomerName" class="text-dark"
-                                        style="font-weight: 600;">-</span><br>
+                                <p class="text-muted res-date-details">
+                                    Pelanggan: <span id="resCustomerName" class="customer-name">-</span><br>
                                     Tanggal Order: <span id="resDate">-</span><br>
-                                    Invoice: <span id="resInvoiceNumber" style="font-weight: 600;">-</span>
+                                    Invoice: <span id="resInvoiceNumber" class="invoice-number">-</span>
                                 </p>
                             </div>
 
@@ -283,16 +124,14 @@
                 </div>
             </div>
         </main>
-        <footer
-            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+        <footer class="track-footer">
             <div class="container">
-                <div
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                    <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
+                <div class="footer-content">
+                    <div id="footer-socials" class="footer-socials"></div>
                     <span>&copy; 2026 Baitybites. All rights reserved.</span>
-                    <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
+                    <a href="/privacy.html" class="footer-link">Kebijakan
                         Privasi</a>
-                    <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan
+                    <a href="/tos.html" class="footer-link">Ketentuan
                         Layanan</a>
                 </div>
             </div>
