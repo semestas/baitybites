@@ -362,11 +362,11 @@ p {
     /* Use solid dark blue/black */
     flex-direction: column;
     align-items: stretch;
-    padding: 85px 0 40px;
+    padding: 85px 20px;
     /* Start below toggle area */
     transform: translateX(101%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    /* box-shadow: -10px 0 50px rgba(0, 0, 0, 0.8); */
+    /* box-shadow: -10px 0 50px 0 rgba(0, 0, 0, 0.8); */
     z-index: 2000;
     overflow-y: auto;
     border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -541,6 +541,11 @@ p {
 .btn-sm {
   padding: var(--spacing-xs) var(--spacing-md);
   font-size: 0.875rem;
+}
+
+.btn-md {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 0.95rem;
 }
 
 .btn-lg {

@@ -414,7 +414,7 @@ async function loadFooterSettings() {
 // Global init for pages
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
-    initPublicHeader();
+    initGlobalHeader();
     loadFooterSettings(); // <--- Added here
     checkVersion();
 
@@ -440,20 +440,18 @@ async function checkVersion() {
     }
 }
 
-// Header initialization for public pages
-function initPublicHeader() {
-    const publicPages = ['/', '/index.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
+// Header initialization for all pages
+function initGlobalHeader() {
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
-    const isPublicPage = publicPages.some(page =>
+    const isAdminPage = adminPages.some(page =>
         currentPath === page ||
         currentPath.endsWith(page) ||
         normalizedPath === page ||
-        normalizedPath + '.html' === page
+        (normalizedPath + '.html') === page
     );
-
-    if (!isPublicPage) return;
 
     const headerContent = document.querySelector('.header-content');
     const nav = document.getElementById('mainNav');
@@ -472,27 +470,53 @@ function initPublicHeader() {
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
 
-    if (user) {
-        // Logged in
-        const isAdmin = user.role === 'admin';
+    if (isAdminPage) {
+        // Handle Admin Navigation
+        const isDash = normalizedPath.includes('dashboard');
+        const isOrders = normalizedPath.includes('orders');
+        const isCust = normalizedPath.includes('customers');
+        const isProd = normalizedPath.includes('products');
+        const isWork = normalizedPath.includes('production');
+        const isCMS = normalizedPath.includes('cms');
+
         nav.innerHTML = `
-            <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
-            ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : '<a href="/order.html" class="nav-link ' + (window.location.pathname.endsWith('order.html') ? 'active' : '') + '">Pesan</a>'}
-            <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
-            ${isAdmin ? '' : '<a href="/profile.html" class="nav-link ' + (window.location.pathname.endsWith('profile.html') ? 'active' : '') + '">Profil</a>'}
-            <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
-                <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
-                <button onclick="logout()" class="btn btn-outline btn-sm" style="color: white; border-color: white;">Logout</button>
-            </div>
+            <a href="/dashboard.html" class="nav-link ${isDash ? 'active' : ''}">Dashboard</a>
+            <a href="/orders.html" class="nav-link ${isOrders ? 'active' : ''}">Orders</a>
+            <a href="/customers.html" class="nav-link ${isCust ? 'active' : ''}">Customers</a>
+            <a href="/products.html" class="nav-link ${isProd ? 'active' : ''}">Products</a>
+            <a href="/production.html" class="nav-link ${isWork ? 'active' : ''}">Production</a>
+            <a href="/cms.html" class="nav-link ${isCMS ? 'active' : ''}">CMS</a>
+            <button onclick="logout()" class="btn btn-primary btn-md">Logout</button>
         `;
     } else {
-        // Not logged in
-        nav.innerHTML = `
-            <a href="/" class="nav-link ${window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ? 'active' : ''}">Beranda</a>
-            <a href="/order.html" class="nav-link ${window.location.pathname.endsWith('order.html') ? 'active' : ''}">Pesan</a>
-            <a href="/track.html" class="nav-link ${window.location.pathname.endsWith('track.html') ? 'active' : ''}">Lacak</a>
-            <a href="/login.html" class="btn btn-primary btn-sm" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
-        `;
+        // Handle Public Navigation
+        const isHome = normalizedPath === '/' || normalizedPath.endsWith('index') || normalizedPath.endsWith('index.html');
+        const isOrder = normalizedPath.includes('order.html') || normalizedPath.endsWith('/order');
+        const isTrack = normalizedPath.includes('track');
+        const isProfile = normalizedPath.includes('profile');
+
+        if (user) {
+            // Logged in
+            const isAdmin = user.role === 'admin';
+            nav.innerHTML = `
+                <a href="/" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : `<a href="/order.html" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>`}
+                <a href="/track.html" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
+                ${isAdmin ? '' : `<a href="/profile.html" class="nav-link ${isProfile ? 'active' : ''}">Profil</a>`}
+                <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
+                    <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
+                    <button onclick="logout()" class="btn btn-outline btn-md" style="color: white; border-color: white;">Logout</button>
+                </div>
+            `;
+        } else {
+            // Not logged in
+            nav.innerHTML = `
+                <a href="/" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                <a href="/order.html" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>
+                <a href="/track.html" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
+                <a href="/login.html" class="btn btn-primary btn-md" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
+            `;
+        }
     }
 
     // Close menu when link is clicked
@@ -627,7 +651,7 @@ window.app = {
     isAdmin,
     getUser,
     ROLES,
-    initPublicHeader,
+    initGlobalHeader,
     getAvatarGradient,
     renderRatingStars,
     handleImageError
