@@ -668,6 +668,12 @@ body {
     font-size: 4rem;
     margin-bottom: 1.5rem;
     display: block;
+
+    i,
+    svg {
+        width: 1em;
+        height: 1em;
+    }
 }
 
 .alert-order-num {
