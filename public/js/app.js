@@ -439,7 +439,7 @@ async function checkVersion() {
             vTag.style.fontSize = '0.7rem';
             vTag.style.opacity = '0.5';
             vTag.style.marginTop = '1rem';
-            vTag.innerHTML = `Client: v1.4.0 | Server: ${data.version || 'unknown'}`;
+            vTag.innerHTML = `Client: v1.6.0 | Server: ${data.version || 'unknown'}`;
             footer.appendChild(vTag);
         });
     } catch (e) {
