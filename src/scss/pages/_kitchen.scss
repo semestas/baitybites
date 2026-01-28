@@ -69,10 +69,10 @@
     --status-shipping-text: #818cf8;
 }
 
-body {
+body.kitchen-page {
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    // padding-top: max(1rem, var(--safe-area-top));
+    padding-top: max(1rem, var(--safe-area-top));
     padding-bottom: max(5rem, var(--safe-area-bottom));
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
