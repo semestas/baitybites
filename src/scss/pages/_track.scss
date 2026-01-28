@@ -173,8 +173,11 @@
 }
 
 .track-form-logo {
-    height: 60px;
+    height: 80px;
+    max-width: 200px;
+    width: auto;
     margin-bottom: 1rem;
+    object-fit: contain;
 }
 
 .track-footer {
