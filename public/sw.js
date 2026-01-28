@@ -1,4 +1,5 @@
-const CACHE_NAME = 'baitybites-oms-v1';
+const CACHE_VERSION = '1.6.0';
+const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -10,38 +11,92 @@ const ASSETS_TO_CACHE = [
     'https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Outfit:wght@400;500;600;700;800&display=swap'
 ];
 
+// Install event - cache essential assets
 self.addEventListener('install', (event) => {
+    console.log('[SW] Installing service worker version:', CACHE_VERSION);
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            console.log('[SW] Caching assets');
             return cache.addAll(ASSETS_TO_CACHE);
+        }).then(() => {
+            // Force the waiting service worker to become the active service worker
+            return self.skipWaiting();
         })
     );
 });
 
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+    console.log('[SW] Activating service worker version:', CACHE_VERSION);
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+                cacheNames
+                    .filter((name) => name.startsWith('baitybites-oms-v') && name !== CACHE_NAME)
+                    .map((name) => {
+                        console.log('[SW] Deleting old cache:', name);
+                        return caches.delete(name);
+                    })
             );
+        }).then(() => {
+            // Take control of all pages immediately
+            return self.clients.claim();
         })
     );
 });
 
+// Fetch event - Network-first strategy for HTML/API, cache-first for assets
 self.addEventListener('fetch', (event) => {
-    // Only handle GET requests or specific internal API if needed
+    // Only handle GET requests
     if (event.request.method !== 'GET') return;
 
+    const url = new URL(event.request.url);
+
+    // Network-first for HTML pages and API calls
+    if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.startsWith('/api/')) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    // Clone the response before caching
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                    return response;
+                })
+                .catch(() => {
+                    // If network fails, try cache
+                    return caches.match(event.request);
+                })
+        );
+        return;
+    }
+
+    // Cache-first for static assets (CSS, JS, images)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
+                // Return cached version but update cache in background
+                fetch(event.request).then((response) => {
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, response);
+                    });
+                }).catch(() => {
+                    // Ignore fetch errors for background updates
+                });
                 return cachedResponse;
             }
+
+            // Not in cache, fetch from network
             return fetch(event.request).then((response) => {
-                // Optional: Cache new successful requests
+                // Cache successful responses
+                if (response.status === 200) {
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                }
                 return response;
-            }).catch(() => {
-                // Fallback or generic error handling
             });
         })
     );
