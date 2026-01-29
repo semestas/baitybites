@@ -1,4 +1,4 @@
-const CACHE_VERSION = '1.8.0';
+const CACHE_VERSION = '1.8.1';
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
@@ -64,11 +64,13 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
-                    // Clone the response before caching
-                    const responseToCache = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseToCache);
-                    });
+                    const vary = response.headers.get('Vary');
+                    if (response.ok && (!vary || !vary.includes('*'))) {
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    }
                     return response;
                 })
                 .catch(() => {
@@ -85,9 +87,12 @@ self.addEventListener('fetch', (event) => {
             if (cachedResponse) {
                 // Return cached version but update cache in background
                 fetch(event.request).then((response) => {
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, response);
-                    });
+                    const vary = response.headers.get('Vary');
+                    if (response.ok && (!vary || !vary.includes('*'))) {
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, response);
+                        });
+                    }
                 }).catch(() => {
                     // Ignore fetch errors for background updates
                 });
@@ -96,8 +101,9 @@ self.addEventListener('fetch', (event) => {
 
             // Not in cache, fetch from network
             return fetch(event.request).then((response) => {
+                const vary = response.headers.get('Vary');
                 // Cache successful responses
-                if (response.status === 200) {
+                if (response.ok && (!vary || !vary.includes('*'))) {
                     const responseToCache = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseToCache);
