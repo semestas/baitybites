@@ -1,0 +1,41 @@
+// ===================================
+// Baitybites Design System - Main Entry
+// Modern, Premium, Dynamic UI
+// ===================================
+
+// Abstracts
+@use 'abstracts/variables';
+@use 'abstracts/mixins';
+
+// Base
+@use 'base/reset';
+@use 'base/typography';
+
+// Layout
+@use 'layout/container';
+@use 'layout/header';
+@use 'layout/grid';
+
+// Components
+@use 'components/buttons';
+@use 'components/cards';
+@use 'components/forms';
+@use 'components/tables';
+@use 'components/badges';
+@use 'components/modals';
+@use 'components/spinner';
+
+// Pages (if needed)
+@use 'pages/dashboard';
+@use 'pages/orders';
+@use 'pages/tracker';
+@use 'pages/order';
+
+// Utilities
+@use 'utilities/spacing';
+@use 'utilities/text';
+@use 'utilities/flex';
+@use 'utilities/animations';
+
+// Import Google Fonts (Must be after @use in Sass modules if passing through, or just use standard CSS import)
+@import url('https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap');

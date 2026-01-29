@@ -1,5 +1,109 @@
 @use 'sass:color';
 @use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+@keyframes shine {
+    100% {
+        left: 125%;
+    }
+}
+
+@keyframes sparkleFade {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.sparkle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: sparkleFade 0.8s ease-out forwards;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    background: $primary;
+    color: white;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    span,
+    svg {
+        position: relative;
+        z-index: 10;
+    }
+
+    // Shine effect (Primary only)
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: 0.5s;
+        z-index: 1;
+    }
+
+    svg {
+        transition: transform 0.3s ease;
+    }
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(245, 150, 56, 0.4);
+
+        &::after {
+            left: 100%;
+        }
+
+        svg {
+            transform: translateX(5px);
+        }
+    }
+
+    &.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid white;
+        color: white;
+        backdrop-filter: blur(5px);
+
+        // Disable shine on secondary
+        &::after {
+            display: none;
+        }
+
+        &:hover {
+            background: white;
+            color: $primary;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
 
 .hero-section {
     position: relative;
@@ -44,7 +148,7 @@
 
         .hero-title {
             font-size: 4.5rem;
-            font-weight: 800;
+            font-weight: 600;
             margin-bottom: 1.5rem;
             line-height: 1.1;
             text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
@@ -158,7 +262,7 @@
     overflow: hidden;
 
     h2 {
-        font-size: 3rem;
+        font-size: 2.5rem;
         color: $text-dark;
         margin-bottom: 60px;
         text-align: center;
@@ -300,7 +404,7 @@
                     top: -15px;
                     left: -20px;
                     opacity: 0.1;
-                    font-family: 'Outfit', sans-serif;
+                    font-family: var(--font-display);
                     color: $primary;
                 }
             }
@@ -350,7 +454,7 @@
             font-weight: 700;
             color: $text-dark;
             margin-bottom: 1.25rem;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-display);
             position: relative;
             z-index: 1;
         }

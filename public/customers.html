@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customers - Baitybites OMS</title>
-    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/style.css">
@@ -194,7 +194,7 @@
                     <div class="grid grid-2 gap-3 mb-4">
                         <div class="card" style="padding: 1.5rem;">
                             <h4 class="mb-2">Informasi Profil</h4>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col">
                                 <div><strong>Nama:</strong> ${c.name}</div>
                                 <div><strong>Email:</strong> ${c.email}</div>
                                 <div><strong>Telepon:</strong> ${c.phone || '-'}</div>
@@ -204,7 +204,7 @@
                         </div>
                         <div class="card" style="padding: 1.5rem; background: var(--primary-50); border-color: var(--primary-200);">
                             <h4 class="mb-2">Statistik Belanja</h4>
-                            <div class="flex flex-col gap-2">
+                            <div class="flex flex-col gap-1">
                                 <div class="flex justify-between items-center">
                                     <span>Total Pesanan</span>
                                     <span class="badge badge-primary">${c.total_orders} Orders</span>

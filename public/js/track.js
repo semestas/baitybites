@@ -21,8 +21,8 @@ async function loadCustomerOrders() {
             list.innerHTML = result.data.slice(0, 3).map(o => `
                 <div class="card p-3 flex justify-between items-center" style="cursor: pointer; border-color: var(--neutral-200);" onclick="trackNumber('${o.invoice_number || o.order_number}')">
                     <div>
-                        <h4 style="margin:0;">${o.order_number}</h4>
-                        <span class="text-muted" style="font-size: 0.8rem;">${new Date(o.order_date).toLocaleDateString()}</span>
+                        <h6 style="margin:0;">${o.order_number}</h6>
+                        <span class="text-muted" style="font-size: 0.75rem;">${new Date(o.order_date).toLocaleDateString()}</span>
                     </div>
                     <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
                 </div>

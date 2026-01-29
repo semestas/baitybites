@@ -56,6 +56,7 @@ export const cmsRoutes = (db: Sql) =>
                     o.id,
                     o.order_number,
                     o.status,
+                    o.total_amount,
                     o.notes,
                     o.created_at as order_created,
                     o.updated_at as last_update,
@@ -115,7 +116,7 @@ export const cmsRoutes = (db: Sql) =>
                     o.id, o.order_number, o.status, o.total_amount, o.created_at,
                     c.name as customer_name,
                     (
-                        SELECT json_agg(json_build_object('product_name', p.name, 'quantity', oi.quantity))
+                        SELECT json_agg(json_build_object('product_name', p.name, 'quantity', oi.quantity, 'subtotal', oi.subtotal))
                         FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id
                     ) as items
                 FROM orders o
@@ -127,7 +128,7 @@ export const cmsRoutes = (db: Sql) =>
             // Get Active Production Queue (Same logic as main production)
             const queue = await db`
                 SELECT 
-                    o.id, o.order_number, o.status, o.notes,
+                    o.id, o.order_number, o.status, o.total_amount, o.notes,
                     o.created_at as order_created, o.updated_at as last_update,
                     c.name as customer_name,
                     (SELECT start_date FROM production WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as prod_start,

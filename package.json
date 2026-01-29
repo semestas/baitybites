@@ -10,8 +10,8 @@
     "dev:server": "bun --watch index.ts",
     "start": "bun index.ts",
     "build": "bun run style:build && bun build index.ts --outdir ./dist --target bun",
-    "style:watch": "sass --watch src/scss/main.scss public/css/main.css",
-    "style:build": "sass src/scss/main.scss public/css/main.css --style compressed"
+    "style:watch": "sass --watch src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css",
+    "style:build": "sass src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css --style compressed"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -69,101 +69,24 @@ const app = new Elysia()
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
     )
-    // Serve HTML files as raw text/html to prevent Bun from resolving assets
-    .get("/", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "index.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
+    // Serve HTML files with proper headers
+    .onBeforeHandle(() => { /* Hook for potential shared logic */ })
+    .get("/", () => new Response(readFileSync(join(PUBLIC_DIR, "index.html"), "utf-8"), {
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+    }))
+    // Standard pages loop
+    .group("", app => {
+        [
+            "login", "order", "track", "cms", "dashboard", "orders", "customers",
+            "products", "production", "kitchen", "privacy", "tos", "profile"
+        ].forEach(page => {
+            app.get(`/${page}.html`, () => new Response(readFileSync(join(PUBLIC_DIR, `${page}.html`), "utf-8"), {
+                headers: { "Content-Type": "text/html; charset=utf-8" }
+            }));
+            app.get(`/${page}`, ({ redirect }) => redirect(`/${page}.html`));
         });
+        return app;
     })
-    .get("/login.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "login.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/order.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "order.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/track.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "track.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/cms.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "cms.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/dashboard.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "dashboard.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/orders.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "orders.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/customers.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "customers.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/products.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "products.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/production.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "production.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/kitchen.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "kitchen.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/privacy.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "privacy.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/tos.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "tos.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    .get("/profile.html", () => {
-        const html = readFileSync(join(PUBLIC_DIR, "profile.html"), "utf-8");
-        return new Response(html, {
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
-    })
-    // Redirect clean URLs to .html files
-    .get("/login", ({ redirect }) => redirect("/login.html"))
-    .get("/cms", ({ redirect }) => redirect("/cms.html"))
-    .get("/kitchen", ({ redirect }) => redirect("/kitchen.html"))
-    .get("/dashboard", ({ redirect }) => redirect("/dashboard.html"))
-    .get("/order", ({ redirect }) => redirect("/order.html"))
-    .get("/track", ({ redirect }) => redirect("/track.html"))
-    .get("/privacy", ({ redirect }) => redirect("/privacy.html"))
-    .get("/tos", ({ redirect }) => redirect("/tos.html"))
-    .get("/profile", ({ redirect }) => redirect("/profile.html"))
     // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
     .get("/css/*", ({ params }) => {
         const filePath = join(PUBLIC_DIR, "css", (params as any)["*"]);

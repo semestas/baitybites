@@ -20,8 +20,10 @@ function showTestimonyForm() {
         nameInputWrapper.style.display = 'none';
         loggedInUserDisplay.style.display = 'flex';
         currentUserNameSpan.textContent = user.name;
-        modalUserAvatar.src = user.avatar_url || '/assets/avatar-1.png';
-        modalUserAvatar.alt = user.name;
+        if (modalUserAvatar) {
+            modalUserAvatar.src = user.avatar_url || '/assets/avatar-1.png';
+            modalUserAvatar.alt = user.name;
+        }
         aliasHint.style.display = 'block';
         testNameInput.value = user.name;
         testNameInput.removeAttribute('required');

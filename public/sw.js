@@ -1,14 +1,21 @@
-const CACHE_VERSION = '1.6.0';
+const CACHE_VERSION = '1.8.0';
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    '/login.html',
+    '/order.html',
+    '/track.html',
+    '/dashboard.html',
     '/css/style.css',
     '/css/main.css',
     '/js/app.js',
+    '/js/order.js',
+    '/js/track.js',
+    '/js/dashboard.js',
     '/assets/logo.png',
-    '/assets/favicon.png',
-    'https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Outfit:wght@400;500;600;700;800&display=swap'
+    '/assets/favicon.ico',
+    '/assets/favicon.png'
 ];
 
 // Install event - cache essential assets

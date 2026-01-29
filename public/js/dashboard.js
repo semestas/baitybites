@@ -48,7 +48,6 @@
 
   function updateStats(stats) {
     const utils = getUtils();
-    // console.log('Updating stats cards:', stats);
 
     const elements = {
       totalOrders: document.getElementById('totalOrders'),
@@ -63,42 +62,30 @@
     if (elements.totalRevenue) {
       elements.totalRevenue.textContent = utils.formatCurrency ? utils.formatCurrency(stats.totalRevenue) : ('Rp ' + stats.totalRevenue);
     }
-
-    // Update icons with Lucide
-    const statIcons = document.querySelectorAll('.stat-card .stat-icon');
-    const iconNames = ['package', 'check', 'settings', 'banknote'];
-
-    statIcons.forEach((el, index) => {
-      el.innerHTML = `<i data-lucide="${iconNames[index]}" style="width: 48px; height: 48px; opacity: 0.2;"></i>`;
-    });
   }
 
   function updateOrderFlow(flowData) {
-    // console.log('Updating order flow status:', flowData);
     const flowContainer = document.getElementById('orderFlowStats');
     if (!flowContainer) return;
 
     const flowSteps = [
-      { key: 'pending', label: 'Pending', icon: 'clock', color: '#f59e0b', ringColor: '#8bc34a' },
-      { key: 'confirmed', label: 'Confirmed', icon: 'check', color: '#3b82f6', ringColor: '#3b82f6' },
-      { key: 'paid', label: 'Paid', icon: 'credit-card', color: '#10b981', ringColor: '#10b981' },
-      { key: 'production', label: 'Production', icon: 'factory', color: '#a855f7', ringColor: '#a855f7' },
-      { key: 'packaging', label: 'Packaging', icon: 'package', color: '#f97316', ringColor: '#f97316' },
-      { key: 'shipping', label: 'Shipping', icon: 'truck', color: '#2563eb', ringColor: '#2563eb' },
-      { key: 'completed', label: 'Completed', icon: 'check-circle', color: '#059669', ringColor: '#059669' }
+      { key: 'pending', label: 'Pending', icon: 'clock', color: '#f59e0b' },
+      { key: 'confirmed', label: 'Confirmed', icon: 'check', color: '#3b82f6' },
+      { key: 'paid', label: 'Paid', icon: 'credit-card', color: '#10b981' },
+      { key: 'production', label: 'In Production', icon: 'flame', color: '#a855f7' },
+      { key: 'packaging', label: 'Wait for Packing', icon: 'package', color: '#f97316' },
+      { key: 'shipping', label: 'Ready to Ship', icon: 'truck', color: '#2563eb' },
+      { key: 'completed', label: 'Arrived', icon: 'check-circle', color: '#059669' }
     ];
 
     flowContainer.innerHTML = flowSteps.map(step => `
-      <div id="flow-${step.key}" class="stat-pill">
-        <div class="stat-pill-icon-wrapper">
-          <div class="stat-pill-ring" style="border-top-color: ${step.ringColor}"></div>
-          <div class="flow-icon" style="z-index: 1; display: flex; align-items: center; justify-content: center;">
-            <i data-lucide="${step.icon}" class="stat-pill-icon"></i>
-          </div>
+      <div id="flow-${step.key}" class="stat-card" style="border-left-color: ${step.color}">
+        <div class="stat-content">
+          <div class="stat-label">${step.label}</div>
+          <div class="stat-value">${flowData[step.key] || 0}</div>
         </div>
-        <div class="stat-pill-info">
-          <div class="stat-pill-label" style="color: ${step.color}">${step.label}</div>
-          <div class="stat-pill-value" style="color: ${step.color}">${flowData[step.key] || 0}</div>
+        <div class="stat-icon">
+          <i data-lucide="${step.icon}"></i>
         </div>
       </div>
     `).join('');

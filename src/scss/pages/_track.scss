@@ -45,7 +45,7 @@
         background: #eff6ff;
         border: 1px solid #dbeafe;
         border-radius: 1rem;
-        padding: 1rem 1rem 1rem 3.5rem;
+        padding: 1rem 1.5rem;
         margin-left: -1rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         transition: all 0.4s ease;
@@ -132,13 +132,12 @@
 }
 
 .timeline-content {
-    padding-bottom: var(--spacing-sm);
+    // padding-bottom: var(--spacing-sm);
+    padding-bottom: 0;
 }
 
 .timeline-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    margin-bottom: 2px;
+    font-size: 1rem;
 }
 
 .timeline-date {

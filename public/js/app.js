@@ -5,8 +5,7 @@ const API_BASE = window.location.origin + '/api';
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registered', reg))
-            .catch(err => console.error('Service Worker registration failed', err));
+            .catch(err => console.error('SW failed', err));
     });
 }
 
@@ -118,8 +117,10 @@ function handleImageError(img) {
 
     const div = document.createElement('div');
     div.className = 'letter-avatar';
-    // Use class for size, only inline background/color
-    div.style.cssText = `
+
+    // Base styles
+    // Remove fixed width/height/flex to allow CSS classes or inline styles to control size
+    const baseStyle = `
         background: ${gradient};
         color: white;
         display: flex;
@@ -128,6 +129,15 @@ function handleImageError(img) {
         font-weight: 700;
         border-radius: 50%;
     `;
+
+    // Apply base styles first
+    div.style.cssText = baseStyle;
+
+    // Append original image's inline styles (allows overriding width/height if set inline)
+    if (img.style.cssText) {
+        div.style.cssText += img.style.cssText;
+    }
+
     div.textContent = initials;
 
     // Retain classes from original img to ensure size matching if classes are used
@@ -415,7 +425,7 @@ async function loadFooterSettings() {
             }
         }
     } catch (e) {
-        console.warn('Failed to load footer settings');
+        // Silently fail footer settings
     }
 }
 
@@ -439,11 +449,11 @@ async function checkVersion() {
             vTag.style.fontSize = '0.7rem';
             vTag.style.opacity = '0.5';
             vTag.style.marginTop = '1rem';
-            vTag.innerHTML = `Client: v1.6.0 | Server: ${data.version || 'unknown'}`;
+            vTag.innerHTML = `Build: v1.6.0 | API: ${data.version || 'unknown'}`;
             footer.appendChild(vTag);
         });
     } catch (e) {
-        console.warn('Could not fetch version');
+        // Silently fail version check
     }
 }
 

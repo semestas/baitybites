@@ -222,7 +222,8 @@
                 <div class="order-card ${isOverdue ? 'overdue-border' : ''}" data-status="${order.status}" id="order-${order.id}">
                     <div class="order-header-wrap">
                         <div class="order-num-fill">
-                            #${order.order_number}
+                            <div class="order-number">#${order.order_number}</div>
+                            <div class="order-customer">${order.customer_name}</div>
                         </div>                            
                         <div class="status-badge ${order.status} status-badge-fit">
                             ${order.status === 'confirmed' ? 'Ready' : order.status === 'production' ? 'Cooking' : 'Packing'}
@@ -252,6 +253,12 @@
                     </div>
                     
                     ${order.notes ? `<div class="order-notes-box"><i data-lucide="info" style="width:14px;height:14px;vertical-align:text-bottom;"></i> ${order.notes}</div>` : ''}
+
+                    <div class="order-footer" style="padding: 0; margin-top: 0.5rem; justify-content: flex-end;">
+                        <div class="order-total-mini" style="font-weight: 700; color: var(--text-primary); font-size: 0.9rem;">
+                            Total: ${window.app.formatCurrency(order.total_amount)}
+                        </div>
+                    </div>
 
                     <div class="flex-spacer"></div>
 

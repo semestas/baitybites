@@ -181,6 +181,7 @@ body.kitchen-page {
     grid-template-columns: 1fr;
     gap: 1rem;
     padding: 1rem;
+    box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
@@ -421,17 +422,19 @@ body.kitchen-page {
     flex-wrap: wrap;
     width: 100%;
     justify-content: space-between;
+    align-items: flex-start;
     gap: 0.5rem;
 }
 
 .order-num-fill {
     flex: 1;
-    align-items: center;
 }
 
 .status-badge-fit {
     flex: none;
+    display: inline-flex;
     align-items: center;
+    height: fit-content;
     width: fit-content;
 }
 
@@ -686,7 +689,7 @@ body.kitchen-page {
 
 .alert-status-state {
     font-size: 1.6rem;
-    font-weight: 800;
+    font-weight: 600;
     color: #f97316;
     text-transform: uppercase;
     margin-bottom: 0.25rem;
@@ -741,7 +744,7 @@ body.kitchen-page {
 
 .overdue-pulse-text {
     color: #ffacac;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .empty-state-container {

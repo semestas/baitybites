@@ -153,7 +153,7 @@ async function loadProducts() {
             list.innerHTML = products.map(p => `
                 <div class="card flex justify-between items-center p-3" style="margin-bottom: 0.5rem; transition: none;">
                     <div>
-                        <h4 style="margin: 0;">${p.name}</h4>
+                        <h6 style="margin: 0;">${p.name}</h6>
                         <p class="text-muted" style="margin:0; font-size: 0.85rem;">${p.description} - <strong>${formatCurrency(p.price)}</strong></p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -206,18 +206,18 @@ async function loadRecentOrders() {
             }
 
             list.innerHTML = result.data.slice(0, 5).map(o => `
-                <div class="card p-3 flex justify-between items-center" style="border-color: var(--neutral-200); margin-bottom: 0.5rem; transition: none;">
-                    <div>
-                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
-                            <h4 style="margin: 0;">${o.order_number}</h4>
-                            <span class="badge ${getStatusBadgeClass(o.status)}" style="font-size: 0.7rem;">${getStatusLabel(o.status)}</span>
+                <div class="recent-orders-item">
+                    <div class="order-main-info">
+                        <div class="order-header-row">
+                            <h4>${o.order_number}</h4>
+                            <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
                         </div>
-                        <div class="text-muted" style="font-size: 0.8rem;">
+                        <div class="order-meta">
                             ${new Date(o.order_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • 
                             <strong>${formatCurrency(o.total_amount)}</strong>
                         </div>
                     </div>
-                    <a href="/track.html?number=${o.invoice_number || o.order_number}" class="btn btn-outline btn-sm">Lacak</a>
+                    <a href="/track.html?number=${o.invoice_number || o.order_number}" class="btn btn-outline btn-sm btn-track-action">Lacak</a>
                 </div>
             `).join('');
         }
@@ -236,8 +236,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     await autoFillUser();
 
     const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
     const loyaltyNotice = document.getElementById('loyalty-notice');
-    if (!token && loyaltyNotice) loyaltyNotice.style.display = 'block';
+
+    if (loyaltyNotice) {
+        if (!token && !userStr) {
+            loyaltyNotice.style.display = 'block';
+        } else {
+            loyaltyNotice.style.display = 'none';
+        }
+    }
 
     await loadProducts();
     await loadRecentOrders();

@@ -43,7 +43,7 @@ export class NounProjectService {
             throw new Error(`Noun Project API error: ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         return data.icons?.[0] || null;
     }
 
@@ -66,7 +66,7 @@ export class NounProjectService {
             throw new Error(`Noun Project API error: ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         return data.icon;
     }
 }

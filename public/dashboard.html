@@ -6,324 +6,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baitybites - Order Management System</title>
   <meta name="description" content="Sistem manajemen order untuk Baitybites - dari pemesanan hingga pengiriman">
-  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#f59638">
   <link rel="stylesheet" href="/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    /* Compact Stat Pills Styling */
-    .stat-pill {
-      display: flex;
-      align-items: center;
-      background: linear-gradient(to right, #ffffff, #f0fdfa);
-      border: 1px solid #d1d5db;
-      border-radius: 0.75rem;
-      padding: 0.5rem 1rem;
-      min-width: 200px;
-      flex: 1 1 200px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-pill:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary-400);
-    }
-
-    .stat-pill-icon-wrapper {
-      position: relative;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-    }
-
-    .stat-pill-ring {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 3px solid #e5e7eb;
-      border-top-color: #4caf50;
-      /* Dynamic color */
-      transform: rotate(-45deg);
-    }
-
-    .stat-pill-icon {
-      width: 24px;
-      height: 24px;
-      z-index: 1;
-    }
-
-    .stat-pill-info {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .stat-pill-label {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #64748b;
-    }
-
-    .stat-pill-value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #1e293b;
-      margin-left: auto;
-    }
-
-    /* Override stat-card to be compact horizontal rows */
-    .grid-4.stats-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-
-    .stat-card.compact-row {
-      display: flex;
-      align-items: center;
-      padding: 1.25rem 1.5rem;
-      background: white;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--neutral-200);
-      border-left: 5px solid var(--primary-500);
-      flex: 1 1 calc(25% - 1.5rem);
-      min-width: 250px;
-      box-shadow: var(--shadow-sm);
-      position: relative;
-    }
-
-    .stat-card.compact-row .stat-info {
-      flex: 1;
-    }
-
-    .stat-card.compact-row .stat-label {
-      font-size: 0.875rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--neutral-600);
-      margin: 0;
-    }
-
-    .stat-card.compact-row .stat-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      margin-top: 0.25rem;
-      color: var(--neutral-900);
-    }
-
-    .stat-card.compact-row .stat-icon {
-      opacity: 0.15;
-      position: absolute;
-      right: 1.5rem;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .stat-card.compact-row .stat-icon i,
-    .stat-card.compact-row .stat-icon svg {
-      width: 48px !important;
-      height: 48px !important;
-      display: block;
-    }
-
-    #orderFlowStats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .spinner-sm {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #e5e7eb;
-      border-top-color: var(--primary-500);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="page-wrapper">
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <div class="header-content">
-          <a href="/" class="logo">
-            <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
-          </a>
-          <nav class="nav" id="mainNav">
-            <a href="/dashboard" class="nav-link active">Dashboard</a>
-            <a href="/orders.html" class="nav-link">Orders</a>
-            <a href="/customers.html" class="nav-link">Customers</a>
-            <a href="/products.html" class="nav-link">Products</a>
-            <a href="/production.html" class="nav-link">Production</a>
-            <a href="/kitchen.html" class="nav-link">Kitchen</a>
-            <a href="/cms.html" class="nav-link">CMS</a>
-            <button class="btn btn-primary btn-sm" onclick="logout()">Logout</button>
-          </nav>
-        </div>
+  <!-- Stats Grid -->
+  <div class="stats-container animate-fade-in">
+    <div class="stat-card" style="border-left-color: #f59638;">
+      <div class="stat-content">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="totalOrders">0</div>
       </div>
-    </header>
+      <div class="stat-icon"><i data-lucide="package"></i></div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="container">
-        <!-- Page Header -->
-        <div class="mb-4">
-          <h1 class="animate-fade-in">Dashboard</h1>
-          <p class="text-muted">Selamat datang di Baitybites Order Management System</p>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-container mb-4 animate-fade-in">
-          <div class="stat-card compact-row" style="border-left-color: #f59638;">
-            <div class="stat-info">
-              <div class="stat-label">Total Orders</div>
-              <div class="stat-value" id="totalOrders">0</div>
-            </div>
-            <div class="stat-icon"><i data-lucide="package"></i></div>
-          </div>
-
-          <div class="stat-card compact-row" style="border-left-color: #4caf50;">
-            <div class="stat-info">
-              <div class="stat-label">Completed</div>
-              <div class="stat-value" id="completedOrders">0</div>
-            </div>
-            <div class="stat-icon"><i data-lucide="check-circle"></i></div>
-          </div>
-
-          <div class="stat-card compact-row" style="border-left-color: #3b82f6;">
-            <div class="stat-info">
-              <div class="stat-label">In Progress</div>
-              <div class="stat-value" id="inProgressOrders">0</div>
-            </div>
-            <div class="stat-icon"><i data-lucide="settings"></i></div>
-          </div>
-
-          <div class="stat-card compact-row" style="border-left-color: #f1c40f;">
-            <div class="stat-info">
-              <div class="stat-label">Revenue</div>
-              <div class="stat-value" id="totalRevenue">Rp 0</div>
-            </div>
-            <div class="stat-icon"><i data-lucide="banknote"></i></div>
-          </div>
-        </div>
-
-        <!-- Order Flow Visualization -->
-        <div class="card mb-4 animate-fade-in">
-          <div class="card-header">
-            <h2 class="card-title">Order Flow Status</h2>
-          </div>
-          <div class="card-body">
-            <div id="orderFlowStats">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Orders -->
-        <div class="card animate-fade-in">
-          <div class="card-header flex justify-between items-center">
-            <h2 class="card-title">Recent Orders</h2>
-            <a href="/orders.html" class="btn btn-primary btn-sm">View All Orders</a>
-          </div>
-          <div class="card-body">
-            <div class="table-wrapper">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Order #</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="recentOrdersTable">
-                  <tr>
-                    <td colspan="6" class="text-center">
-                      <div class="spinner" style="margin: 20px auto;"></div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-3 mt-4 animate-fade-in">
-          <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-500);"><i
-                data-lucide="file-text" size="48"></i></div>
-            <h3>New Order</h3>
-            <p class="text-muted">Create a new customer order</p>
-            <button class="btn btn-primary" onclick="window.location.href='/orders.html?action=new'">
-              Create Order
-            </button>
-          </div>
-
-          <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--secondary-500);"><i
-                data-lucide="users" size="48"></i></div>
-            <h3>Manage Customers</h3>
-            <p class="text-muted">View and manage customer data</p>
-            <button class="btn btn-secondary" onclick="window.location.href='/customers.html'">
-              View Customers
-            </button>
-          </div>
-
-          <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--neutral-600);"><i
-                data-lucide="factory" size="48"></i></div>
-            <h3>Production</h3>
-            <p class="text-muted">Monitor production status</p>
-            <button class="btn btn-outline" onclick="window.location.href='/production.html'">
-              View Production
-            </button>
-          </div>
-
-          <div class="card" style="text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-600);"><i
-                data-lucide="utensils-crosses" size="48"></i></div>
-            <h3>Production Keeper</h3>
-            <p class="text-muted">Kitchen terminal view</p>
-            <button class="btn btn-primary" onclick="window.location.href='/kitchen.html'">
-              Open Kitchen
-            </button>
-          </div>
-        </div>
+    <div class="stat-card" style="border-left-color: #10b981;">
+      <div class="stat-content">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="completedOrders">0</div>
       </div>
-    </main>
+      <div class="stat-icon"><i data-lucide="check-circle"></i></div>
+    </div>
 
-    <!-- Footer -->
-    <footer
-      style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
-      <div class="container">
-        <p>&copy; 2026 Baitybites. All rights reserved.</p>
-        <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
-          Order Management System v1.0
-        </p>
+    <div class="stat-card" style="border-left-color: #3b82f6;">
+      <div class="stat-content">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value" id="inProgressOrders">0</div>
       </div>
-    </footer>
+      <div class="stat-icon"><i data-lucide="settings"></i></div>
+    </div>
+
+    <div class="stat-card" style="border-left-color: #f59e0b;">
+      <div class="stat-content">
+        <div class="stat-label">Revenue</div>
+        <div class="stat-value" id="totalRevenue">Rp 0</div>
+      </div>
+      <div class="stat-icon"><i data-lucide="banknote"></i></div>
+    </div>
+  </div>
+
+  <!-- Order Flow Visualization -->
+  <div class="card mb-4 animate-fade-in">
+    <div class="card-header">
+      <h2 class="card-title">Order Flow Status</h2>
+    </div>
+    <div class="card-body">
+      <div id="orderFlowStats">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="card animate-fade-in">
+    <div class="card-header flex justify-between items-center">
+      <h2 class="card-title">Recent Orders</h2>
+      <a href="/orders.html" class="btn btn-primary btn-sm">View All Orders</a>
+    </div>
+    <div class="card-body">
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recentOrdersTable">
+            <tr>
+              <td colspan="6" class="text-center">
+                <div class="spinner" style="margin: 20px auto;"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid grid-3 mt-4 animate-fade-in">
+    <div class="card" style="text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-500);"><i
+          data-lucide="file-text" size="48"></i></div>
+      <h3>New Order</h3>
+      <p class="text-muted">Create a new customer order</p>
+      <button class="btn btn-primary" onclick="window.location.href='/orders.html?action=new'">
+        Create Order
+      </button>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--secondary-500);"><i
+          data-lucide="users" size="48"></i></div>
+      <h3>Manage Customers</h3>
+      <p class="text-muted">View and manage customer data</p>
+      <button class="btn btn-secondary" onclick="window.location.href='/customers.html'">
+        View Customers
+      </button>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--neutral-600);"><i
+          data-lucide="factory" size="48"></i></div>
+      <h3>Production</h3>
+      <p class="text-muted">Monitor production status</p>
+      <button class="btn btn-outline" onclick="window.location.href='/production.html'">
+        View Production
+      </button>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-600);"><i
+          data-lucide="utensils-crosses" size="48"></i></div>
+      <h3>Production Keeper</h3>
+      <p class="text-muted">Kitchen terminal view</p>
+      <button class="btn btn-primary" onclick="window.location.href='/kitchen.html'">
+        Open Kitchen
+      </button>
+    </div>
+  </div>
+  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+    <div class="container">
+      <p>&copy; 2026 Baitybites. All rights reserved.</p>
+      <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
+        Order Management System v1.0
+      </p>
+    </div>
+  </footer>
   </div>
 
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
-</body>
+  </body>
 
 </html>

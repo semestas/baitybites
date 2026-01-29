@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesan Risol Mayo - Baitybites</title>
-    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@
         </header>
 
         <main class="main-content">
-            <div class="container" style="max-width: 800px;">
+            <div class="container order-page-container">
                 <div class="card animate-fade-in">
                     <div class="card-header text-center">
                         <h2 class="card-title">Form Pemesanan Risol Mayo</h2>
@@ -38,153 +38,126 @@
                     </div>
                     <div class="card-body">
                         <!-- Loyalty Benefits Notice -->
-                        <div id="loyalty-notice" class="info-box mb-4 animate-fade-in"
-                            style="display: none; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); padding: 1.25rem; border-radius: 1rem; border: 1px solid #fed7aa; color: #9a3412; font-size: 0.9rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                            <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
-                                <div style="font-size: 1.5rem; color: var(--primary-500);"><i data-lucide="gift"></i>
-                                </div>
+                        <div id="loyalty-notice" class="info-box mb-4 animate-fade-in">
+                            <div class="notice-content">
+                                <div class="notice-icon"><i data-lucide="gift"></i></div>
                                 <div>
-                                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Dapatkan Keuntungan Lebih sebagai
-                                        Pelanggan Setia!</p>
-                                    <p style="margin: 0 0 0.75rem 0;">Yuk, <strong>login</strong> untuk menikmati
-                                        berbagai kemudahan dan promo eksklusif:</p>
-                                    <ul style="margin: 0; padding-left: 1.2rem; display: grid; gap: 0.25rem;">
+                                    <p class="notice-title">Dapatkan Keuntungan Lebih sebagai Pelanggan Setia!</p>
+                                    <p class="notice-text">Yuk, <strong>login</strong> untuk menikmati berbagai
+                                        kemudahan
+                                        dan promo eksklusif:</p>
+                                    <ul class="notice-list">
                                         <li><i data-lucide="truck" size="14"></i> <strong>Gratis Ongkir</strong> hingga
-                                            Rp20.000,- untuk setiap pesanan.
-                                        </li>
+                                            Rp20.000,- untuk setiap pesanan.</li>
                                         <li><i data-lucide="zap" size="14"></i> <strong>Auto-Fill:</strong> Alamat &
-                                            kontak terisi otomatis, pesanan jadi
-                                            lebih kilat.</li>
+                                            kontak
+                                            terisi otomatis, pesanan jadi lebih kilat.</li>
                                         <li><i data-lucide="line-chart" size="14"></i> <strong>Riwayat & Lacak:</strong>
-                                            Pantau semua pesanan Anda dalam satu
-                                            dashboard.</li>
+                                            Pantau semua pesanan Anda dalam satu dashboard.</li>
                                         <li><i data-lucide="mail" size="14"></i> <strong>Promo Eksklusif:</strong> Info
-                                            menu baru & diskon khusus member.
-                                        </li>
+                                            menu
+                                            baru & diskon khusus member.</li>
                                     </ul>
-                                    <div style="margin-top: 1rem;">
+                                    <div class="login-btn-wrapper">
                                         <a href="/login.html" class="btn btn-primary btn-sm"
                                             style="display: inline-block;">Login / Daftar Sekarang</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Customer Info Preview (Hidden by default) -->
-                        <div id="customer-info-preview" class="animate-fade-in"
-                            style="display: none; background: white; border: 1px solid var(--neutral-200); padding: 2rem; border-radius: 1.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm);">
-
-                            <div class="flex justify-between items-center mb-6"
-                                style="border-bottom: 1px solid var(--neutral-100); padding-bottom: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <h3
-                                        style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--neutral-900);">
-                                        Data Pengiriman
-                                    </h3>
-                                    <span
-                                        style="background: var(--primary-50); color: var(--primary-600); font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase;">Sudah
-                                        Disimpan</span>
-                                </div>
-                                <button type="button" onclick="showOrderFormEdit()" class="btn btn-outline btn-sm"
-                                    style="font-size: 0.8rem; height: 32px; padding: 0 0.75rem; border-radius: 8px;">
-                                    Ubah
-                                </button>
+                    <!-- Customer Info Preview (Hidden by default) -->
+                    <!-- Customer Info Preview (Hidden by default) -->
+                    <div id="customer-info-preview" class="animate-fade-in">
+                        <div class="preview-header">
+                            <div class="preview-title-wrapper">
+                                <h3 class="preview-title">Data Pengiriman</h3>
+                                <span class="preview-badge">Sudah Disimpan</span>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem;">
-                                <div class="preview-item">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Nama
-                                        Lengkap</label>
-                                    <div id="preview-name"
-                                        style="font-size: 1.05rem; color: var(--neutral-800); font-weight: 500;">-</div>
-                                </div>
-                                <div class="preview-item">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Nomor
-                                        WhatsApp</label>
-                                    <div id="preview-phone"
-                                        style="font-size: 1.05rem; color: var(--neutral-800); font-weight: 500;">-</div>
-                                </div>
-                                <div class="preview-item" style="grid-column: 1 / -1;">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Email
-                                        Konfirmasi</label>
-                                    <div id="preview-email"
-                                        style="font-size: 1.05rem; color: var(--neutral-800); font-weight: 500;">-</div>
-                                </div>
-                                <div class="preview-item" style="grid-column: 1 / -1;">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Alamat
-                                        Tujuan</label>
-                                    <div id="preview-address"
-                                        style="font-size: 1.05rem; color: var(--neutral-800); font-weight: 500; line-height: 1.5;">
-                                        -</div>
-                                </div>
-                            </div>
+                            <button type="button" onclick="showOrderFormEdit()" class="btn btn-outline btn-sm"
+                                style="font-size: 0.8rem; height: 32px; padding: 0 0.75rem; border-radius: 8px;">
+                                Ubah
+                            </button>
                         </div>
 
-                        <form id="orderForm">
-                            <div id="customer-form-fields">
-                                <div class="grid grid-2">
-                                    <div class="form-group">
-                                        <label class="form-label">Nama Lengkap</label>
-                                        <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
-                                            required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Nomor WhatsApp</label>
-                                        <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
-                                    </div>
-                                </div>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <label>Nama Lengkap</label>
+                                <div id="preview-name" class="preview-value">-</div>
+                            </div>
+                            <div class="preview-item">
+                                <label>Nomor WhatsApp</label>
+                                <div id="preview-phone" class="preview-value">-</div>
+                            </div>
+                            <div class="preview-item full-width">
+                                <label>Email Konfirmasi</label>
+                                <div id="preview-email" class="preview-value">-</div>
+                            </div>
+                            <div class="preview-item full-width">
+                                <label>Alamat Tujuan</label>
+                                <div id="preview-address" class="preview-value address">-</div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <form id="orderForm">
+                        <div id="customer-form-fields">
+                            <div class="grid grid-2">
                                 <div class="form-group">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
                                         required>
                                 </div>
-
                                 <div class="form-group">
-                                    <label class="form-label">Alamat Pengiriman</label>
-                                    <textarea id="address" class="form-textarea"
-                                        placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <h3 class="mb-2">Pilih Produk</h3>
-                                <div id="productList" class="flex flex-col gap-2">
-                                    <div class="spinner" style="margin: 20px auto;"></div>
+                                    <label class="form-label">Nomor WhatsApp</label>
+                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Catatan Tambahan (Opsional)</label>
-                                <input type="text" id="notes" class="form-input" placeholder="Contoh: Sambal dipisah">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
+                                    required>
                             </div>
 
-                            <div class="mt-4 p-3 bg-neutral-100 rounded-lg text-right">
-                                <h3 style="margin: 0;">Total Pembayaran: <span id="totalText" class="text-primary">Rp
-                                        0</span></h3>
+                            <div class="form-group">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea id="address" class="form-textarea"
+                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
                             </div>
+                        </div>
 
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-                                    <span id="btnText">Konfirmasi Pesanan</span>
-                                    <div id="btnSpinner" class="spinner"
-                                        style="width: 30px; height: 30px; display: none; border-top-color: white;">
-                                    </div>
-                                </button>
+                        <div class="mb-4">
+                            <h4>Pilih Produk</h4>
+                            <div id="productList" class="flex flex-col gap-2">
+                                <div class="spinner product-spinner"></div>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Catatan Tambahan (Opsional)</label>
+                            <input type="text" id="notes" class="form-input" placeholder="Contoh: Sambal dipisah">
+                        </div>
+
+                        <div class="total-payment-container">
+                            <h4>Total Pembayaran: <span id="totalText" class="text-primary">Rp 0</span></h4>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                <span id="btnText">Konfirmasi Pesanan</span>
+                                <div id="btnSpinner" class="spinner btn-spinner"></div>
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Recent Orders for Logged-in Users -->
                 <div id="recentOrdersSection" class="mt-4 animate-fade-in" style="display: none;">
                     <div class="card">
                         <div class="card-header flex justify-between items-center">
-                            <h3 class="card-title">Pesanan Terbaru Anda</h3>
+                            <h4 class="card-title">Pesanan Terbaru Anda</h4>
                             <button onclick="loadRecentOrders()" class="btn btn-outline btn-sm">Refresh</button>
                         </div>
                         <div class="card-body">
@@ -194,86 +167,69 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Redesigned Success Modal -->
-                <div id="successModal" class="modal-overlay"
-                    style="display: none; align-items: center; justify-content: center;">
-                    <div class="modal animate-scale-up"
-                        style="max-width: 450px; padding: 0; overflow: hidden; border-radius: 1.5rem; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                        <div
-                            style="background: var(--gradient-primary); padding: 3rem 2rem; text-align: center; color: white; position: relative;">
-                            <div
-                                style="font-size: 5rem; line-height: 1; margin-bottom: 1rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
-                                <i data-lucide="party-popper" size="80"></i>
-                            </div>
-                            <h2 style="margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.025em;">Pesanan
-                                Berhasil!</h2>
-                            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Terima kasih telah memesan di Baitybites</p>
 
-                            <!-- Decorative curves -->
-                            <div
-                                style="position: absolute; bottom: -1px; left: 0; right: 0; height: 20px; background: white; border-radius: 20px 20px 0 0;">
+            <!-- Redesigned Success Modal -->
+            <!-- Redesigned Success Modal -->
+            <div id="successModal" class="modal-overlay">
+                <div class="modal animate-scale-up">
+                    <div class="modal-header">
+                        <div class="icon-wrapper">
+                            <i data-lucide="party-popper" size="64"></i>
+                        </div>
+                        <h2>Pesanan Berhasil!</h2>
+                        <p>Terima kasih telah memesan di Baitybites</p>
+                        <div class="decorative-curve"></div>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="order-info">
+                            <p class="text-muted" style="font-size: 0.9rem;">
+                                Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
+                            </p>
+
+                            <div class="info-box">
+                                <div class="info-row">
+                                    <span>Nomor Order</span>
+                                    <div id="successOrderNumber" class="info-value order-id">PO-XXXX</div>
+                                </div>
+                                <div class="info-row">
+                                    <span>Nomor Invoice</span>
+                                    <div id="successInvoiceNumber" class="info-value invoice-id">INV-XXXX</div>
+                                </div>
                             </div>
                         </div>
 
-                        <div style="padding: 2rem; background: white;">
-                            <div class="text-center mb-6">
-                                <p class="text-muted mb-4" style="font-size: 0.9rem;">Silakan simpan nomor order Anda
-                                    untuk melacak proses produksi & pengiriman.</p>
-
-                                <div
-                                    style="background: var(--neutral-50); padding: 1.5rem; border-radius: 1rem; border: 2px dashed var(--neutral-200); position: relative;">
-                                    <div style="margin-bottom: 1.5rem;">
-                                        <span
-                                            style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neutral-500); letter-spacing: 0.05em;">Nomor
-                                            Order</span>
-                                        <div id="successOrderNumber"
-                                            style="font-size: 1.5rem; font-weight: 800; color: var(--primary-600); margin-top: 0.25rem;">
-                                            PO-XXXX</div>
-                                    </div>
-                                    <div>
-                                        <span
-                                            style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--neutral-500); letter-spacing: 0.05em;">Nomor
-                                            Invoice</span>
-                                        <div id="successInvoiceNumber"
-                                            style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-800); margin-top: 0.25rem;">
-                                            INV-XXXX</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col gap-3">
-                                <button id="btnCopy" class="btn btn-primary btn-lg"
-                                    style="width: 100%; justify-content: center; background: #059669; border: none; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);">
-                                    <span>Salin Nomor Order</span>
-                                </button>
-                                <a id="btnTrackLink" href="#" class="btn btn-primary btn-lg"
-                                    style="width: 100%; justify-content: center;">
-                                    <span>Lacak Pesanan</span>
-                                </a>
-                                <button onclick="location.reload()" class="btn btn-outline btn-lg"
-                                    style="width: 100%; justify-content: center; border-color: var(--neutral-200); color: var(--neutral-600);">
-                                    <span>Tutup</span>
-                                </button>
-                            </div>
+                        <div class="action-buttons">
+                            <button id="btnCopy" class="btn btn-primary btn-copy">
+                                <span>Salin Nomor Order</span>
+                            </button>
+                            <a id="btnTrackLink" href="#" class="btn btn-primary btn-track">
+                                <span>Lacak Pesanan</span>
+                            </a>
+                            <button onclick="location.reload()" class="btn btn-outline btn-order-close">
+                                <span>Tutup</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-        <footer
-            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
-            <div class="container">
-                <div
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                    <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
-                    <span>&copy; 2026 Baitybites. All rights reserved.</span>
-                    <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
-                        Privasi</a>
-                    <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
-                </div>
+    </div>
+    </main>
+    <footer
+        style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+        <div class="container">
+            <div
+                style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
+                <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
+                <span>&copy; 2026 Baitybites. All rights reserved.</span>
+                <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
+                    Privasi</a>
+                <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
             </div>
-        </footer>
+        </div>
+    </footer>
     </div>
 
     <script src="/js/app.js"></script>
