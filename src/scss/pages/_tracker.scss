@@ -9,7 +9,7 @@
 /* Connecting Line */
 .tracker-line {
   position: absolute;
-  top: 48px;
+  top: 71px;
   /* Adjust based on label height */
   left: 0;
   right: 0;
@@ -20,7 +20,7 @@
 
 .tracker-line-progress {
   position: absolute;
-  top: 48px;
+  top: 71px;
   left: 0;
   height: 2px;
   background: var(--success);
