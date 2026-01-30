@@ -35,9 +35,13 @@
 // KPI Layout
 .kpi-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 420px;
   gap: 2rem;
   align-items: stretch;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: 1fr 360px;
+  }
 
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
@@ -145,8 +149,9 @@
 
   .revenue-info {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    // gap: 0.25rem;
   }
 
   .stat-label {
@@ -157,11 +162,16 @@
   }
 
   .stat-value {
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 900;
     color: var(--neutral-900);
-    margin-top: 0.25rem;
-    letter-spacing: -0.02em;
+    // margin-top: 0.25rem;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+
+    @media (max-width: 1400px) {
+      font-size: 1.75rem;
+    }
   }
 
   .revenue-icon {
@@ -322,7 +332,7 @@
 // Recent Orders Grid
 .recent-orders-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.25rem;
 }
 

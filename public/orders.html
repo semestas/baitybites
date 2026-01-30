@@ -273,7 +273,7 @@
             trackerHtml = `
                 <div class="tracker-container">
                     <div class="tracker-line"></div>
-                    <div class="tracker-line-progress" style="width: ${progressWidth}%;"></div>
+                    <div class="tracker-line-progress" style="--p: ${progressWidth}%;"></div>
                     ${STATUS_FLOW.map((step, index) => {
                 let stateClass = '';
                 if (index < currentStepIndex) stateClass = 'is-done';
