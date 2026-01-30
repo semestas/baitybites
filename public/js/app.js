@@ -416,6 +416,14 @@ async function loadFooterSettings() {
                 let html = '';
                 if (s.contact_email) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="mail" style="width: 16px; height: 16px;"></i> ${s.contact_email}</div>`;
                 if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="phone" style="width: 16px; height: 16px;"></i> ${s.contact_phone}</div>`;
+                if (s.contact_whatsapp) {
+                    const waLink = `https://wa.me/${s.contact_whatsapp.replace(/[^0-9]/g, '')}`;
+                    html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <a href="${waLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color 0.3s;" onmouseover="this.style.color='var(--success)'" onmouseout="this.style.color='inherit'">
+                            <i data-lucide="message-circle" style="width: 16px; height: 16px;"></i> WhatsApp: ${s.contact_whatsapp}
+                        </a>
+                    </div>`;
+                }
                 if (s.contact_address) html += `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> ${s.contact_address}</div>`;
 
                 if (html) {

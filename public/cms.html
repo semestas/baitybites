@@ -30,8 +30,7 @@
                         class="sidebar-icon"></i> Setting Kontak</a>
                 <a href="#testimonials" onclick="switchSection('testimonials', event)"><i data-lucide="message-square"
                         class="sidebar-icon"></i> Moderasi Testimoni</a>
-                <a href="/kitchen.html" class="sidebar-link"><i data-lucide="utensils-crosses" class="sidebar-icon"></i>
-                    Kitchen View</a>
+                <a href="/kitchen.html"><i data-lucide="tv" class="sidebar-icon"></i> Kitchen View</a>
                 <a href="/dashboard" class="nav-back mt-4"><i data-lucide="arrow-left" class="sidebar-icon"></i>
                     Dashboard Utama</a>
             </nav>
@@ -188,7 +187,7 @@
                             </div>
 
                             <div class="editable-field" id="field-contact_phone">
-                                <label class="field-label">Nomor WhatsApp / Telepon</label>
+                                <label class="field-label">Nomor Telepon Kantor</label>
                                 <div class="field-display">
                                     <div class="field-value-text" id="text-contact_phone">---</div>
                                     <button type="button" class="btn-edit-inline"
@@ -201,7 +200,27 @@
                                         <button type="button" class="btn btn-outline btn-xs"
                                             onclick="cancelInlineEdit('contact_phone')">Batal</button>
                                         <button type="button" class="btn btn-primary btn-xs"
-                                            onclick="saveIndividualSetting('contact_phone')">Simpan</button>
+                                            onclick="saveIndividualSetting('contact_phone', true)">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-contact_whatsapp">
+                                <label class="field-label">Nomor WhatsApp Bisnis</label>
+                                <div class="field-display">
+                                    <div class="field-value-text" id="text-contact_whatsapp">---</div>
+                                    <button type="button" class="btn-edit-inline"
+                                        onclick="startInlineEdit('contact_whatsapp')"> <i data-lucide="edit-3"
+                                            size="14"></i></button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="contact_whatsapp" class="form-input"
+                                        placeholder="628123456789 (Tanpa + atau spasi)">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline btn-xs"
+                                            onclick="cancelInlineEdit('contact_whatsapp')">Batal</button>
+                                        <button type="button" class="btn btn-primary btn-xs"
+                                            onclick="saveIndividualSetting('contact_whatsapp', true)">Simpan</button>
                                     </div>
                                 </div>
                             </div>
@@ -652,7 +671,7 @@
                 const res = await apiCall('/cms/settings');
                 if (res.success) {
                     const data = res.data;
-                    const fields = ['contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
+                    const fields = ['contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
 
                     fields.forEach(f => {
                         const val = data[f] || '---';
@@ -665,10 +684,10 @@
 
         async function saveIndividualSetting(fieldId) {
             const value = document.getElementById(fieldId).value;
-            // Since the backend likely expects the full settings object, we'll fetch current values
             const payload = {
                 contact_email: document.getElementById('contact_email').value,
                 contact_phone: document.getElementById('contact_phone').value,
+                contact_whatsapp: document.getElementById('contact_whatsapp').value,
                 contact_address: document.getElementById('contact_address').value,
                 social_instagram: document.getElementById('social_instagram').value,
                 social_facebook: document.getElementById('social_facebook').value,
@@ -700,6 +719,9 @@
                 document.querySelectorAll('.status-popover').forEach(el => el.classList.remove('show'));
             }
         });
+
+        // Ensure icons are rendered
+        if (window.lucide) lucide.createIcons();
     </script>
 </body>
 

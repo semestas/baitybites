@@ -87,47 +87,53 @@
   }
 
   function updateRecentOrders(orders) {
-    const tableBody = document.getElementById('recentOrdersTable');
-    if (!tableBody) return;
+    const grid = document.getElementById('recentOrdersGrid');
+    if (!grid) return;
 
     const utils = getUtils();
 
     if (!orders || orders.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center" style="padding: 2rem;">
-            <div style="color: #9ca3af;">No recent orders</div>
-          </td>
-        </tr>
+      grid.innerHTML = `
+        <div class="text-center py-2xl w-full" style="grid-column: 1 / -1;">
+          <div style="color: #9ca3af;">No recent orders</div>
+        </div>
       `;
       return;
     }
 
-    tableBody.innerHTML = orders.map(order => {
+    grid.innerHTML = orders.map(order => {
       const orderDate = new Date(order.order_date);
       const timeStr = orderDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       const dateStr = utils.formatDate ? utils.formatDate(order.order_date) : order.order_date;
 
       return `
-            <tr>
-                <td><strong>${order.order_number}</strong></td>
-                <td>${order.customer_name}</td>
-                <td>
-                    <div style="font-weight: 600;">${dateStr}</div>
-                    <div class="text-xs text-muted">${timeStr}</div>
-                </td>
-                <td><strong>${utils.formatCurrency ? utils.formatCurrency(order.total_amount) : ('Rp ' + order.total_amount)}</strong></td>
-                <td>
+            <div class="dashboard-order-card">
+                <div class="order-card-header">
+                    <span class="order-id">#${order.order_number}</span>
                     <span class="badge ${utils.getStatusBadgeClass ? utils.getStatusBadgeClass(order.status) : ''}">
                         ${utils.getStatusLabel ? utils.getStatusLabel(order.status) : order.status}
                     </span>
-                </td>
-                <td class="text-right">
-                    <button class="btn btn-primary btn-sm" onclick="viewOrder(${order.id})">
-                        Lihat
+                </div>
+                <div class="order-card-body">
+                    <div class="customer-name">${order.customer_name}</div>
+                    <div class="order-meta">
+                        <div class="meta-item">
+                            <i data-lucide="calendar"></i>
+                            <span>${dateStr}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i data-lucide="clock"></i>
+                            <span>${timeStr}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-card-footer">
+                    <div class="order-total">${utils.formatCurrency ? utils.formatCurrency(order.total_amount) : ('Rp ' + order.total_amount)}</div>
+                    <button class="btn btn-outline btn-sm" onclick="viewOrder(${order.id})">
+                        Lihat Detail
                     </button>
-                </td>
-            </tr>
+                </div>
+            </div>
         `;
     }).join('');
   }

@@ -503,7 +503,7 @@ export const cmsRoutes = (db: Sql) =>
         .get('/settings', async () => {
             const settingsList = await db`
                 SELECT key, value FROM settings 
-                WHERE key IN ('contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok')
+                WHERE key IN ('contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok')
             `;
 
             const settings = settingsList.reduce((acc: any, curr: any) => {
@@ -514,7 +514,7 @@ export const cmsRoutes = (db: Sql) =>
             return { success: true, data: settings };
         })
         .put('/settings', async ({ body }: { body: any }) => {
-            const keys = ['contact_email', 'contact_phone', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
+            const keys = ['contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
 
             await db.begin(async (sql: any) => {
                 for (const key of keys) {
@@ -533,6 +533,7 @@ export const cmsRoutes = (db: Sql) =>
             body: t.Object({
                 contact_email: t.Optional(t.String()),
                 contact_phone: t.Optional(t.String()),
+                contact_whatsapp: t.Optional(t.String()),
                 contact_address: t.Optional(t.String()),
                 social_instagram: t.Optional(t.String()),
                 social_facebook: t.Optional(t.String()),

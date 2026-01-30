@@ -93,6 +93,36 @@
             position: relative;
             z-index: 1;
         }
+
+        /* Highlight Pulse Animation */
+        @keyframes highlightPulse {
+            0% {
+                background-color: transparent;
+            }
+
+            30% {
+                background-color: var(--primary-50);
+            }
+
+            60% {
+                background-color: var(--primary-100);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .highlight-pulse {
+            animation: highlightPulse 2s ease-in-out infinite;
+            border: 2px solid var(--primary-500) !important;
+            box-shadow: 0 0 15px rgba(245, 150, 56, 0.2);
+        }
+
+        .highlight-pulse td:first-child {
+            color: var(--primary-700);
+            font-size: 1.1em;
+        }
     </style>
 </head>
 

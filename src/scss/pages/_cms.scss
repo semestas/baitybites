@@ -7,13 +7,15 @@
 .cms-grid {
     display: grid;
     grid-template-columns: 250px 1fr;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .sidebar {
     background: #2d3436;
     color: $white;
     padding: 20px;
+    overflow-y: auto;
 
     .sidebar-logo {
         height: 60px;
@@ -22,7 +24,9 @@
 
 .sidebar-nav {
     a {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 10px;
         padding: 12px;
         color: #dfe6e9;
         text-decoration: none;
@@ -40,7 +44,9 @@
     .nav-back {
         border-top: 1px solid #444;
         padding-top: 20px;
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 10px;
         color: #dfe6e9;
         text-decoration: none;
     }
@@ -49,6 +55,26 @@
 .content-area {
     padding: 40px;
     background: #f8f9fa;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+
+    // Custom scrollbar for premium feel
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+
+        &:hover {
+            background: $primary;
+        }
+    }
 }
 
 .section-card {
@@ -149,17 +175,7 @@
     }
 }
 
-.table-wrapper {
-    overflow-x: auto;
-    // Allow popovers to break out of the clipping box
-    padding: 140px 0;
-    margin: -140px 0;
-    pointer-events: none;
 
-    &>* {
-        pointer-events: auto;
-    }
-}
 
 // Status Popover & Timeline
 .status-popover-container {
@@ -205,9 +221,14 @@
     }
 
     // Specific Status Styles
+    &.pending {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
     &.confirmed {
-        background: #FFEDD5;
-        color: #9A3412;
+        background: #DBEAFE;
+        color: #1E40AF;
     }
 
     &.production {
@@ -267,11 +288,11 @@
         transform: rotate(45deg);
     }
 
-    // Theme Variables Default (Orange)
-    --theme-main: #F97316;
-    --theme-bg: #FFF7ED;
-    --theme-text: #7C2D12;
-    --theme-line: #FDBA74;
+    // Theme Variables Default (Orange/Pending - Amber)
+    --theme-main: #F59E0B;
+    --theme-bg: #FFFBEB;
+    --theme-text: #92400E;
+    --theme-line: #FDE68A;
 
     background: var(--theme-bg);
     border: 1px solid var(--theme-main);
@@ -282,6 +303,20 @@
     }
 
     // Status Specific Themes
+    &.pending {
+        --theme-main: #F59E0B;
+        --theme-bg: #FFFBEB;
+        --theme-text: #92400E;
+        --theme-line: #FDE68A;
+    }
+
+    &.confirmed {
+        --theme-main: #3B82F6;
+        --theme-bg: #EFF6FF;
+        --theme-text: #1E40AF;
+        --theme-line: #BFDBFE;
+    }
+
     &.production {
         --theme-main: #E11D48;
         --theme-bg: #FFF1F2;
@@ -417,7 +452,8 @@
 // Table Styles
 .table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 
     th,
     td {
@@ -427,15 +463,38 @@
     }
 
     th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
         font-weight: 700;
         color: #636e72;
         text-transform: uppercase;
         font-size: 0.85rem;
         letter-spacing: 0.05em;
+        box-shadow: 0 1px 0 #eee;
     }
 
     tbody tr:hover {
         background: #fdfdfd;
+    }
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
     }
 }
 

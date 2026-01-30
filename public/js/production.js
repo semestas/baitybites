@@ -42,7 +42,6 @@
         date.setMinutes(date.getMinutes() + totalMins);
         return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     }
-
     function updateQueue(queue) {
         const tableBody = document.getElementById('productionTableBody');
         if (!tableBody) return;
@@ -59,15 +58,12 @@
             return;
         }
 
-        // Ensure header has the correct column
-        const tableHeader = document.querySelector('.table thead tr');
-        if (tableHeader && tableHeader.cells.length < 6) {
-            const th = document.createElement('th');
-            th.textContent = 'Estimasi & Waktu';
-            tableHeader.insertBefore(th, tableHeader.cells[4]);
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightOrder = urlParams.get('highlight');
 
         tableBody.innerHTML = queue.map(order => {
+            const isHighlighted = highlightOrder && highlightOrder === order.order_number;
+
             const itemsHtml = order.items ? order.items.map(item =>
                 `<div class="item-row">
                     <span class="item-name">${item.product_name}</span>
@@ -121,7 +117,7 @@
             }
 
             return `
-                <tr>
+                <tr class="${isHighlighted ? 'highlight-pulse' : ''}" id="order-row-${order.order_number}">
                     <td><strong>${order.order_number}</strong></td>
                     <td><div class="items-list">${itemsHtml}</div></td>
                     <td class="text-center">${order.items ? order.items.reduce((acc, curr) => acc + curr.quantity, 0) : 0}</td>
@@ -136,6 +132,16 @@
                 </tr>
             `;
         }).join('');
+
+        // Handle scrolling to highlight
+        if (highlightOrder) {
+            setTimeout(() => {
+                const row = document.getElementById(`order-row-${highlightOrder}`);
+                if (row) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
     }
 
     function getStatusBadgeClass(status) {

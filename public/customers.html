@@ -243,18 +243,23 @@
                     <div class="customer-orders-section">
                         <h4><i data-lucide="history" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Riwayat Pesanan</h4>
                         <div class="orders-list">
-                            ${c.orders && c.orders.length ? c.orders.map(o => `
-                                <div class="order-history-item">
-                                    <div class="order-main-info">
-                                        <span class="order-num">#${o.order_number}</span>
-                                        <span class="order-date"><i data-lucide="calendar" style="width: 12px; height: 12px; margin-right: 4px;"></i>${formatDateTime(o.created_at)}</span>
+                            ${c.orders && c.orders.length ? c.orders.map(o => {
+                    const isProductionStatus = ['confirmed', 'production', 'packaging', 'shipping'].includes(o.status);
+                    const clickHandler = isProductionStatus ? `onclick="window.location.href='/production.html?highlight=${encodeURIComponent(o.order_number)}'"` : '';
+
+                    return `
+                                    <div class="order-history-item" ${clickHandler} ${isProductionStatus ? 'style="cursor: pointer;"' : ''}>
+                                        <div class="order-main-info">
+                                            <span class="order-num">#${o.order_number}</span>
+                                            <span class="order-date"><i data-lucide="calendar" style="width: 12px; height: 12px; margin-right: 4px;"></i>${formatDateTime(o.created_at)}</span>
+                                        </div>
+                                        <div class="order-secondary-info">
+                                            <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
+                                            <span class="order-amount">${formatCurrency(o.total_amount)}</span>
+                                        </div>
                                     </div>
-                                    <div class="order-secondary-info">
-                                        <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
-                                        <span class="order-amount">${formatCurrency(o.total_amount)}</span>
-                                    </div>
-                                </div>
-                            `).join('') : `
+                                `;
+                }).join('') : `
                                 <div class="empty-orders">
                                     <i data-lucide="package-open" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 1rem;"></i>
                                     <p>Belum ada riwayat pesanan.</p>
