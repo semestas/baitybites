@@ -1,5 +1,5 @@
 // Global API configuration
-const API_BASE = window.location.origin + '/api';
+const API_BASE = '/api';
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
@@ -443,15 +443,27 @@ async function checkVersion() {
     try {
         const response = await fetch(`${API_BASE}/auth/version`);
         const data = await response.json();
-        const footers = document.querySelectorAll('footer .container, .footer-text');
-        footers.forEach(footer => {
-            const vTag = document.createElement('div');
-            vTag.style.fontSize = '0.7rem';
-            vTag.style.opacity = '0.5';
-            vTag.style.marginTop = '1rem';
-            vTag.innerHTML = `Build: v1.6.0 | API: ${data.version || 'unknown'}`;
-            footer.appendChild(vTag);
-        });
+        const versionElement = document.getElementById('footer-version');
+        if (versionElement) {
+            versionElement.innerHTML = `Build: v1.6.0 | API: ${data.version || 'unknown'}`;
+            versionElement.style.fontSize = '0.7rem';
+            versionElement.style.opacity = '0.5';
+            versionElement.style.marginTop = '0.5rem';
+        } else {
+            // Fallback for pages without the specific ID
+            const footers = document.querySelectorAll('footer .container');
+            footers.forEach(footer => {
+                if (!footer.querySelector('.footer-version-tag')) {
+                    const vTag = document.createElement('div');
+                    vTag.className = 'footer-version-tag';
+                    vTag.style.fontSize = '0.7rem';
+                    vTag.style.opacity = '0.5';
+                    vTag.style.marginTop = '1rem';
+                    vTag.innerHTML = `Build: v1.6.0 | API: ${data.version || 'unknown'}`;
+                    footer.appendChild(vTag);
+                }
+            });
+        }
     } catch (e) {
         // Silently fail version check
     }

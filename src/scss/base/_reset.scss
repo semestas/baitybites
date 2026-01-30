@@ -6,8 +6,8 @@
 
 html,
 body {
-  width: 100vw !important;
-  max-width: 100vw !important;
+  width: 100% !important;
+  max-width: 100% !important;
   overflow-x: hidden !important;
   position: relative;
   margin: 0;
@@ -27,4 +27,3 @@ img {
   max-width: 100%;
   height: auto;
 }
-

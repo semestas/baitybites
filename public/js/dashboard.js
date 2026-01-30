@@ -69,30 +69,24 @@
     if (!flowContainer) return;
 
     const flowSteps = [
-      { key: 'pending', label: 'Pending', icon: 'clock', color: '#f59e0b' },
-      { key: 'confirmed', label: 'Confirmed', icon: 'check', color: '#3b82f6' },
-      { key: 'paid', label: 'Paid', icon: 'credit-card', color: '#10b981' },
-      { key: 'production', label: 'In Production', icon: 'flame', color: '#a855f7' },
-      { key: 'packaging', label: 'Wait for Packing', icon: 'package', color: '#f97316' },
-      { key: 'shipping', label: 'Ready to Ship', icon: 'truck', color: '#2563eb' },
-      { key: 'completed', label: 'Arrived', icon: 'check-circle', color: '#059669' }
+      { key: 'pending', label: 'Menunggu', icon: 'clock', color: 'var(--status-pending)' },
+      { key: 'confirmed', label: 'Dikonfirmasi', icon: 'check-circle-2', color: 'var(--status-confirmed)' },
+      { key: 'paid', label: 'Dibayar', icon: 'banknote', color: 'var(--success)' },
+      { key: 'production', label: 'Produksi', icon: 'flame', color: 'var(--status-production)' },
+      { key: 'packaging', label: 'Packing', icon: 'package', color: 'var(--status-packaging)' },
+      { key: 'shipping', label: 'Kirim', icon: 'truck', color: 'var(--status-shipping)' },
+      { key: 'completed', label: 'Diterima', icon: 'flag', color: 'var(--status-completed)' }
     ];
 
     flowContainer.innerHTML = flowSteps.map(step => `
-      <div id="flow-${step.key}" class="stat-card" style="border-left-color: ${step.color}">
-        <div class="stat-content">
-          <div class="stat-label">${step.label}</div>
-          <div class="stat-value">${flowData[step.key] || 0}</div>
-        </div>
-        <div class="stat-icon">
-          <i data-lucide="${step.icon}"></i>
-        </div>
+      <div id="flow-${step.key}" class="flow-step" style="border-bottom-color: ${step.color}">
+        <span class="step-label">${step.label}</span>
+        <span class="step-value">${flowData[step.key] || 0}</span>
       </div>
     `).join('');
   }
 
   function updateRecentOrders(orders) {
-    // console.log('Updating recent orders table:', orders);
     const tableBody = document.getElementById('recentOrdersTable');
     if (!tableBody) return;
 
@@ -109,24 +103,33 @@
       return;
     }
 
-    tableBody.innerHTML = orders.map(order => `
-      <tr>
-        <td><strong>${order.order_number}</strong></td>
-        <td>${order.customer_name}</td>
-        <td>${utils.formatDate ? utils.formatDate(order.order_date) : order.order_date}</td>
-        <td><strong>${utils.formatCurrency ? utils.formatCurrency(order.total_amount) : ('Rp ' + order.total_amount)}</strong></td>
-        <td>
-          <span class="badge ${utils.getStatusBadgeClass ? utils.getStatusBadgeClass(order.status) : ''}">
-            ${utils.getStatusLabel ? utils.getStatusLabel(order.status) : order.status}
-          </span>
-        </td>
-        <td>
-          <button class="btn btn-primary btn-sm" onclick="viewOrder(${order.id})">
-            View
-          </button>
-        </td>
-      </tr>
-    `).join('');
+    tableBody.innerHTML = orders.map(order => {
+      const orderDate = new Date(order.order_date);
+      const timeStr = orderDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      const dateStr = utils.formatDate ? utils.formatDate(order.order_date) : order.order_date;
+
+      return `
+            <tr>
+                <td><strong>${order.order_number}</strong></td>
+                <td>${order.customer_name}</td>
+                <td>
+                    <div style="font-weight: 600;">${dateStr}</div>
+                    <div class="text-xs text-muted">${timeStr}</div>
+                </td>
+                <td><strong>${utils.formatCurrency ? utils.formatCurrency(order.total_amount) : ('Rp ' + order.total_amount)}</strong></td>
+                <td>
+                    <span class="badge ${utils.getStatusBadgeClass ? utils.getStatusBadgeClass(order.status) : ''}">
+                        ${utils.getStatusLabel ? utils.getStatusLabel(order.status) : order.status}
+                    </span>
+                </td>
+                <td class="text-right">
+                    <button class="btn btn-primary btn-sm" onclick="viewOrder(${order.id})">
+                        Lihat
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
   }
 
   // Global exposure for event handlers
@@ -148,5 +151,5 @@
   }
 
   // Auto-refresh stats
-  setInterval(loadDashboardData, 5000);
+  // setInterval(loadDashboardData, 30000); // 30s for production stability
 })();

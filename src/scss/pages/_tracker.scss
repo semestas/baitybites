@@ -2,8 +2,8 @@
   display: flex;
   justify-content: space-between;
   position: relative;
-  margin-top: var(--spacing-2xl);
-  padding: 0 var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-2xl);
 }
 
 /* Connecting Line */

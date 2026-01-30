@@ -19,9 +19,9 @@
   max-width: 600px;
   width: 90%;
   max-height: 90vh;
-  overflow-y: auto;
   box-shadow: var(--shadow-2xl);
   animation: fadeIn var(--transition-base);
+  position: relative;
 }
 
 .modal-header {
@@ -52,7 +52,10 @@
 }
 
 .modal-body {
-  padding: var(--spacing-xl);
+  padding: 0;
+  overflow-y: auto;
+  max-height: calc(90vh - 180px);
+  /* Account for header, footer, and margins */
 }
 
 .modal-footer {
@@ -62,4 +65,3 @@
   justify-content: flex-end;
   gap: var(--spacing-sm);
 }
-

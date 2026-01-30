@@ -4,150 +4,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baitybites - Order Management System</title>
-  <meta name="description" content="Sistem manajemen order untuk Baitybites - dari pemesanan hingga pengiriman">
+  <title>Dashboard - Baitybites OMS</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#f59638">
+
+  <!-- Design System Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="/css/style.css">
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Stats Grid -->
-  <div class="stats-container animate-fade-in">
-    <div class="stat-card" style="border-left-color: #f59638;">
-      <div class="stat-content">
-        <div class="stat-label">Total Orders</div>
-        <div class="stat-value" id="totalOrders">0</div>
+</head>
+
+<body>
+  <div class="page-wrapper dashboard-page">
+    <header class="header">
+      <div class="container header-content">
+        <a href="/" class="logo">
+          <img src="/assets/logo.png" alt="Baitybites">
+        </a>
+        <nav id="mainNav" class="nav">
+          <!-- Populated by app.js -->
+        </nav>
       </div>
-      <div class="stat-icon"><i data-lucide="package"></i></div>
-    </div>
+    </header>
 
-    <div class="stat-card" style="border-left-color: #10b981;">
-      <div class="stat-content">
-        <div class="stat-label">Completed</div>
-        <div class="stat-value" id="completedOrders">0</div>
+    <main class="main-content">
+      <div class="container">
+        <div class="dashboard-header mb-xl">
+          <h1 class="page-title">Ringkasan Sistem</h1>
+          <p class="text-muted">Selamat datang kembali! Berikut status operasional hari ini.</p>
+        </div>
+
+        <div class="dashboard-layout-sections">
+          <!-- Section 1: Crucial Stats -->
+          <section class="ops-overview mb-2xl">
+            <div class="kpi-grid">
+              <div class="kpi-cards">
+                <div class="stat-card brand">
+                  <div class="stat-icon"><i data-lucide="package"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Total Pesanan</span>
+                    <span class="stat-value" id="totalOrders">0</span>
+                  </div>
+                </div>
+                <div class="stat-card success">
+                  <div class="stat-icon"><i data-lucide="check-circle-2"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Terverifikasi</span>
+                    <span class="stat-value" id="completedOrders">0</span>
+                  </div>
+                </div>
+                <div class="stat-card info">
+                  <div class="stat-icon"><i data-lucide="refresh-cw"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Sedang Jalan</span>
+                    <span class="stat-value" id="inProgressOrders">0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="revenue-card-compact bg-card">
+                <div class="revenue-info">
+                  <span class="stat-label">Total Pendapatan</span>
+                  <span class="stat-value" id="totalRevenue">Rp 0</span>
+                </div>
+                <div class="revenue-icon">
+                  <i data-lucide="wallet"></i>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 2: Distribution -->
+          <section class="flow-section mb-2xl">
+            <div class="section-header mb-md">
+              <h2 class="section-title">Visualisasi Alur Pesanan</h2>
+            </div>
+            <div class="flow-container-outer">
+              <div class="order-flow-stepper" id="orderFlowStats">
+                <!-- Populated by JS -->
+                <div class="loading-state">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Records & Actions -->
+          <div class="dashboard-main-grid gap-2xl">
+            <div class="records-view">
+              <div class="card p-0 table-card">
+                <div class="card-header flex justify-between items-center px-lg py-md">
+                  <h2 class="card-title m-0">Antrean Pesanan</h2>
+                  <a href="/orders.html" class="btn btn-primary btn-sm">Buka Semua Data</a>
+                </div>
+                <div class="table-wrapper">
+                  <table class="table professional">
+                    <thead>
+                      <tr>
+                        <th>ID Order</th>
+                        <th>Pelanggan</th>
+                        <th>Waktu & Tanggal</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th class="text-right">Tindakan</th>
+                      </tr>
+                    </thead>
+                    <tbody id="recentOrdersTable">
+                      <tr>
+                        <td colspan="6" class="text-center py-2xl">
+                          <div class="spinner m-auto"></div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <aside class="dashboard-sidebar">
+              <div class="card mb-md">
+                <div class="card-header py-md px-lg">
+                  <h3 class="card-title m-0">Akses Cepat</h3>
+                </div>
+                <div class="card-body p-md">
+                  <div class="action-grid-minimal">
+                    <a href="/orders.html?action=new" class="action-link brand">
+                      <div class="link-icon"><i data-lucide="plus"></i></div>
+                      <span>Order Baru</span>
+                    </a>
+                    <a href="/customers.html" class="action-link success">
+                      <div class="link-icon"><i data-lucide="users"></i></div>
+                      <span>Pelanggan</span>
+                    </a>
+                    <a href="/production.html" class="action-link info">
+                      <div class="link-icon"><i data-lucide="chef-hat"></i></div>
+                      <span>Produksi</span>
+                    </a>
+                    <a href="/kitchen.html" class="action-link orange">
+                      <div class="link-icon"><i data-lucide="monitor"></i></div>
+                      <span>Kitchen TV</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-box">
+                <div class="help-header">
+                  <i data-lucide="help-circle"></i>
+                  <h4>Pusat Bantuan</h4>
+                </div>
+                <p>Pelajari cara mengelola inventaris melalui dokumentasi.</p>
+                <a href="/docs" class="btn btn-primary">Buka Panduan</a>
+              </div>
+            </aside>
+          </div>
+        </div>
       </div>
-      <div class="stat-icon"><i data-lucide="check-circle"></i></div>
-    </div>
+    </main>
 
-    <div class="stat-card" style="border-left-color: #3b82f6;">
-      <div class="stat-content">
-        <div class="stat-label">In Progress</div>
-        <div class="stat-value" id="inProgressOrders">0</div>
+    <footer class="footer mt-3xl">
+      <div class="container">
+        <div class="footer-layout">
+          <div class="footer-brand">
+            <img src="/assets/logo.png" alt="Logo" class="footer-logo">
+            <div class="brand-info">
+              <h4 class="m-0 text-white">Baitybites OMS</h4>
+              <p class="text-xs text-muted mb-0">Sistem Manajemen Produksi Risol Premium</p>
+            </div>
+          </div>
+
+          <div class="footer-meta">
+            <div id="footer-version" class="footer-text"></div>
+            <p class="copyright text-muted mt-xs">&copy; 2026 Baitybites. All rights reserved.</p>
+          </div>
+        </div>
       </div>
-      <div class="stat-icon"><i data-lucide="settings"></i></div>
-    </div>
-
-    <div class="stat-card" style="border-left-color: #f59e0b;">
-      <div class="stat-content">
-        <div class="stat-label">Revenue</div>
-        <div class="stat-value" id="totalRevenue">Rp 0</div>
-      </div>
-      <div class="stat-icon"><i data-lucide="banknote"></i></div>
-    </div>
-  </div>
-
-  <!-- Order Flow Visualization -->
-  <div class="card mb-4 animate-fade-in">
-    <div class="card-header">
-      <h2 class="card-title">Order Flow Status</h2>
-    </div>
-    <div class="card-body">
-      <div id="orderFlowStats">
-        <!-- Will be populated by JavaScript -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Orders -->
-  <div class="card animate-fade-in">
-    <div class="card-header flex justify-between items-center">
-      <h2 class="card-title">Recent Orders</h2>
-      <a href="/orders.html" class="btn btn-primary btn-sm">View All Orders</a>
-    </div>
-    <div class="card-body">
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="recentOrdersTable">
-            <tr>
-              <td colspan="6" class="text-center">
-                <div class="spinner" style="margin: 20px auto;"></div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="grid grid-3 mt-4 animate-fade-in">
-    <div class="card" style="text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-500);"><i
-          data-lucide="file-text" size="48"></i></div>
-      <h3>New Order</h3>
-      <p class="text-muted">Create a new customer order</p>
-      <button class="btn btn-primary" onclick="window.location.href='/orders.html?action=new'">
-        Create Order
-      </button>
-    </div>
-
-    <div class="card" style="text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--secondary-500);"><i
-          data-lucide="users" size="48"></i></div>
-      <h3>Manage Customers</h3>
-      <p class="text-muted">View and manage customer data</p>
-      <button class="btn btn-secondary" onclick="window.location.href='/customers.html'">
-        View Customers
-      </button>
-    </div>
-
-    <div class="card" style="text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--neutral-600);"><i
-          data-lucide="factory" size="48"></i></div>
-      <h3>Production</h3>
-      <p class="text-muted">Monitor production status</p>
-      <button class="btn btn-outline" onclick="window.location.href='/production.html'">
-        View Production
-      </button>
-    </div>
-
-    <div class="card" style="text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: var(--spacing-md); color: var(--primary-600);"><i
-          data-lucide="utensils-crosses" size="48"></i></div>
-      <h3>Production Keeper</h3>
-      <p class="text-muted">Kitchen terminal view</p>
-      <button class="btn btn-primary" onclick="window.location.href='/kitchen.html'">
-        Open Kitchen
-      </button>
-    </div>
-  </div>
-  </div>
-  </main>
-
-  <!-- Footer -->
-  <footer
-    style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
-    <div class="container">
-      <p>&copy; 2026 Baitybites. All rights reserved.</p>
-      <p class="text-muted" style="font-size: 0.875rem; margin-top: var(--spacing-sm);">
-        Order Management System v1.0
-      </p>
-    </div>
-  </footer>
+    </footer>
   </div>
 
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
-  </body>
+</body>
 
 </html>

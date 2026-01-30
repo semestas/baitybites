@@ -1,6 +1,6 @@
 [build]
-  # Netlify cannot run Bun backend, so we only build static files
-  command = "echo 'Static files only - Backend must be deployed separately'"
+  # Build static styles before publishing
+  command = "npm install && npm run style:build"
   publish = "public"
   
 [build.environment]

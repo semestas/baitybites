@@ -44,32 +44,19 @@
                     <button class="btn btn-primary"><i data-lucide="user-plus" size="18"></i> Add Customer</button>
                 </div>
 
-                <div class="card animate-fade-in">
-                    <div class="card-header">
-                        <input type="text" class="form-input" placeholder="Search customers..."
-                            style="max-width: 300px;">
+                <div class="card animate-fade-in shadow-sm">
+                    <div class="card-header border-none bg-transparent">
+                        <div class="search-box-wrapper">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="searchInput" class="form-input search-input"
+                                placeholder="Cari nama, email, atau alamat pelanggan...">
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-wrapper">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Total Orders</th>
-                                        <th>Last Order</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="customersTableBody">
-                                    <tr>
-                                        <td colspan="6" class="text-center">
-                                            <div class="spinner" style="margin: 20px auto;"></div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="card-body pt-0">
+                        <div id="customersGrid" class="customers-grid">
+                            <div class="text-center" style="grid-column: 1 / -1; padding: 2rem;">
+                                <div class="spinner" style="margin: 20px auto;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -104,57 +91,89 @@
     <script>
         (function () {
             const { apiCall, formatDate, formatDateTime } = window.app;
+            let allCustomers = [];
 
             async function loadCustomers() {
                 try {
                     const response = await apiCall('/cms/customers');
                     if (response.success) {
-                        renderCustomers(response.data);
+                        allCustomers = response.data;
+                        renderCustomers(allCustomers);
                     } else {
-                        document.getElementById('customersTableBody').innerHTML = `
-                        <tr><td colspan="6" class="text-center text-danger">Gagal memuat data pelanggan.</td></tr>
-                    `;
+                        document.getElementById('customersGrid').innerHTML = `
+                            <div class="text-center text-danger" style="grid-column: 1 / -1; padding: 3rem;">Gagal memuat data pelanggan.</div>
+                        `;
                     }
                 } catch (error) {
                     console.error('Error loading customers:', error);
-                    document.getElementById('customersTableBody').innerHTML = `
-                    <tr><td colspan="6" class="text-center text-danger">Terjadi kesalahan sistem.</td></tr>
-                `;
+                    document.getElementById('customersGrid').innerHTML = `
+                        <div class="text-center text-danger" style="grid-column: 1 / -1; padding: 3rem;">Terjadi kesalahan sistem.</div>
+                    `;
                 }
             }
 
+            // Search functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        const filtered = allCustomers.filter(c =>
+                            c.name.toLowerCase().includes(searchTerm) ||
+                            c.email.toLowerCase().includes(searchTerm) ||
+                            (c.phone && c.phone.includes(searchTerm)) ||
+                            (c.address && c.address.toLowerCase().includes(searchTerm))
+                        );
+                        renderCustomers(filtered);
+                    });
+                }
+            });
+
             function renderCustomers(customers) {
-                const tbody = document.getElementById('customersTableBody');
+                const grid = document.getElementById('customersGrid');
 
                 if (customers.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Belum ada data pelanggan.</td></tr>`;
+                    grid.innerHTML = `<div class="text-center text-muted" style="grid-column: 1 / -1; padding: 3rem;">Belum ada data pelanggan.</div>`;
                     return;
                 }
 
-                tbody.innerHTML = customers.map(c => `
-                <tr>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="avatar placeholder">
-                                <div class="bg-neutral-focus text-neutral-content rounded-full w-8 h-8 flex items-center justify-center bg-gray-200">
-                                    <span class="text-xs font-bold">${getInitials(c.name)}</span>
-                                </div>
+                grid.innerHTML = customers.map(c => `
+                    <div class="customer-card" onclick="showCustomerDetails(${c.id})">
+                        <div class="customer-card-header">
+                            <div class="customer-avatar">
+                                <span>${getInitials(c.name)}</span>
                             </div>
-                            <div>
-                                <div class="font-bold">${c.name}</div>
-                                <div class="text-xs opacity-50 text-muted">${c.address || 'Alamat tidak tersedia'}</div>
+                            <div class="customer-info">
+                                <h3 class="customer-name">${c.name}</h3>
+                                <p class="customer-email">${c.email}</p>
                             </div>
                         </div>
-                    </td>
-                    <td>${c.email}</td>
-                    <td>${c.phone || '-'}</td>
-                    <td class="text-center"><span class="badge badge-ghost badge-sm">${c.total_orders} Orders</span></td>
-                    <td>${c.last_order ? formatDateTime(c.last_order) : '-'}</td>
-                    <td>
-                        <button class="btn btn-ghost btn-xs" onclick="showCustomerDetails(${c.id})">Details</button>
-                    </td>
-                </tr>
-            `).join('');
+                        
+                        <div class="customer-card-body">
+                            <div class="customer-detail-row">
+                                <i data-lucide="phone" class="detail-icon"></i>
+                                <span>${c.phone || 'No phone'}</span>
+                            </div>
+                            <div class="customer-detail-row">
+                                <i data-lucide="map-pin" class="detail-icon"></i>
+                                <span class="customer-address">${c.address || 'Alamat tidak tersedia'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-card-footer">
+                            <div class="customer-stat">
+                                <span class="stat-label">Total Orders</span>
+                                <span class="badge badge-primary">${c.total_orders}</span>
+                            </div>
+                            <div class="customer-stat">
+                                <span class="stat-label">Last Order</span>
+                                <span class="stat-value">${c.last_order ? formatDateTime(c.last_order).split(' ')[0] : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                lucide.createIcons();
             }
 
             function getInitials(name) {
@@ -191,60 +210,60 @@
                 const { formatCurrency, formatDateTime, getStatusBadgeClass, getStatusLabel } = window.app;
 
                 body.innerHTML = `
-                    <div class="grid grid-2 gap-3 mb-4">
-                        <div class="card" style="padding: 1.5rem;">
-                            <h4 class="mb-2">Informasi Profil</h4>
-                            <div class="flex flex-col">
-                                <div><strong>Nama:</strong> ${c.name}</div>
-                                <div><strong>Email:</strong> ${c.email}</div>
-                                <div><strong>Telepon:</strong> ${c.phone || '-'}</div>
-                                <div style="font-size: 0.9rem; margin-top: 5px;"><strong>Alamat:</strong><br>${c.address || 'Alamat tidak tersedia'}</div>
-                                <div style="font-size: 0.8rem; margin-top: 10px; opacity: 0.7;">Member sejak ${formatDateTime(c.created_at)}</div>
+                    <div class="customer-modal-grid">
+                        <div class="customer-info-card">
+                            <h4><i data-lucide="user" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Informasi Profil</h4>
+                            <div class="info-row"><strong>Nama:</strong> ${c.name}</div>
+                            <div class="info-row"><strong>Email:</strong> ${c.email}</div>
+                            <div class="info-row"><strong>Telepon:</strong> ${c.phone || '-'}</div>
+                            <div class="info-row">
+                                <strong>Alamat:</strong><br>
+                                <span style="margin-left: 0; display: block; margin-top: 0.25rem;">${c.address || 'Alamat tidak tersedia'}</span>
                             </div>
+                            <div class="member-since">Member sejak ${formatDateTime(c.created_at)}</div>
                         </div>
-                        <div class="card" style="padding: 1.5rem; background: var(--primary-50); border-color: var(--primary-200);">
-                            <h4 class="mb-2">Statistik Belanja</h4>
-                            <div class="flex flex-col gap-1">
-                                <div class="flex justify-between items-center">
-                                    <span>Total Pesanan</span>
-                                    <span class="badge badge-primary">${c.total_orders} Orders</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span>Total Transaksi</span>
-                                    <span class="text-primary font-bold" style="font-size: 1.2rem;">${formatCurrency(c.total_spent)}</span>
-                                </div>
-                                <div class="flex justify-between items-center" style="font-size: 0.9rem;">
-                                    <span>Pesanan Terakhir</span>
-                                    <span>${c.last_order ? formatDateTime(c.last_order) : '-'}</span>
-                                </div>
+                        
+                        <div class="customer-stats-card">
+                            <h4><i data-lucide="trending-up" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Statistik Belanja</h4>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Pesanan</span>
+                                <span class="badge badge-primary">${c.total_orders} ORDERS</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Transaksi</span>
+                                <span class="stat-value highlight">${formatCurrency(c.total_spent)}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Pesanan Terakhir</span>
+                                <span class="stat-value">${c.last_order ? formatDateTime(c.last_order) : '-'}</span>
                             </div>
                         </div>
                     </div>
                     
-                    <h4 class="mb-3">Riwayat Pesanan</h4>
-                    <div class="table-wrapper" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table">
-                            <thead style="position: sticky; top: 0; z-index: 1;">
-                                <tr>
-                                    <th>Order #</th>
-                                    <th>Tanggal</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${c.orders && c.orders.length ? c.orders.map(o => `
-                                    <tr>
-                                        <td><strong>${o.order_number}</strong></td>
-                                        <td>${formatDateTime(o.created_at)}</td>
-                                        <td><span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span></td>
-                                        <td>${formatCurrency(o.total_amount)}</td>
-                                    </tr>
-                                `).join('') : '<tr><td colspan="4" class="text-center text-muted">Belum ada riwayat pesanan.</td></tr>'}
-                            </tbody>
-                        </table>
+                    <div class="customer-orders-section">
+                        <h4><i data-lucide="history" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Riwayat Pesanan</h4>
+                        <div class="orders-list">
+                            ${c.orders && c.orders.length ? c.orders.map(o => `
+                                <div class="order-history-item">
+                                    <div class="order-main-info">
+                                        <span class="order-num">#${o.order_number}</span>
+                                        <span class="order-date"><i data-lucide="calendar" style="width: 12px; height: 12px; margin-right: 4px;"></i>${formatDateTime(o.created_at)}</span>
+                                    </div>
+                                    <div class="order-secondary-info">
+                                        <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
+                                        <span class="order-amount">${formatCurrency(o.total_amount)}</span>
+                                    </div>
+                                </div>
+                            `).join('') : `
+                                <div class="empty-orders">
+                                    <i data-lucide="package-open" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 1rem;"></i>
+                                    <p>Belum ada riwayat pesanan.</p>
+                                </div>
+                            `}
+                        </div>
                     </div>
                 `;
+                lucide.createIcons();
             }
 
             window.closeCustomerModal = () => {
