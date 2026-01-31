@@ -1,0 +1,118 @@
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as *;
+.page_production {
+    .timeline-compact {
+        display: flex;
+        gap: 1rem;
+        margin-top: 5px;
+        font-size: 0.8rem;
+        color: var(--neutral-600);
+    }
+
+    .time-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #f3f4f6;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .time-item i {
+        width: 12px;
+        height: 12px;
+    }
+
+    .est-box {
+        background: #fffbeb;
+        border-left: 3px solid #f59e0b;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+
+    .est-total {
+        color: #92400e;
+        font-size: 1rem;
+    }
+
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        border-bottom: 1px dashed #e5e7eb;
+        padding: 2px 0;
+    }
+
+    .item-qty {
+        font-weight: bold;
+        color: var(--primary-600);
+    }
+
+    .items-list {
+        max-width: 250px;
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 120px;
+        gap: 0;
+    }
+
+    .stat-card .stat-icon-bg {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .stat-card .stat-icon-bg i,
+    .stat-card .stat-icon-bg svg {
+        width: 52px !important;
+        height: 52px !important;
+        display: block;
+    }
+
+    .stat-card .stat-label,
+    .stat-card .stat-value {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Highlight Pulse Animation */
+    @keyframes highlightPulse {
+        0% {
+            background-color: transparent;
+        }
+
+        30% {
+            background-color: var(--primary-50);
+        }
+
+        60% {
+            background-color: var(--primary-100);
+        }
+
+        100% {
+            background-color: transparent;
+        }
+    }
+
+    .highlight-pulse {
+        animation: highlightPulse 2s ease-in-out infinite;
+        border: 2px solid var(--primary-500) !important;
+        box-shadow: 0 0 15px rgba(245, 150, 56, 0.2);
+    }
+
+    .highlight-pulse td:first-child {
+        color: var(--primary-700);
+        font-size: 1.1em;
+    }
+}
