@@ -38,7 +38,8 @@ export const publicRoutes = (db: Sql) =>
                     }
 
                     // 2. Create Order
-                    const orderNumber = generateOrderNumber();
+                    const [{ count: currentCount }] = await sql`SELECT count(*) as count FROM orders`;
+                    const orderNumber = generateOrderNumber(Number(currentCount) + 1);
                     const totalAmount = items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
 
                     const [order] = await sql`
