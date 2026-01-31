@@ -6,7 +6,7 @@
 
   .page-title {
     font-size: 1.5rem;
-    font-weight: 800;
+    font-weight: 600;
     color: var(--neutral-900);
     letter-spacing: -0.01em;
     margin-bottom: 0.25rem;
@@ -23,7 +23,7 @@
 
   .section-title {
     font-size: 0.85rem;
-    font-weight: 800;
+    font-weight: 600;
     color: var(--neutral-500);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -69,7 +69,7 @@
   padding: 1.25rem;
   display: flex;
   align-items: center;
-  // gap: 1.25rem;
+  gap: 1rem;
   border: 1px solid var(--neutral-100);
   box-shadow: var(--shadow-sm);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -103,13 +103,12 @@
     color: var(--neutral-400);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
   }
 
   .stat-value {
     display: block;
     font-size: 1.75rem;
-    font-weight: 800;
+    font-weight: 600;
     color: var(--neutral-900);
 
     @media (max-width: 1400px) {
@@ -250,7 +249,7 @@
 
     .step-value {
       font-size: 1.5rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--neutral-900);
     }
   }
@@ -362,7 +361,7 @@
     border-bottom: 1px dashed var(--neutral-100);
 
     .order-id {
-      font-weight: 800;
+      font-weight: 600;
       color: var(--neutral-900);
       font-size: 0.9rem;
     }
@@ -405,7 +404,7 @@
     border-top: 1px solid var(--neutral-50);
 
     .order-total {
-      font-weight: 800;
+      font-weight: 600;
       color: var(--primary-600);
       font-size: 1.1rem;
     }
@@ -451,7 +450,7 @@
 
     h4 {
       font-size: 0.8rem;
-      font-weight: 800;
+      font-weight: 600;
       margin: 0;
       color: white;
     }
