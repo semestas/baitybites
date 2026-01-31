@@ -117,7 +117,7 @@ function showAdminWarning() {
     warning.innerHTML = `
         <div style="font-size: 4rem; margin-bottom: 1rem; color: #e11d48;"><i data-lucide="lock" size="64"></i></div>
         <h2 style="margin-bottom: 1rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+        <p style="font-size: 1.1rem; margin-bottom: 2rem;">
             Untuk menjaga integritas rekapitulasi data transaksi, akun <strong>Administrator</strong> tidak diperbolehkan membuat pesanan.<br>
             Pastikan data laporan 100% berasal dari transaksi pelanggan asli.
         </p>

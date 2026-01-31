@@ -99,7 +99,7 @@
                         <span class="est-total"><strong>${est.total_mins} menit</strong></span>
                         <span class="badge badge-primary" style="font-size: 0.7rem;">Target: ${targetSelesai}</span>
                     </div>
-                    <div class="est-breakdown" style="font-size: 0.7rem; color: #6b7280; line-height: 1.2;">
+                    <div class="est-breakdown" style="font-size: 0.7rem; color: #6b7280;">
                         ${est.production_mins}m Prod + ${est.packaging_mins}m Pack + 15m Pickup
                     </div>
                 </div>

@@ -47,7 +47,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            line-height: 1.4;
+            ;
 
             svg {
                 flex-shrink: 0;
@@ -129,7 +129,7 @@
             font-weight: 500;
 
             &.address {
-                line-height: 1.5;
+                ;
             }
         }
     }
@@ -367,7 +367,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.025em;
                 border-radius: 8px;
-                line-height: 1;
+                ;
             }
         }
 
