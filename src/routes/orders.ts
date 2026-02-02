@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
+import type { Sql } from "../db/schema";
 
-export const orderRoutes = (db: any) =>
+export const orderRoutes = (db: Sql) =>
     new Elysia({ prefix: "/orders" })
         .get("/", async () => {
             try {

@@ -11,10 +11,16 @@ import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
 import { googleAuthRoutes } from "./src/routes/google-auth";
 import { InstagramService } from "./src/services/instagram";
+import { WhatsAppService } from "./src/services/whatsapp";
+import { webhookRoutes } from "./src/routes/webhooks";
 
 // Initialize database
 const db = await initDatabase();
 const PUBLIC_DIR = join(import.meta.dir, "public");
+
+// Initialize services
+const waService = new WhatsAppService(db);
+const igService = new InstagramService(db);
 
 // Create Elysia app
 const app = new Elysia()
@@ -68,6 +74,7 @@ const app = new Elysia()
             .use(cmsRoutes(db))
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
+            .use(webhookRoutes(db, waService))
     )
     // Serve HTML files with proper headers
     .onBeforeHandle(() => { /* Hook for potential shared logic */ })
@@ -114,7 +121,6 @@ const app = new Elysia()
     .listen(process.env.PORT || 9876);
 
 // --- Background Job: Instagram Sync (Every 1 Hour) ---
-const igService = new InstagramService(db);
 setInterval(async () => {
     console.log("[Job] Starting automatic Instagram sync...");
     const res = await igService.syncGallery();

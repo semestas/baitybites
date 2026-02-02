@@ -80,7 +80,7 @@ async function seedGallery() {
                     VALUES (${localPath}, ${item.title}, ${item.description}, ${item.display_order})
                 `;
                 console.log(`✅ Added (Fallback): ${item.title} -> ${localPath}`);
-            } catch (fallbackErr) {
+            } catch {
                 console.error(`❌ Fallback failed too for ${item.title}`);
             }
         }
