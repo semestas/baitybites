@@ -75,39 +75,252 @@ async function handleIncomingMessage(db: Sql, waService: WhatsAppService, event:
         `;
 
         const customer = customers[0];
-
-        if (!customer) {
-            console.log('[Webhook] Customer not found for phone:', from);
-            // Could send auto-reply: "Nomor tidak terdaftar. Silakan pesan melalui website kami."
-            return;
-        }
+        const name = customer ? customer.name : 'Pelanggan';
 
         // Auto-reply for common keywords
         const lowerText = text.toLowerCase();
 
-        // Order tracking request
-        if (lowerText.includes('lacak') || lowerText.includes('track') || lowerText.includes('status')) {
+        // 0. Direct Order Check (Format: Nama: XXX, Pesanan: XXX)
+        if (lowerText.includes('nama:') && lowerText.includes('pesanan:')) {
+            await handleDirectWhatsAppOrder(db, waService, from, text, customer);
+            return;
+        }
+
+        // 1. Check PO Open/Status
+        if (lowerText.includes('po') || lowerText.includes('jadwal') || lowerText.includes('buka')) {
+            await handlePOStatus(db, waService, from, name);
+            return;
+        }
+
+        // 2. Check Available Products
+        if (lowerText.includes('menu') || lowerText.includes('produk') || lowerText.includes('ready')) {
+            await handleAvailableProducts(db, waService, from, name);
+            return;
+        }
+
+        // 3. Track Order
+        if (lowerText.includes('lacak') || lowerText.includes('status') || lowerText.includes('track')) {
+            if (!customer) {
+                await waService.sendText(from, "Maaf, nomor Anda belum terdaftar. Silakan pesan melalui website terlebih dahulu untuk mulai melacak.");
+                return;
+            }
             await handleTrackingRequest(db, waService, customer, from);
             return;
         }
 
-        // Help request
-        if (lowerText.includes('help') || lowerText.includes('bantuan')) {
-            await handleHelpRequest(waService, from);
+        // 4. Order Flow
+        if (lowerText.includes('order') || lowerText.includes('pesan') || lowerText.includes('beli')) {
+            await handleOrderFlow(waService, from, name);
             return;
         }
 
-        // Menu request
-        if (lowerText.includes('menu') || lowerText.includes('produk')) {
-            await handleMenuRequest(waService, from);
+        // 5. Help/Welcome
+        if (lowerText.includes('help') || lowerText.includes('halo') || lowerText.includes('hi') || lowerText === 'bantuan') {
+            await handleWelcomeFlow(waService, from, name);
             return;
         }
 
-        // Default: Log message for admin review
-        console.log(`[Webhook] Unhandled message from ${customer.name}: ${text}`);
+        // Default: Welcome message if not matched
+        await handleWelcomeFlow(waService, from, name);
 
     } catch (error) {
         console.error('[Webhook] Error handling incoming message:', error);
+    }
+}
+
+/**
+ * Handle Welcome / Help Flow
+ */
+async function handleWelcomeFlow(waService: WhatsAppService, phone: string, name: string) {
+    const reply = `
+Halo ${name}! 👋 Selamat datang di *BaityBites*.
+
+Ada yang bisa kami bantu? Gunakan kata kunci berikut:
+
+📝 *MENU* : Lihat produk & harga
+🕒 *PO* : Cek jadwal buka PO
+📦 *LACAK* : Lacak pesanan Anda
+🛍️ *ORDER* : Cara melakukan pemesanan
+
+Atau kunjungi website kami:
+https://baitybites.netlify.app
+
+BaityBites - Salam Manis 💕
+    `.trim();
+    await waService.sendText(phone, reply);
+}
+
+/**
+ * Handle PO Status
+ */
+async function handlePOStatus(db: Sql, waService: WhatsAppService, phone: string, name: string) {
+    const settings = await db`SELECT value FROM settings WHERE key = 'po_status'`;
+    const poStatus = settings[0]?.value || 'BaityBites selalu menerima pesanan setiap hari!';
+
+    const reply = `
+🕒 *Informasi PO BaityBites*
+
+Halo ${name},
+${poStatus}
+
+Estimasi pengerjaan: 1-2 hari kerja.
+Silakan cek menu untuk melihat apa yang sedang ready! 🍰
+    `.trim();
+    await waService.sendText(phone, reply);
+}
+
+/**
+ * Handle Available Products
+ */
+async function handleAvailableProducts(db: Sql, waService: WhatsAppService, phone: string, name: string) {
+    const products = await db`SELECT name, price, unit, stock FROM products WHERE stock > 0 LIMIT 10`;
+
+    if (products.length === 0) {
+        await waService.sendText(phone, `Maaf ${name}, saat ini semua produk kami sedang sold out. Pantau terus IG kami untuk restock ya!`);
+        return;
+    }
+
+    let menuText = `🍰 *Menu Ready BaityBites*\n\nHalo ${name}, berikut produk yang tersedia saat ini:\n\n`;
+
+    products.forEach((p: any, i: number) => {
+        menuText += `${i + 1}. *${p.name}*\n   💰 Rp ${Number(p.price).toLocaleString('id-ID')}/${p.unit}\n   📦 Stok: ${p.stock}\n\n`;
+    });
+
+    menuText += "Ketik *ORDER* untuk cara pemesanan.";
+    await waService.sendText(phone, menuText);
+}
+
+/**
+ * Handle Order Flow instruction
+ */
+async function handleOrderFlow(waService: WhatsAppService, phone: string, name: string) {
+    const reply = `
+🛍️ *Cara Pemesanan BaityBites*
+
+Halo ${name}, untuk memesan silakan pilih salah satu cara:
+
+1. *Website (Otomatis)*:
+   👉 https://baitybites.netlify.app/order.html
+
+2. *Manual Via WhatsApp*:
+   Kirim pesan dengan format:
+
+Nama: [Nama Anda]
+Alamat: [Alamat Lengkap]
+Pesanan:
+- [Nama Produk] [Jumlah]
+
+Contoh:
+Nama: Budi
+Alamat: Jl. Melati No 123
+Pesanan:
+- Risol Mayo Original 2 box
+- Nastar Special 1 toples
+    `.trim();
+    await waService.sendText(phone, reply);
+}
+
+/**
+ * Handle Direct WhatsApp Order (Template Parser)
+ */
+async function handleDirectWhatsAppOrder(db: Sql, waService: WhatsAppService, phone: string, text: string, existingCustomer: any) {
+    try {
+        const nameMatch = text.match(/Nama\s*:\s*([^\n]+)/i);
+        const addressMatch = text.match(/Alamat\s*:\s*([^\n]+)/i);
+        const orderSection = text.split(/Pesanan\s*:\s*/i)[1];
+
+        if (!nameMatch || !orderSection) {
+            await waService.sendText(phone, "Format pesanan kurang lengkap. Mohon sertakan *Nama:* dan *Pesanan:* ya! Ketik *ORDER* untuk melihat formatnya.");
+            return;
+        }
+
+        const customerName = nameMatch[1]?.trim() || 'Pelanggan';
+        const customerAddress = addressMatch ? (addressMatch[1]?.trim() || '-') : '-';
+
+        // 1. Get/Create Customer
+        let customerId;
+        if (existingCustomer) {
+            customerId = existingCustomer.id;
+        } else {
+            const email = `${phone}@wa.baitybites.id`;
+            const [newCustomer] = await db`
+                INSERT INTO customers (name, email, phone, address)
+                VALUES (${customerName}, ${email}, ${phone}, ${customerAddress})
+                ON CONFLICT (email) DO UPDATE SET name = ${customerName}, address = ${customerAddress}
+                RETURNING id
+            `;
+            if (!newCustomer) throw new Error('Gagal membuat data pelanggan');
+            customerId = newCustomer.id;
+        }
+
+        // 2. Parse products
+        const allProducts = await db`SELECT id, name, price, stock FROM products WHERE stock > 0`;
+        const lines = orderSection.split('\n');
+        const itemsToOrder: any[] = [];
+
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+
+            for (const p of allProducts) {
+                if (trimmedLine.toLowerCase().includes(p.name.toLowerCase())) {
+                    const qtyMatch = trimmedLine.match(/(\d+)/);
+                    const quantity = qtyMatch ? parseInt(qtyMatch[1] || '1') : 1;
+                    itemsToOrder.push({ product: p, quantity });
+                    break;
+                }
+            }
+        }
+
+        if (itemsToOrder.length === 0) {
+            await waService.sendText(phone, "Maaf, kami tidak menemukan nama produk yang cocok. Silakan cek *MENU* untuk daftar produk yang benar.");
+            return;
+        }
+
+        // 3. Create Order
+        const totalAmount = itemsToOrder.reduce((acc, item) => acc + (Number(item.product.price) * item.quantity), 0);
+        const orderNumber = `WA-${new Date().getMonth() + 1}${Math.floor(Math.random() * 900) + 100}-${Date.now().toString().slice(-4)}`;
+
+        await db.begin(async (sql: any) => {
+            const [order] = await sql`
+                INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)
+                VALUES (${customerId}, ${orderNumber}, ${new Date()}, ${totalAmount}, 'pending', 'Manual WhatsApp Order')
+                RETURNING id
+            `;
+
+            if (!order) throw new Error('Gagal membuat pesanan');
+
+            for (const item of itemsToOrder) {
+                await sql`
+                    INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
+                    VALUES (${order.id}, ${item.product.id}, ${item.quantity}, ${item.product.price}, ${Number(item.product.price) * item.quantity})
+                `;
+            }
+        });
+
+        // 4. Success Reply
+        const reply = `
+✅ *Pesanan Berhasil Dicatat!*
+
+Halo ${customerName}, pesanan Anda telah masuk ke sistem kami.
+
+📋 *Detail:*
+ID: #${orderNumber}
+Total: Rp ${totalAmount.toLocaleString('id-ID')}
+Status: ⏳ Menunggu Konfirmasi Admin
+
+Item:
+${itemsToOrder.map(item => `- ${item.product.name} (${item.quantity}x)`).join('\n')}
+
+Lacak: https://baitybites.netlify.app/track.html?order=${orderNumber}
+
+*Mohon tunggu sebentar, admin kami akan segera menghubungi Anda untuk total ongkir & info pembayaran.*
+`.trim();
+        await waService.sendText(phone, reply);
+
+    } catch (error) {
+        console.error('[DirectOrder] Error:', error);
+        await waService.sendText(phone, "Maaf, terjadi kesalahan saat memproses pesanan Anda. Mohon hubungi admin kami.");
     }
 }
 

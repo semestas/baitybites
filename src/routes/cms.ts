@@ -14,6 +14,47 @@ export const cmsRoutes = (db: Sql) =>
                 FROM orders
             `;
 
+            // Top Metrics
+            const [highestSpend] = await db`
+                SELECT c.name, SUM(o.total_amount)::int as value
+                FROM customers c
+                JOIN orders o ON c.id = o.customer_id
+                WHERE o.status != 'cancelled'
+                GROUP BY c.id, c.name
+                ORDER BY value DESC
+                LIMIT 1
+            `;
+
+            const [mostOrders] = await db`
+                SELECT c.name, COUNT(o.id)::int as value
+                FROM customers c
+                JOIN orders o ON c.id = o.customer_id
+                WHERE o.status != 'cancelled'
+                GROUP BY c.id, c.name
+                ORDER BY value DESC
+                LIMIT 1
+            `;
+
+            const [mostRePurchases] = await db`
+                SELECT c.name, COUNT(o.id)::int as value
+                FROM customers c
+                JOIN orders o ON c.id = o.customer_id
+                WHERE o.status != 'cancelled'
+                GROUP BY c.id, c.name
+                HAVING COUNT(o.id) > 1
+                ORDER BY value DESC
+                LIMIT 1
+            `;
+
+            const [favoriteProduct] = await db`
+                SELECT p.name, SUM(oi.quantity)::int as value
+                FROM products p
+                JOIN order_items oi ON p.id = oi.product_id
+                GROUP BY p.id, p.name
+                ORDER BY value DESC
+                LIMIT 1
+            `;
+
             const flow = await db`
                 SELECT status, COUNT(*)::int as count
                 FROM orders
@@ -37,6 +78,12 @@ export const cmsRoutes = (db: Sql) =>
                 success: true,
                 data: {
                     stats,
+                    top: {
+                        highestSpend: highestSpend || { name: '-', value: 0 },
+                        mostOrders: mostOrders || { name: '-', value: 0 },
+                        mostRePurchases: mostRePurchases || { name: '-', value: 0 },
+                        favoriteProduct: favoriteProduct || { name: '-', value: 0 }
+                    },
                     flow: flowData,
                     recentOrders
                 }

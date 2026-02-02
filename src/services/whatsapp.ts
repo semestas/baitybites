@@ -11,7 +11,7 @@ export class WhatsAppService {
         this.db = db;
         this.wahaUrl = process.env.WAHA_URL || 'http://localhost:3000';
         this.wahaSession = process.env.WAHA_SESSION || 'default';
-        this.apiKey = process.env.WAHA_API_KEY || '';
+        this.apiKey = process.env.WAHA_API_KEY || process.env.WHATSAPP_API_KEY || '';
         this.enabled = !!process.env.WAHA_URL;
     }
 

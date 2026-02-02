@@ -33,6 +33,9 @@
         // Update order status distribution cards
         updateOrderFlow(flow || {});
 
+        // Update top insights
+        updateInsights(result.data.top || {});
+
         // Update the table of latest orders
         updateRecentOrders(recentOrders || []);
 
@@ -62,6 +65,34 @@
     if (elements.totalRevenue) {
       elements.totalRevenue.textContent = utils.formatCurrency ? utils.formatCurrency(stats.totalRevenue) : ('Rp ' + stats.totalRevenue);
     }
+  }
+
+  function updateInsights(top) {
+    const utils = getUtils();
+
+    // Highest Spend
+    const spenderName = document.getElementById('topSpenderName');
+    const spenderValue = document.getElementById('topSpenderValue');
+    if (spenderName) spenderName.textContent = top.highestSpend?.name || '-';
+    if (spenderValue) spenderValue.textContent = utils.formatCurrency ? utils.formatCurrency(top.highestSpend?.value || 0) : ('Rp ' + (top.highestSpend?.value || 0));
+
+    // Most Orders
+    const orderName = document.getElementById('topOrderName');
+    const orderValue = document.getElementById('topOrderValue');
+    if (orderName) orderName.textContent = top.mostOrders?.name || '-';
+    if (orderValue) orderValue.textContent = (top.mostOrders?.value || 0) + ' Orders';
+
+    // Most Re-purchases
+    const repeatName = document.getElementById('topRepeatName');
+    const repeatValue = document.getElementById('topRepeatValue');
+    if (repeatName) repeatName.textContent = top.mostRePurchases?.name || '-';
+    if (repeatValue) repeatValue.textContent = (top.mostRePurchases?.value || 0) + ' Times';
+
+    // Favorite Product
+    const productName = document.getElementById('topProductName');
+    const productValue = document.getElementById('topProductValue');
+    if (productName) productName.textContent = top.favoriteProduct?.name || '-';
+    if (productValue) productValue.textContent = (top.favoriteProduct?.value || 0) + ' Units';
   }
 
   function updateOrderFlow(flowData) {
