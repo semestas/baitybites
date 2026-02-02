@@ -4,13 +4,25 @@ export class WhatsAppService {
     private db: Sql;
     private wahaUrl: string;
     private wahaSession: string;
+    private apiKey: string;
     private enabled: boolean;
 
     constructor(db: Sql) {
         this.db = db;
         this.wahaUrl = process.env.WAHA_URL || 'http://localhost:3000';
         this.wahaSession = process.env.WAHA_SESSION || 'default';
+        this.apiKey = process.env.WAHA_API_KEY || '';
         this.enabled = !!process.env.WAHA_URL;
+    }
+
+    private getHeaders() {
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+        };
+        if (this.apiKey) {
+            headers['X-Api-Key'] = this.apiKey;
+        }
+        return headers;
     }
 
     /**
@@ -35,7 +47,7 @@ export class WhatsAppService {
             const chatId = this.formatChatId(phone);
             const response = await fetch(`${this.wahaUrl}/api/sendText`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: this.getHeaders(),
                 body: JSON.stringify({
                     session: this.wahaSession,
                     chatId,
@@ -69,7 +81,7 @@ export class WhatsAppService {
             const chatId = this.formatChatId(phone);
             const response = await fetch(`${this.wahaUrl}/api/sendImage`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: this.getHeaders(),
                 body: JSON.stringify({
                     session: this.wahaSession,
                     chatId,
@@ -104,7 +116,7 @@ export class WhatsAppService {
             const chatId = this.formatChatId(phone);
             const response = await fetch(`${this.wahaUrl}/api/sendFile`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: this.getHeaders(),
                 body: JSON.stringify({
                     session: this.wahaSession,
                     chatId,
