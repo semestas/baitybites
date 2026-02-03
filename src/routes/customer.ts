@@ -57,15 +57,34 @@ export const customerRoutes = (db: Sql) =>
                 return { success: false, message: 'Unauthorized' };
             }
 
-            const { name, phone, address } = body as any;
+            const { name, phone, address, avatar } = body as any;
 
             try {
-                const [customer] = await db`
-                    UPDATE customers 
-                    SET name = ${name}, phone = ${phone}, address = ${address}
-                    WHERE id = ${user.id}
-                    RETURNING *
-                `;
+                let avatarUrl = undefined;
+                if (avatar && avatar instanceof File) {
+                    const safeName = avatar.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                    const fileName = `${user.id}-${Date.now()}-${safeName}`;
+                    const filePath = `public/uploads/avatars/${fileName}`;
+                    await Bun.write(filePath, avatar);
+                    avatarUrl = `/uploads/avatars/${fileName}`;
+                }
+
+                let customer;
+                if (avatarUrl) {
+                    [customer] = await db`
+                        UPDATE customers 
+                        SET name = ${name}, phone = ${phone}, address = ${address}, avatar_url = ${avatarUrl}
+                        WHERE id = ${user.id}
+                        RETURNING *
+                    `;
+                } else {
+                    [customer] = await db`
+                        UPDATE customers 
+                        SET name = ${name}, phone = ${phone}, address = ${address}
+                        WHERE id = ${user.id}
+                        RETURNING *
+                    `;
+                }
 
                 if (!customer) {
                     set.status = 404;
@@ -86,6 +105,7 @@ export const customerRoutes = (db: Sql) =>
             body: t.Object({
                 name: t.String(),
                 phone: t.String(),
-                address: t.String()
+                address: t.String(),
+                avatar: t.Optional(t.File())
             })
         });

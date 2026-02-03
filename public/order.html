@@ -29,45 +29,74 @@
             </div>
         </header>
 
-        <main class="main-content">
+        <main class="main-content order-main-content">
             <div class="container order-page-container">
-                <div class="card animate-fade-in">
-                    <div class="card-header text-center">
-                        <h2 class="card-title">Form Pemesanan Risol Mayo</h2>
-                        <p class="text-muted">Nikmati kelezatan Risol Mayo Premium kami langsung di rumah Anda.</p>
+                <!-- Loyalty Benefits Notice -->
+                <div id="loyalty-notice" class="info-box mb-4 animate-fade-in">
+                    <div class="notice-content">
+                        <div class="notice-icon"><i data-lucide="gift"></i></div>
+                        <div>
+                            <p class="notice-title">Dapatkan Keuntungan Lebih sebagai Pelanggan Setia!</p>
+                            <p class="notice-text">Yuk, <strong>login</strong> untuk menikmati berbagai kemudahan
+                                dan promo eksklusif:</p>
+                            <div class="login-btn-wrapper">
+                                <a href="/login.html" class="btn btn-primary btn-sm"
+                                    style="display: inline-block;">Login / Daftar Sekarang</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <!-- Loyalty Benefits Notice -->
-                        <div id="loyalty-notice" class="info-box mb-4 animate-fade-in">
-                            <div class="notice-content">
-                                <div class="notice-icon"><i data-lucide="gift"></i></div>
-                                <div>
-                                    <p class="notice-title">Dapatkan Keuntungan Lebih sebagai Pelanggan Setia!</p>
-                                    <p class="notice-text">Yuk, <strong>login</strong> untuk menikmati berbagai
-                                        kemudahan
-                                        dan promo eksklusif:</p>
-                                    <ul class="notice-list">
-                                        <li><i data-lucide="truck" size="14"></i> <strong>Gratis Ongkir</strong> hingga
-                                            Rp20.000,- untuk setiap pesanan.</li>
-                                        <li><i data-lucide="zap" size="14"></i> <strong>Auto-Fill:</strong> Alamat &
-                                            kontak
-                                            terisi otomatis, pesanan jadi lebih kilat.</li>
-                                        <li><i data-lucide="line-chart" size="14"></i> <strong>Riwayat & Lacak:</strong>
-                                            Pantau semua pesanan Anda dalam satu dashboard.</li>
-                                        <li><i data-lucide="mail" size="14"></i> <strong>Promo Eksklusif:</strong> Info
-                                            menu
-                                            baru & diskon khusus member.</li>
-                                    </ul>
-                                    <div class="login-btn-wrapper">
-                                        <a href="/login.html" class="btn btn-primary btn-sm"
-                                            style="display: inline-block;">Login / Daftar Sekarang</a>
-                                    </div>
-                                </div>
+                </div>
+
+                <!-- Category Navigation -->
+                <div class="category-tabs" id="categoryTabs">
+                    <div class="category-tab active" onclick="filterProducts('Risol')">Risol</div>
+                    <div class="category-tab" onclick="filterProducts('Kue Kering')">Kue Kering</div>
+                    <div class="category-tab" onclick="filterProducts('Kue Oven')">Kue Oven</div>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="productList" class="product-grid">
+                    <div class="spinner product-spinner"></div>
+                </div>
+
+                <!-- Order Summary Section (Initial Hidden) -->
+                <div id="order-confirmation-section" class="animate-fade-in">
+                    <div class="preview-header">
+                        <h2 class="text-center" style="width: 100%; margin-bottom: 2rem;">Ringkasan Pesanan</h2>
+                    </div>
+
+                    <div class="order-summary-box">
+                        <div class="summary-table">
+                            <div class="summary-table-header">
+                                <div class="summary-table-header-text">Product</div>
+                                <div class="summary-table-header-text">QTY</div>
+                                <div class="summary-table-header-text">Total</div>
+                            </div>
+                            <div id="summary-items">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+
+                        <div class="summary-footer">
+                            <div class="footer-row">
+                                <span>Total Pesanan</span>
+                                <span id="summary-subtotal">Rp 0</span>
+                            </div>
+                            <div class="footer-row">
+                                <span>Kode Promo</span>
+                                <span>- Rp 0</span>
+                            </div>
+                            <div class="footer-row">
+                                <span>Ongkir</span>
+                                <span>Rp 0</span>
+                            </div>
+                            <div class="footer-row total-row">
+                                <span>Total</span>
+                                <span id="summary-total">Rp 0</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Customer Info Preview (Hidden by default) -->
                     <!-- Customer Info Preview (Hidden by default) -->
                     <div id="customer-info-preview" class="animate-fade-in">
                         <div class="preview-header">
@@ -75,8 +104,7 @@
                                 <h3 class="preview-title">Data Pengiriman</h3>
                                 <span class="preview-badge">Sudah Disimpan</span>
                             </div>
-                            <button type="button" onclick="showOrderFormEdit()" class="btn btn-outline btn-sm"
-                                style="font-size: 0.8rem; height: 32px; padding: 0 0.75rem; border-radius: 8px;">
+                            <button type="button" onclick="showOrderFormEdit()" class="btn btn-outline btn-sm">
                                 Ubah
                             </button>
                         </div>
@@ -91,10 +119,6 @@
                                 <div id="preview-phone" class="preview-value">-</div>
                             </div>
                             <div class="preview-item full-width">
-                                <label>Email Konfirmasi</label>
-                                <div id="preview-email" class="preview-value">-</div>
-                            </div>
-                            <div class="preview-item full-width">
                                 <label>Alamat Tujuan</label>
                                 <div id="preview-address" class="preview-value address">-</div>
                             </div>
@@ -103,35 +127,30 @@
 
                     <form id="orderForm">
                         <div id="customer-form-fields">
-                            <div class="grid grid-2">
+                            <div class="card p-4 mb-4">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <input type="text" id="name" class="form-input" placeholder="Nama Anda"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="tel" id="phone" class="form-input" placeholder="08..." required>
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
-                                    <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" id="name" class="form-input" placeholder="Masukkan nama Anda"
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
                                         required>
                                 </div>
+
                                 <div class="form-group">
-                                    <label class="form-label">Nomor WhatsApp</label>
-                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                    <label class="form-label">Alamat Pengiriman</label>
+                                    <textarea id="address" class="form-textarea" placeholder="Alamat lengkap"
+                                        required></textarea>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Alamat Pengiriman</label>
-                                <textarea id="address" class="form-textarea"
-                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <h4>Pilih Produk</h4>
-                            <div id="productList" class="flex flex-col gap-2">
-                                <div class="spinner product-spinner"></div>
                             </div>
                         </div>
 
@@ -140,96 +159,120 @@
                             <input type="text" id="notes" class="form-input" placeholder="Contoh: Sambal dipisah">
                         </div>
 
-                        <div class="total-payment-container">
-                            <h4>Total Pembayaran: <span id="totalText" class="text-primary">Rp 0</span></h4>
-                        </div>
-
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-                                <span id="btnText">Konfirmasi Pesanan</span>
-                                <div id="btnSpinner" class="spinner btn-spinner"></div>
+                                <span id="btnText">Lanjut Proses</span>
+                                <div id="btnSpinner" class="spinner btn-spinner" style="width: 20px; height: 20px;">
+                                </div>
+                            </button>
+                            <button type="button" onclick="backToProductList()" class="btn btn-outline btn-lg mt-2"
+                                style="width: 100%;">
+                                Kembali Pilih Produk
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Recent Orders for Logged-in Users -->
-                <div id="recentOrdersSection" class="mt-4 animate-fade-in" style="display: none;">
-                    <div class="card">
-                        <div class="card-header flex justify-between items-center">
-                            <h4 class="card-title">Pesanan Terbaru Anda</h4>
-                            <button onclick="loadRecentOrders()" class="btn btn-outline btn-sm">Refresh</button>
+                <!-- Sticky Order Summary Bar -->
+                <div id="stickySummaryBar" class="order-summary-bar">
+                    <div class="summary-content">
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span class="label">Total Pesanan</span>
+                                <span class="value" id="stickyTotal">Rp 0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Item Terpilih</span>
+                                <span class="value" id="stickyCount">0 Items</span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div id="recentOrdersList" class="flex flex-col gap-2">
-                                <p class="text-center text-muted">Memuat pesanan...</p>
+                        <button type="button" class="btn-checkout" onclick="proceedToConfirmation()">
+                            Konfirmasi Item
+                        </button>
+                    </div>
+                    <!-- Recent Orders for Logged-in Users -->
+                    <div id="recentOrdersSection" class="mt-4 animate-fade-in" style="display: none;">
+                        <div class="card">
+                            <div class="card-header flex justify-between items-center" style="cursor: pointer;"
+                                onclick="toggleRecentOrders()">
+                                <div class="flex items-center gap-2">
+                                    <i id="recentOrdersChevron" data-lucide="chevron-up"
+                                        style="transition: transform 0.3s;"></i>
+                                    <h4 class="card-title" style="margin: 0;">Pesanan Terbaru Anda</h4>
+                                </div>
+                                <button onclick="event.stopPropagation(); loadRecentOrders()"
+                                    class="btn btn-outline btn-sm">Refresh</button>
+                            </div>
+                            <div id="recentOrdersBody" class="card-body" style="transition: all 0.3s ease-in-out;">
+                                <div id="recentOrdersList" class="flex flex-col gap-2">
+                                    <p class="text-center text-muted">Memuat pesanan...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Redesigned Success Modal -->
+                <!-- Redesigned Success Modal -->
+                <div id="successModal" class="modal-overlay">
+                    <div class="modal animate-scale-up">
+                        <div class="modal-header">
+                            <div class="icon-wrapper">
+                                <i data-lucide="party-popper" size="64"></i>
+                            </div>
+                            <h2>Pesanan Berhasil!</h2>
+                            <p>Terima kasih telah memesan di Baitybites</p>
+                            <div class="decorative-curve"></div>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="order-info">
+                                <p class="text-muted" style="font-size: 0.9rem;">
+                                    Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
+                                </p>
+
+                                <div class="info-box">
+                                    <div class="info-row">
+                                        <span>Nomor Order</span>
+                                        <div id="successOrderNumber" class="info-value order-id">PO-XXXX</div>
+                                    </div>
+                                    <div class="info-row">
+                                        <span>Nomor Invoice</span>
+                                        <div id="successInvoiceNumber" class="info-value invoice-id">INV-XXXX</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button id="btnCopy" class="btn btn-primary btn-copy">
+                                    <span>Salin Nomor Order</span>
+                                </button>
+                                <a id="btnTrackLink" href="#" class="btn btn-primary btn-track">
+                                    <span>Lacak Pesanan</span>
+                                </a>
+                                <button onclick="location.reload()" class="btn btn-outline btn-order-close">
+                                    <span>Tutup</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-            <!-- Redesigned Success Modal -->
-            <!-- Redesigned Success Modal -->
-            <div id="successModal" class="modal-overlay">
-                <div class="modal animate-scale-up">
-                    <div class="modal-header">
-                        <div class="icon-wrapper">
-                            <i data-lucide="party-popper" size="64"></i>
-                        </div>
-                        <h2>Pesanan Berhasil!</h2>
-                        <p>Terima kasih telah memesan di Baitybites</p>
-                        <div class="decorative-curve"></div>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="order-info">
-                            <p class="text-muted" style="font-size: 0.9rem;">
-                                Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
-                            </p>
-
-                            <div class="info-box">
-                                <div class="info-row">
-                                    <span>Nomor Order</span>
-                                    <div id="successOrderNumber" class="info-value order-id">PO-XXXX</div>
-                                </div>
-                                <div class="info-row">
-                                    <span>Nomor Invoice</span>
-                                    <div id="successInvoiceNumber" class="info-value invoice-id">INV-XXXX</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="action-buttons">
-                            <button id="btnCopy" class="btn btn-primary btn-copy">
-                                <span>Salin Nomor Order</span>
-                            </button>
-                            <a id="btnTrackLink" href="#" class="btn btn-primary btn-track">
-                                <span>Lacak Pesanan</span>
-                            </a>
-                            <button onclick="location.reload()" class="btn btn-outline btn-order-close">
-                                <span>Tutup</span>
-                            </button>
-                        </div>
-                    </div>
+        </main>
+        <footer
+            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+            <div class="container">
+                <div
+                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
+                    <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
+                    <span>&copy; 2026 Baitybites. All rights reserved.</span>
+                    <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
+                        Privasi</a>
+                    <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
                 </div>
             </div>
-    </div>
-    </main>
-    <footer
-        style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
-        <div class="container">
-            <div
-                style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
-                <span>&copy; 2026 Baitybites. All rights reserved.</span>
-                <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
-                    Privasi</a>
-                <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
-            </div>
-        </div>
-    </footer>
+        </footer>
     </div>
 
     <script src="/js/app.js"></script>

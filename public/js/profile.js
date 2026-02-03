@@ -7,6 +7,16 @@ function toggleEditMode(isEdit) {
     document.getElementById('profileForm').style.display = isEdit ? 'block' : 'none';
 }
 
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('edit-avatar-preview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 async function loadProfile() {
     const { apiCall } = window.app;
     const token = localStorage.getItem('token');
@@ -26,6 +36,17 @@ async function loadProfile() {
             document.getElementById('view-phone').textContent = user.phone || '-';
             document.getElementById('view-address').textContent = user.address || '-';
 
+            // Set Avatar
+            const avatarUrl = user.avatar_url || '/assets/placeholder-user.png';
+            const viewAvatar = document.getElementById('view-avatar');
+            const editAvatar = document.getElementById('edit-avatar-preview');
+
+            if (viewAvatar) viewAvatar.src = avatarUrl;
+            if (editAvatar) editAvatar.src = avatarUrl;
+
+            // Handle image error for view avatar (fallback to initials handled by app.js global error listener)
+            if (viewAvatar) viewAvatar.alt = user.name;
+
             // Fill Edit Fields
             document.getElementById('name').value = user.name || '';
             document.getElementById('email').value = user.email || '';
@@ -42,6 +63,7 @@ async function loadProfile() {
 
 // Global scope for onclick
 window.toggleEditMode = toggleEditMode;
+window.previewAvatar = previewAvatar;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProfile();
@@ -57,16 +79,20 @@ document.addEventListener('DOMContentLoaded', () => {
             btnText.style.display = 'none';
             btnSpinner.style.display = 'inline-block';
 
-            const payload = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value
-            };
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('phone', document.getElementById('phone').value);
+            formData.append('address', document.getElementById('address').value);
+
+            const avatarInput = document.getElementById('avatar-input');
+            if (avatarInput && avatarInput.files[0]) {
+                formData.append('avatar', avatarInput.files[0]);
+            }
 
             try {
                 const result = await apiCall('/customer/profile', {
                     method: 'PUT',
-                    body: JSON.stringify(payload)
+                    body: formData
                 });
 
                 if (result.success) {
@@ -78,15 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const updatedUser = { ...user, ...result.data };
                         localStorage.setItem('user', JSON.stringify(updatedUser));
 
-                        // Refresh labels
-                        document.getElementById('view-name').textContent = updatedUser.name || '-';
-                        document.getElementById('view-phone').textContent = updatedUser.phone || '-';
-                        document.getElementById('view-address').textContent = updatedUser.address || '-';
+                        // Reload to reflect changes (especially avatar)
+                        loadProfile();
                     }
                     toggleEditMode(false);
                 }
             } catch (error) {
                 console.error('Update profile failed:', error);
+                showNotification('Gagal memperbarui profil: ' + error.message, 'error');
             } finally {
                 btnText.style.display = 'inline-block';
                 btnSpinner.style.display = 'none';

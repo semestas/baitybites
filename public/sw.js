@@ -22,9 +22,33 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
     console.log('[SW] Installing service worker version:', CACHE_VERSION);
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
+        caches.open(CACHE_NAME).then(async (cache) => {
             console.log('[SW] Caching assets');
-            return cache.addAll(ASSETS_TO_CACHE);
+
+            // We use individual fetch/put instead of addAll to robustly handle 
+            // potential "Vary: *" headers which cause addAll to fail entirely.
+            const cachePromises = ASSETS_TO_CACHE.map(async (url) => {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.warn(`[SW] Failed to fetch ${url} for cache: ${response.status}`);
+                        return;
+                    }
+
+                    // Check for Vary: * header which forbids caching
+                    const vary = response.headers.get('Vary');
+                    if (vary && vary.includes('*')) {
+                        console.warn(`[SW] Skipping cache for ${url} due to Vary: * header`);
+                        return;
+                    }
+
+                    await cache.put(url, response);
+                } catch (error) {
+                    console.error(`[SW] Error caching ${url}:`, error);
+                }
+            });
+
+            await Promise.all(cachePromises);
         }).then(() => {
             // Force the waiting service worker to become the active service worker
             return self.skipWaiting();
