@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia';
 import { authPlugin } from '../middleware/auth';
 import type { Sql } from '../db/schema';
+import { uploadToCloudinary } from '../services/cloudinary';
 
 export const customerRoutes = (db: Sql) =>
     new Elysia({ prefix: '/customer' })
@@ -62,11 +63,7 @@ export const customerRoutes = (db: Sql) =>
             try {
                 let avatarUrl = undefined;
                 if (avatar && avatar instanceof File) {
-                    const safeName = avatar.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                    const fileName = `${user.id}-${Date.now()}-${safeName}`;
-                    const filePath = `public/uploads/avatars/${fileName}`;
-                    await Bun.write(filePath, avatar);
-                    avatarUrl = `/uploads/avatars/${fileName}`;
+                    avatarUrl = await uploadToCloudinary(avatar, 'baitybites/avatars');
                 }
 
                 let customer;

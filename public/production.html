@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/style.css">
     <!-- <link rel="stylesheet" href="style.css"> -->
-    
+
 </head>
 
 <body class="page_production">
@@ -19,7 +19,7 @@
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
                     </a>
                     <nav class="nav" id="mainNav">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
@@ -43,17 +43,17 @@
                 </div>
 
                 <div class="grid grid-3 mb-4 animate-fade-in production-grid">
-                    <div class="stat-card" style="border-left-color: #3b82f6;">
+                    <div class="stat-card border-info">
                         <div class="stat-label">In Production</div>
                         <div class="stat-value">0</div>
                         <div class="stat-icon-bg"><i data-lucide="flame"></i></div>
                     </div>
-                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                    <div class="stat-card border-warning">
                         <div class="stat-label">Wait for Packing</div>
                         <div class="stat-value">0</div>
                         <div class="stat-icon-bg"><i data-lucide="package"></i></div>
                     </div>
-                    <div class="stat-card" style="border-left-color: #10b981;">
+                    <div class="stat-card border-success">
                         <div class="stat-label">Ready to Ship</div>
                         <div class="stat-value">0</div>
                         <div class="stat-icon-bg"><i data-lucide="truck"></i></div>
@@ -79,7 +79,7 @@
                                 <tbody id="productionTableBody">
                                     <tr>
                                         <td colspan="6" class="text-center">
-                                            <div class="spinner" style="margin: 20px auto;"></div>
+                                            <div class="spinner mx-auto my-5"></div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -90,8 +90,7 @@
             </div>
         </main>
 
-        <footer
-            style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+        <footer class="footer-simple">
             <div class="container">
                 <p>&copy; 2026 Baitybites. All rights reserved.</p>
             </div>

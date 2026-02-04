@@ -16,13 +16,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body style="background: var(--neutral-50);">
+<body class="bg-neutral-50">
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" class="h-50">
                     </a>
                     <nav class="nav" id="mainNav"></nav>
                 </div>
@@ -32,7 +32,7 @@
         <main class="main-content order-main-content">
             <div class="container order-page-container">
                 <!-- Loyalty Benefits Notice -->
-                <div id="loyalty-notice" class="info-box mb-4 animate-fade-in">
+                <div id="loyalty-notice" class="info-box mb-4 animate-fade-in hidden">
                     <div class="notice-content">
                         <div class="notice-icon"><i data-lucide="gift"></i></div>
                         <div>
@@ -40,8 +40,8 @@
                             <p class="notice-text">Yuk, <strong>login</strong> untuk menikmati berbagai kemudahan
                                 dan promo eksklusif:</p>
                             <div class="login-btn-wrapper">
-                                <a href="/login.html" class="btn btn-primary btn-sm"
-                                    style="display: inline-block;">Login / Daftar Sekarang</a>
+                                <a href="/login.html" class="btn btn-primary btn-sm block-inline">Login / Daftar
+                                    Sekarang</a>
                             </div>
                         </div>
                     </div>
@@ -60,9 +60,9 @@
                 </div>
 
                 <!-- Order Summary Section (Initial Hidden) -->
-                <div id="order-confirmation-section" class="animate-fade-in">
+                <div id="order-confirmation-section" class="animate-fade-in hidden">
                     <div class="preview-header">
-                        <h2 class="text-center" style="width: 100%; margin-bottom: 2rem;">Ringkasan Pesanan</h2>
+                        <h2 class="text-center w-full mb-8">Ringkasan Pesanan</h2>
                     </div>
 
                     <div class="order-summary-box">
@@ -98,7 +98,7 @@
                     </div>
 
                     <!-- Customer Info Preview (Hidden by default) -->
-                    <div id="customer-info-preview" class="animate-fade-in">
+                    <div id="customer-info-preview" class="animate-fade-in hidden">
                         <div class="preview-header">
                             <div class="preview-title-wrapper">
                                 <h3 class="preview-title">Data Pengiriman</h3>
@@ -160,13 +160,12 @@
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            <button type="submit" class="btn btn-primary btn-lg w-full">
                                 <span id="btnText">Lanjut Proses</span>
-                                <div id="btnSpinner" class="spinner btn-spinner" style="width: 20px; height: 20px;">
-                                </div>
+                                <div id="btnSpinner" class="spinner btn-spinner wh-20 hidden"></div>
                             </button>
-                            <button type="button" onclick="backToProductList()" class="btn btn-outline btn-lg mt-2"
-                                style="width: 100%;">
+                            <button type="button" onclick="backToProductList()"
+                                class="btn btn-outline btn-lg mt-2 w-full">
                                 Kembali Pilih Produk
                             </button>
                         </div>
@@ -190,30 +189,29 @@
                             Konfirmasi Item
                         </button>
                     </div>
-                    <!-- Recent Orders for Logged-in Users -->
-                    <div id="recentOrdersSection" class="mt-4 animate-fade-in" style="display: none;">
-                        <div class="card">
-                            <div class="card-header flex justify-between items-center" style="cursor: pointer;"
-                                onclick="toggleRecentOrders()">
-                                <div class="flex items-center gap-2">
-                                    <i id="recentOrdersChevron" data-lucide="chevron-up"
-                                        style="transition: transform 0.3s;"></i>
-                                    <h4 class="card-title" style="margin: 0;">Pesanan Terbaru Anda</h4>
-                                </div>
-                                <button onclick="event.stopPropagation(); loadRecentOrders()"
-                                    class="btn btn-outline btn-sm">Refresh</button>
+                </div>
+
+                <!-- Recent Orders for Logged-in Users -->
+                <div id="recentOrdersSection" class="mt-6 animate-fade-in hidden">
+                    <div class="card">
+                        <div class="card-header flex justify-between items-center cursor-pointer"
+                            onclick="toggleRecentOrders()">
+                            <div class="flex items-center gap-2">
+                                <i id="recentOrdersChevron" data-lucide="chevron-up" class="transition-transform"></i>
+                                <h4 class="card-title no-margin">Pesanan Terbaru Anda</h4>
                             </div>
-                            <div id="recentOrdersBody" class="card-body" style="transition: all 0.3s ease-in-out;">
-                                <div id="recentOrdersList" class="flex flex-col gap-2">
-                                    <p class="text-center text-muted">Memuat pesanan...</p>
-                                </div>
+                            <button onclick="event.stopPropagation(); loadRecentOrders()"
+                                class="btn btn-outline btn-sm">Refresh</button>
+                        </div>
+                        <div id="recentOrdersBody" class="card-body transition-all">
+                            <div id="recentOrdersList" class="flex flex-col gap-2">
+                                <p class="text-center text-muted">Memuat pesanan...</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
 
-                <!-- Redesigned Success Modal -->
                 <!-- Redesigned Success Modal -->
                 <div id="successModal" class="modal-overlay">
                     <div class="modal animate-scale-up">
@@ -228,7 +226,7 @@
 
                         <div class="modal-body">
                             <div class="order-info">
-                                <p class="text-muted" style="font-size: 0.9rem;">
+                                <p class="text-muted text-sm">
                                     Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
                                 </p>
 
@@ -260,16 +258,14 @@
                 </div>
             </div>
         </main>
-        <footer
-            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+
+        <footer class="footer-simple mt-4xl">
             <div class="container">
-                <div
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                    <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
-                    <span>&copy; 2026 Baitybites. All rights reserved.</span>
-                    <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
-                        Privasi</a>
-                    <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
+                <div class="footer-simple-content">
+                    <div id="footer-socials" class="footer-socials"></div>
+                    <span class="copyright">&copy; 2026 Baitybites. All rights reserved.</span>
+                    <a href="/privacy.html" class="footer-link">Kebijakan Privasi</a>
+                    <a href="/tos.html" class="footer-link">Ketentuan Layanan</a>
                 </div>
             </div>
         </footer>

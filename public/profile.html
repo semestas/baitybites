@@ -13,13 +13,13 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
-<body style="background: var(--neutral-50);">
+<body class="bg-neutral-50">
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" class="h-50">
                     </a>
                     <nav class="nav" id="mainNav"></nav>
                 </div>
@@ -27,7 +27,7 @@
         </header>
 
         <main class="main-content">
-            <div class="container" style="max-width: 600px;">
+            <div class="container profile-page-container">
                 <div class="card animate-fade-in">
                     <div class="card-header">
                         <h2 class="card-title">Profil Saya</h2>
@@ -36,70 +36,50 @@
                     <div class="card-body">
                         <!-- Profile View (Read-only) -->
                         <div id="profileView" class="animate-fade-in">
-                            <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
-                                <div style="position: relative; width: 100px; height: 100px;">
+                            <div class="avatar-container">
+                                <div class="avatar-wrapper no-cursor">
                                     <img id="view-avatar" src="/assets/placeholder-user.png" alt="Profile"
-                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid white; box-shadow: var(--shadow-md);">
+                                        class="profile-avatar">
                                 </div>
                             </div>
-                            <div <div
-                                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem; margin-bottom: 2rem;">
+
+                            <div class="profile-view-grid">
                                 <div class="view-item">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Nama
-                                        Lengkap</label>
-                                    <div id="view-name"
-                                        style="font-size: 1.1rem; color: var(--neutral-800); font-weight: 500; min-height: 1.5rem;">
-                                        -</div>
+                                    <label>Nama Lengkap</label>
+                                    <div id="view-name" class="view-value">-</div>
                                 </div>
                                 <div class="view-item">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Nomor
-                                        WhatsApp</label>
-                                    <div id="view-phone"
-                                        style="font-size: 1.1rem; color: var(--neutral-800); font-weight: 500; min-height: 1.5rem;">
-                                        -</div>
+                                    <label>Nomor WhatsApp</label>
+                                    <div id="view-phone" class="view-value">-</div>
                                 </div>
-                                <div class="view-item" style="grid-column: 1 / -1;">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Email
-                                        Konfirmasi</label>
-                                    <div id="view-email"
-                                        style="font-size: 1.1rem; color: var(--neutral-800); font-weight: 500; min-height: 1.5rem;">
-                                        -</div>
+                                <div class="view-item full-width">
+                                    <label>Email Konfirmasi</label>
+                                    <div id="view-email" class="view-value">-</div>
                                 </div>
-                                <div class="view-item" style="grid-column: 1 / -1;">
-                                    <label
-                                        style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Alamat
-                                        Tujuan</label>
-                                    <div id="view-address"
-                                        style="font-size: 1.1rem; color: var(--neutral-800); font-weight: 500; min-height: 1.5rem;">
-                                        -</div>
+                                <div class="view-item full-width">
+                                    <label>Alamat Tujuan</label>
+                                    <div id="view-address" class="view-value">-</div>
                                 </div>
                             </div>
-                            <div class="mt-8 pt-6" style="border-top: 1px solid var(--neutral-100);">
-                                <button type="button" onclick="toggleEditMode(true)" class="btn btn-primary"
-                                    style="width: 100%; height: 48px; border-radius: 12px; font-weight: 600;">Ubah
-                                    Profil</button>
+                            <div class="profile-actions">
+                                <button type="button" onclick="toggleEditMode(true)"
+                                    class="btn btn-primary btn-save">Ubah Profil</button>
                             </div>
                         </div>
 
                         <!-- Profile Form (Hidden by default) -->
-                        <form id="profileForm" style="display: none;">
-                            <div class="form-group" style="text-align: center; margin-bottom: 2rem;">
-                                <div style="position: relative; width: 100px; height: 100px; margin: 0 auto; cursor: pointer;"
-                                    onclick="document.getElementById('avatar-input').click()">
+                        <form id="profileForm" class="hidden">
+                            <div class="avatar-container">
+                                <div class="avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
                                     <img id="edit-avatar-preview" src="/assets/placeholder-user.png" alt="Profile"
-                                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid white; box-shadow: var(--shadow-md);">
-                                    <div
-                                        style="position: absolute; bottom: 0; right: 0; background: var(--primary-500); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 2px solid white;">
-                                        <i data-lucide="camera" style="width: 16px; height: 16px;"></i>
+                                        class="profile-avatar">
+                                    <div class="avatar-edit-icon">
+                                        <i data-lucide="camera" class="w-16 h-16"></i>
                                     </div>
                                 </div>
-                                <input type="file" id="avatar-input" accept="image/*" style="display: none;"
+                                <input type="file" id="avatar-input" accept="image/*" class="hidden"
                                     onchange="previewAvatar(this)">
-                                <small class="text-muted" style="display: block; margin-top: 0.5rem;">Klik foto untuk
-                                    mengubah</small>
+                                <small class="text-muted block mt-2">Klik foto untuk mengubah</small>
                             </div>
 
                             <div class="form-group">
@@ -109,8 +89,8 @@
 
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input type="email" id="email" class="form-input" disabled
-                                    style="background: var(--neutral-100); cursor: not-allowed;">
+                                <input type="email" id="email" class="form-input bg-neutral-100 cursor-not-allowed"
+                                    disabled>
                                 <small class="text-muted">Email tidak dapat diubah.</small>
                             </div>
 
@@ -121,19 +101,16 @@
 
                             <div class="form-group">
                                 <label class="form-label">Alamat Pengiriman</label>
-                                <textarea id="address" class="form-textarea"
-                                    placeholder="Alamat lengkap tujuan pengiriman" required
-                                    style="min-height: 120px;"></textarea>
+                                <textarea id="address" class="form-textarea min-h-120"
+                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
                             </div>
 
                             <div class="mt-4 flex gap-2">
-                                <button type="button" onclick="toggleEditMode(false)" class="btn btn-outline"
-                                    style="flex: 1;">Batal</button>
-                                <button type="submit" class="btn btn-primary" style="flex: 2;">
+                                <button type="button" onclick="toggleEditMode(false)"
+                                    class="btn btn-outline flex-1">Batal</button>
+                                <button type="submit" class="btn btn-primary flex-2">
                                     <span id="btnText">Simpan Perubahan</span>
-                                    <div id="btnSpinner" class="spinner"
-                                        style="width: 24px; height: 24px; display: none; border-top-color: white;">
-                                    </div>
+                                    <div id="btnSpinner" class="spinner hidden wh-24 border-t-white"></div>
                                 </button>
                             </div>
                         </form>
@@ -146,13 +123,11 @@
             </div>
         </main>
 
-        <footer
-            style="background: var(--neutral-900); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem;">
+        <footer class="footer-simple mt-3xl">
             <div class="container">
-                <div
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                    <div id="footer-socials" style="display: flex; align-items: center; gap: 1rem;"></div>
-                    <span>&copy; 2026 Baitybites. All rights reserved.</span>
+                <div class="footer-simple-content">
+                    <div id="footer-socials" class="footer-socials"></div>
+                    <span class="copyright">&copy; 2026 Baitybites. All rights reserved.</span>
                 </div>
             </div>
         </footer>

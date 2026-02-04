@@ -1,40 +1,14 @@
-// Tab Navigation Styles
-.tabs-container {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding: 0.25rem;
-}
+@use '../components/tabs';
+@use 'tracker';
 
-.tab-btn {
-  background: var(--neutral-100);
-  color: var(--neutral-600);
-  border: 1px solid transparent;
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-full);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    background: var(--neutral-200);
-    color: var(--neutral-800);
-    transform: translateY(-1px);
+.page_orders {
+  .logo img {
+    height: 50px;
+    width: auto;
   }
 
-  &.active {
-    background: var(--neutral-900);
-    color: white;
-    box-shadow: var(--shadow-md);
-
-    &:hover {
-      background: var(--neutral-800);
-      color: white;
-    }
+  .search-input-small {
+    max-width: 300px;
   }
 }
 
@@ -121,6 +95,7 @@
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 0.5s ease-out;
+  background: var(--fill-bg, var(--primary-500));
 }
 
 /* Modal Specifics */
@@ -199,6 +174,30 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--badge-bg, var(--primary-500));
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+.modal-close-fixed {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.tracker-step {
+  cursor: pointer;
+}
+
+.footer-simple {
+  background: var(--neutral-900);
+  color: white;
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+  margin-top: var(--spacing-2xl);
 }
 
 .modal-new-body {

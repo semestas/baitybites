@@ -1,0 +1,169 @@
+@use '../abstracts/variables' as *;
+
+.products-page {
+    .logo img {
+        height: 50px;
+        width: auto;
+    }
+
+    .main-content {
+        padding-bottom: var(--spacing-2xl);
+    }
+
+    #categoryTabs {
+        margin-bottom: 1.5rem;
+    }
+
+    .initial-loading-card {
+        text-align: center;
+        padding: 2rem;
+
+        .spinner {
+            margin: 0 auto;
+        }
+    }
+
+    .category-section {
+        margin-bottom: var(--spacing-2xl);
+
+        .category-title {
+            border-bottom: 2px solid var(--primary-100);
+            color: var(--neutral-800);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+        }
+    }
+
+    // Product Card Refinements
+    .product-card {
+        overflow: hidden;
+        border: 1px solid var(--neutral-100);
+        background: white;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-200);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            background: var(--neutral-50);
+        }
+
+        .product-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .product-card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 0.75rem;
+        }
+
+        .product-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+
+            h3 {
+                margin: 0;
+                color: var(--neutral-900);
+                font-size: 1.125rem;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+
+            .badge-stock {
+                white-space: nowrap;
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                border-radius: 999px;
+            }
+        }
+
+        .product-description {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+            color: var(--neutral-500);
+            flex-grow: 1;
+        }
+
+        .product-card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+
+            .price-container {
+                display: flex;
+                align-items: baseline;
+                gap: 0.25rem;
+
+                .price-value {
+                    font-weight: 700;
+                    font-size: 1.125rem;
+                    color: #f59e0b;
+                }
+
+                .price-unit {
+                    font-size: 0.75rem;
+                    color: var(--neutral-500);
+                    font-weight: 400;
+                }
+            }
+
+            .btn-edit {
+                border-radius: 8px;
+                font-weight: 700;
+                border-width: 1.5px;
+                padding: 0.4rem 1.2rem;
+                font-size: 0.75rem;
+            }
+        }
+    }
+
+    // Modal adjustments
+    .form-select-flexible {
+        flex: 1;
+    }
+
+    #newCategoryInput {
+        // display handled by JS
+        flex: 1;
+    }
+
+    #saveSpinner {
+        width: 16px;
+        height: 16px;
+        border-width: 2px;
+        // display handled by JS
+    }
+
+    .footer-simple {
+        background: var(--neutral-900);
+        color: white;
+        padding: var(--spacing-xl) 0;
+        text-align: center;
+        margin-top: var(--spacing-2xl);
+    }
+}

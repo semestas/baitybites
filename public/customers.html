@@ -12,13 +12,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body>
+<body class="page-customers">
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
                     </a>
                     <nav class="nav" id="mainNav">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
@@ -54,8 +54,8 @@
                     </div>
                     <div class="card-body pt-0">
                         <div id="customersGrid" class="customers-grid">
-                            <div class="text-center" style="grid-column: 1 / -1; padding: 2rem;">
-                                <div class="spinner" style="margin: 20px auto;"></div>
+                            <div class="grid-span-all text-center py-8">
+                                <div class="spinner mx-auto mb-5"></div>
                             </div>
                         </div>
                     </div>
@@ -63,8 +63,7 @@
             </div>
         </main>
 
-        <footer
-            style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+        <footer class="footer-simple">
             <div class="container">
                 <p>&copy; 2026 Baitybites. All rights reserved.</p>
             </div>
@@ -73,7 +72,7 @@
 
     <!-- Customer Details Modal -->
     <div id="customerModal" class="modal-overlay" style="display:none;">
-        <div class="modal" style="max-width: 800px;">
+        <div class="modal modal-lg">
             <div class="modal-header">
                 <h3 class="modal-title">Detail Pelanggan</h3>
                 <button class="modal-close" onclick="closeCustomerModal()">&times;</button>
@@ -101,13 +100,13 @@
                         renderCustomers(allCustomers);
                     } else {
                         document.getElementById('customersGrid').innerHTML = `
-                            <div class="text-center text-danger" style="grid-column: 1 / -1; padding: 3rem;">Gagal memuat data pelanggan.</div>
+                            <div class="text-center text-danger grid-span-all py-12">Gagal memuat data pelanggan.</div>
                         `;
                     }
                 } catch (error) {
                     console.error('Error loading customers:', error);
                     document.getElementById('customersGrid').innerHTML = `
-                        <div class="text-center text-danger" style="grid-column: 1 / -1; padding: 3rem;">Terjadi kesalahan sistem.</div>
+                        <div class="text-center text-danger grid-span-all py-12">Terjadi kesalahan sistem.</div>
                     `;
                 }
             }
@@ -133,7 +132,7 @@
                 const grid = document.getElementById('customersGrid');
 
                 if (customers.length === 0) {
-                    grid.innerHTML = `<div class="text-center text-muted" style="grid-column: 1 / -1; padding: 3rem;">Belum ada data pelanggan.</div>`;
+                    grid.innerHTML = `<div class="text-center text-muted grid-span-all py-12">Belum ada data pelanggan.</div>`;
                     return;
                 }
 
@@ -190,7 +189,7 @@
                 const body = document.getElementById('customerModalBody');
 
                 modal.style.display = 'flex';
-                body.innerHTML = '<div class="text-center"><div class="spinner" style="margin: 20px auto;"></div><p>Loading details...</p></div>';
+                body.innerHTML = '<div class="text-center"><div class="spinner mx-auto mb-5"></div><p>Loading details...</p></div>';
 
                 try {
                     const response = await apiCall(`/cms/customers/${id}`);
@@ -216,9 +215,8 @@
                             <div class="info-row"><strong>Nama:</strong> ${c.name}</div>
                             <div class="info-row"><strong>Email:</strong> ${c.email}</div>
                             <div class="info-row"><strong>Telepon:</strong> ${c.phone || '-'}</div>
-                            <div class="info-row">
-                                <strong>Alamat:</strong><br>
-                                <span style="margin-left: 0; display: block; margin-top: 0.25rem;">${c.address || 'Alamat tidak tersedia'}</span>
+                                <strong>Alamat:</strong>
+                                <span class="customer-address-block">${c.address || 'Alamat tidak tersedia'}</span>
                             </div>
                             <div class="member-since">Member sejak ${formatDateTime(c.created_at)}</div>
                         </div>
@@ -248,7 +246,7 @@
                     const clickHandler = isProductionStatus ? `onclick="window.location.href='/production.html?highlight=${encodeURIComponent(o.order_number)}'"` : '';
 
                     return `
-                                    <div class="order-history-item" ${clickHandler} ${isProductionStatus ? 'style="cursor: pointer;"' : ''}>
+                                    <div class="order-history-item ${isProductionStatus ? 'is-clickable' : ''}" ${clickHandler}>
                                         <div class="order-main-info">
                                             <span class="order-num">#${o.order_number}</span>
                                             <span class="order-date"><i data-lucide="calendar" style="width: 12px; height: 12px; margin-right: 4px;"></i>${formatDateTime(o.created_at)}</span>

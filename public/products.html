@@ -12,13 +12,13 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body>
+<body class="products-page">
     <div class="page-wrapper">
         <header class="header">
             <div class="container">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <img src="/assets/logo.png" alt="Baitybites Logo" style="height: 50px; width: auto;">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
                     </a>
                     <nav class="nav" id="mainNav">
                         <a href="/dashboard" class="nav-link">Dashboard</a>
@@ -46,9 +46,11 @@
                         Product</button>
                 </div>
 
-                <div class="grid grid-3 animate-fade-in" id="productGrid">
-                    <div class="card" style="text-align: center; padding: 2rem;">
-                        <div class="spinner" style="margin: 0 auto;"></div>
+                <div id="categoryTabs" class="tabs-container mb-6 animate-fade-in"></div>
+
+                <div class="animate-fade-in" id="productGrid">
+                    <div class="card initial-loading-card">
+                        <div class="spinner"></div>
                     </div>
                 </div>
             </div>
@@ -75,6 +77,19 @@
                                 <label class="form-label">Description</label>
                                 <textarea name="description" class="form-textarea"
                                     placeholder="Describe the product details..." rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <div class="flex gap-2">
+                                    <select name="category" id="categorySelect" class="form-select form-select-flexible"
+                                        required onchange="handleCategoryChange(this.value)">
+                                        <option value="">Select Category</option>
+                                        <option value="NEW">+ Add New Category</option>
+                                    </select>
+                                    <input type="text" id="newCategoryInput" class="form-input" style="display: none;"
+                                        placeholder="New Category Name">
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -106,8 +121,7 @@
                             <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
                             <button type="submit" class="btn btn-primary" id="btnSaveProduct">
                                 <span id="saveText">Save Product</span>
-                                <span id="saveSpinner" class="spinner"
-                                    style="display: none; width: 16px; height: 16px; border-width: 2px;"></span>
+                                <span id="saveSpinner" class="spinner" style="display: none;"></span>
                             </button>
                         </div>
                     </form>
@@ -115,8 +129,7 @@
             </div>
         </main>
 
-        <footer
-            style="background: var(--neutral-900); color: white; padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-2xl);">
+        <footer class="footer-simple">
             <div class="container">
                 <p>&copy; 2026 Baitybites. All rights reserved.</p>
             </div>
@@ -137,12 +150,15 @@
 
         // Store products globally for easy access
         window.currentProducts = [];
+        window.activeCategory = 'All';
 
         async function loadProducts() {
             try {
                 const response = await callApi('/cms/products');
                 if (response.success) {
                     window.currentProducts = response.data;
+                    updateCategoryDropdown(response.data);
+                    renderCategoryTabs(response.data);
                     renderProducts(response.data);
                 }
             } catch (e) {
@@ -150,33 +166,104 @@
             }
         }
 
+        function updateCategoryDropdown(products) {
+            const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
+            const select = document.getElementById('categorySelect');
+
+            // Keep first two options (Select and Add New)
+            const options = Array.from(select.options).slice(0, 2);
+            select.innerHTML = '';
+            options.forEach(opt => select.add(opt));
+
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.add(opt);
+            });
+        }
+
+        function renderCategoryTabs(products) {
+            const categories = ['All', ...new Set(products.map(p => p.category || 'General'))];
+            const container = document.getElementById('categoryTabs');
+
+            container.innerHTML = categories.map(cat => `
+                <button class="tab-btn ${window.activeCategory === cat ? 'active' : ''}" 
+                        onclick="switchCategory('${cat}')">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function switchCategory(cat) {
+            window.activeCategory = cat;
+            renderCategoryTabs(window.currentProducts);
+            renderProducts(window.currentProducts);
+        }
+
+        function handleCategoryChange(value) {
+            const input = document.getElementById('newCategoryInput');
+            if (value === 'NEW') {
+                input.style.display = 'block';
+                input.required = true;
+                input.focus();
+            } else {
+                input.style.display = 'none';
+                input.required = false;
+            }
+        }
+
         function renderProducts(products) {
             const grid = document.getElementById('productGrid');
-            if (products.length === 0) {
-                grid.innerHTML = '<p class="text-muted text-center w-full py-8">Tidak ada produk yang ditemukan.</p>';
+
+            const filtered = window.activeCategory === 'All'
+                ? products
+                : products.filter(p => (p.category || 'General') === window.activeCategory);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="text-muted text-center w-full py-8">Tidak ada produk di kategori ini.</p>';
                 return;
             }
-            grid.className = "grid grid-3 animate-fade-in";
-            grid.innerHTML = products.map(p => `
-            <div class="card h-full flex flex-col justify-between" style="overflow: hidden;">
-                ${p.image_url ? `<div style="height: 200px; background-image: url('${p.image_url}'); background-size: cover; background-position: center; margin: calc(var(--spacing-xl) * -1) calc(var(--spacing-xl) * -1) var(--spacing-lg) calc(var(--spacing-xl) * -1);"></div>` : ''}
-                <div class="card-header pb-0" ${p.image_url ? 'style="border-top: none; padding-top: 0;"' : ''}>
-                    <div class="flex justify-between items-start">
-                        <h3 class="mb-1 text-lg font-bold">${p.name}</h3>
-                        <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'}">Stok: ${p.stock}</span>
+
+            // Group by category
+            const grouped = filtered.reduce((acc, p) => {
+                const cat = p.category || 'General';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(p);
+                return acc;
+            }, {});
+
+            grid.className = "animate-fade-in";
+            grid.innerHTML = Object.entries(grouped).map(([category, items]) => `
+                <div class="category-section mb-8">
+                    <h2 class="category-title">${category}</h2>
+                    <div class="grid grid-4">
+                        ${items.map(p => `
+                            <div class="product-card">
+                                ${p.image_url ? `
+                                <div class="product-image-wrapper">
+                                    <div class="product-image" style="background-image: url('${p.image_url}');"></div>
+                                </div>
+                                ` : ''}
+                                <div class="product-card-content">
+                                    <div class="product-card-header">
+                                        <h3>${p.name}</h3>
+                                        <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'} badge-stock">STOK: ${p.stock}</span>
+                                    </div>
+                                    <p class="product-description line-clamp-2">${p.description || 'No description available.'}</p>
+                                    <div class="product-card-footer">
+                                        <div class="price-container">
+                                            <span class="price-value">${fmtMoney(p.price)}</span>
+                                            <span class="price-unit">/${p.unit}</span>
+                                        </div>
+                                        <button class="btn btn-outline btn-sm btn-edit" onclick="editProduct(${p.id})">Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-                <div class="card-body">
-                    <p class="text-muted line-clamp-2" style="min-height: 3em;">${p.description || 'No description available.'}</p>
-                    <div class="flex justify-between items-center mt-auto">
-                        <span class="text-primary font-bold text-xl">${fmtMoney(p.price)}<span class="text-sm text-muted font-normal">/${p.unit}</span></span>
-                        <div class="flex gap-2">
-                            <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">Edit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            `).join('');
         }
 
         // Modal Functions
@@ -187,12 +274,14 @@
 
         function openModal() {
             modal.style.display = 'flex';
+            handleCategoryChange(document.getElementById('categorySelect').value);
         }
 
         function closeModal() {
             modal.style.display = 'none';
             document.getElementById('addProductForm').reset();
             document.getElementById('productId').value = '';
+            document.getElementById('newCategoryInput').style.display = 'none';
             modalTitle.textContent = 'Add New Product';
             btnSaveText.textContent = 'Save Product';
         }
@@ -207,6 +296,10 @@
             document.querySelector('input[name="price"]').value = product.price;
             document.querySelector('input[name="unit"]').value = product.unit;
             document.querySelector('input[name="stock"]').value = product.stock;
+
+            const categorySelect = document.getElementById('categorySelect');
+            categorySelect.value = product.category || 'General';
+            handleCategoryChange(categorySelect.value);
 
             modalTitle.textContent = 'Edit Product';
             btnSaveText.textContent = 'Update Product';
@@ -227,26 +320,21 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // Target dimensions
-                    const targetSize = 200;
-                    canvas.width = targetSize;
-                    canvas.height = targetSize;
+                    // Target dimensions: Max width 1000px, maintain aspect ratio
+                    const maxWidth = 1000;
+                    let targetWidth = img.width;
+                    let targetHeight = img.height;
 
-                    // Calculate ratio to fit the shortest side to 200px
-                    // "keep original aspect-ratio ... shortest side fit to 200px then crop"
-                    const ratio = Math.max(targetSize / img.width, targetSize / img.height);
+                    if (img.width > maxWidth) {
+                        targetWidth = maxWidth;
+                        targetHeight = img.height * (maxWidth / img.width);
+                    }
 
-                    // Calculate new dimensions
-                    const newWidth = img.width * ratio;
-                    const newHeight = img.height * ratio;
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
 
-                    // Calculate offsets to center the image (crop effect)
-                    const offsetX = (targetSize - newWidth) / 2;
-                    const offsetY = (targetSize - newHeight) / 2;
-
-                    // Draw image scaled and centered
-                    // The canvas will automatically crop whatever falls outside 0,0 to 200,200
-                    ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+                    // Draw image scaled
+                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
                     // Convert to Blob/File
                     canvas.toBlob((blob) => {
@@ -276,6 +364,8 @@
             const saveSpinner = document.getElementById('saveSpinner');
             const fileInput = document.querySelector('input[name="image"]');
             const productId = document.getElementById('productId').value;
+            const categorySelect = document.getElementById('categorySelect');
+            const newCategoryInput = document.getElementById('newCategoryInput');
 
             // Loading State
             btnSave.disabled = true;
@@ -283,6 +373,13 @@
             saveSpinner.style.display = 'inline-block';
 
             const formData = new FormData(e.target);
+
+            // Handle Category
+            let category = categorySelect.value;
+            if (category === 'NEW') {
+                category = newCategoryInput.value.trim();
+            }
+            formData.set('category', category);
 
             try {
                 // Process image if exists

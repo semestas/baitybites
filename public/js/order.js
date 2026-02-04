@@ -279,7 +279,7 @@ function renderProducts() {
         return `
             <div class="product-card animate-fade-in">
                 <div class="product-image-wrapper">
-                    <img src="${p.image_url || '/assets/placeholder-product.png'}" alt="${p.name}" onerror="this.src='/assets/placeholder-product.png'">
+                    <img src="${p.image_url || '/assets/placeholder-product.png'}" alt="${p.name}" onerror="this.onerror=null;this.src='/assets/placeholder-product.png'">
                     ${inCart ? '<div class="product-badge"><i data-lucide="shopping-cart" size="14"></i></div>' : ''}
                 </div>
                 <div class="product-info">

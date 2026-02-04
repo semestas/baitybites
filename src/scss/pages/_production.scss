@@ -1,5 +1,6 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
+
 .page_production {
     .timeline-compact {
         display: flex;
@@ -114,5 +115,30 @@
     .highlight-pulse td:first-child {
         color: var(--primary-700);
         font-size: 1.1em;
+    }
+
+    .logo img {
+        height: 50px;
+        width: auto;
+    }
+
+    .border-info {
+        border-left-color: #3b82f6 !important;
+    }
+
+    .border-warning {
+        border-left-color: #f59e0b !important;
+    }
+
+    .border-success {
+        border-left-color: #10b981 !important;
+    }
+
+    .footer-simple {
+        background: var(--neutral-900);
+        color: white;
+        padding: var(--spacing-xl) 0;
+        text-align: center;
+        margin-top: var(--spacing-2xl);
     }
 }

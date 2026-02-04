@@ -49,7 +49,7 @@
                             <tr>
                                 <th>Order #</th>
                                 <th>Customer</th>
-                                <th style="text-align: center;">Status</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody id="orders-list"></tbody>
@@ -75,14 +75,14 @@
             <!-- Instagram Settings Section -->
             <section id="instagram-section" class="section-card" style="display:none;">
                 <div class="mb-4">
-                    <h2><i data-lucide="instagram" style="vertical-align: middle; margin-right: 8px;"></i> Instagram
+                    <h2><i data-lucide="instagram" class="v-middle-gap"></i> Instagram
                         Integration</h2>
                     <p class="text-muted">Pilih salah satu metode integrasi Instagram di bawah ini</p>
                 </div>
 
                 <!-- Option 1: Elfsight Widget (Recommended) -->
                 <div class="ig-integration-card">
-                    <h4><i data-lucide="sparkles" size="18" style="vertical-align: middle;"></i> Opsi 1: Elfsight Widget
+                    <h4><i data-lucide="sparkles" size="18" class="v-middle"></i> Opsi 1: Elfsight Widget
                         (Direkomendasikan - Paling Mudah)</h4>
                     <p>
                         Cara tercepat dan termudah tanpa perlu API token. Cukup copy-paste widget code dari Elfsight.
@@ -117,7 +117,7 @@
 
                 <!-- Option 2: API Integration (Advanced) -->
                 <div class="ig-integration-card api">
-                    <h4><i data-lucide="settings" size="18" style="vertical-align: middle;"></i> Opsi 2: API Integration
+                    <h4><i data-lucide="settings" size="18" class="v-middle-gap"></i> Opsi 2: API Integration
                         (Advanced)</h4>
                     <p>
                         Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post terpopuler
@@ -125,7 +125,7 @@
                     <details>
                         <summary class="detail-summary"><i data-lucide="file-text" size="16"></i> Cara Mendapatkan
                             Access Token</summary>
-                        <ol style="margin-top: 10px;">
+                        <ol class="mt-10">
                             <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
                                     Developers</a></li>
                             <li>Buat atau pilih App yang terhubung dengan akun Instagram Business</li>
@@ -157,7 +157,7 @@
             <!-- General Settings Section -->
             <section id="settings-section" class="section-card" style="display:none;">
                 <div class="mb-4">
-                    <h2><i data-lucide="cog" size="24" style="vertical-align: middle;"></i> Pengaturan Kontak & Sosial
+                    <h2><i data-lucide="cog" size="24" class="v-middle-gap"></i> Pengaturan Kontak & Sosial
                         Media</h2>
                     <p class="text-muted">Informasi ini akan ditampilkan di footer website.</p>
                 </div>
@@ -228,8 +228,7 @@
                             <div class="editable-field" id="field-contact_address">
                                 <label class="field-label">Alamat Fisik</label>
                                 <div class="field-display">
-                                    <div class="field-value-text" id="text-contact_address"
-                                        style="white-space: pre-wrap;">---</div>
+                                    <div class="field-value-text field-value-pre" id="text-contact_address">---</div>
                                     <button type="button" class="btn-edit-inline"
                                         onclick="startInlineEdit('contact_address')"> <i data-lucide="edit-3"
                                             size="14"></i></button>
@@ -312,10 +311,8 @@
         </main>
     </div>
 
-    <!-- Gallery Modal -->
-    <div id="galleryModal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:12px; width:400px; max-width:90%;">
+    <div id="galleryModal" class="modal-fixed" style="display:none;">
+        <div class="modal-inner">
             <h3>Tambah Foto Galeri</h3>
             <form id="galleryForm" class="mt-4">
                 <div class="form-group mb-3">
@@ -331,9 +328,8 @@
                     <input type="number" id="galOrder" class="form-input" value="0">
                 </div>
                 <div class="flex gap-2 mt-4">
-                    <button type="button" class="btn btn-outline" onclick="closeGalleryModal()"
-                        style="flex:1;">Batal</button>
-                    <button type="submit" class="btn btn-primary" style="flex:2;">Simpan</button>
+                    <button type="button" class="btn btn-outline flex-1" onclick="closeGalleryModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary flex-2">Simpan</button>
                 </div>
             </form>
         </div>
@@ -392,7 +388,7 @@
                         <tr>
                             <td><strong>${o.order_number}</strong></td>
                             <td>${o.customer_name}</td>
-                            <td style="text-align: center; overflow: visible;">
+                            <td class="text-center overflow-visible">
                                 <div class="status-popover-container" id="popover-${o.id}">
                                     <button class="status-trigger-badge ${o.status} ${isCompleted ? 'is-completed' : ''}" 
                                             ${isCompleted ? '' : `onclick="toggleStatusPopover(event, ${o.id})"`}>
@@ -509,11 +505,10 @@
                             <img src="${g.image_url}" alt="${g.title}">
                             <div class="actions">
                                 <div>
-                                    <div class="badge ${g.source === 'instagram' ? 'badge-approved' : 'badge-pending'}" 
-                                         style="font-size:0.6rem; margin-bottom:4px;">
+                                    <div class="badge ${g.source === 'instagram' ? 'badge-approved' : 'badge-pending'} text-xs mb-1">
                                         ${g.source === 'instagram' ? 'INSTAGRAM' : 'MANUAL'}
                                     </div>
-                                    <div style="font-size:0.8rem;">Order: ${g.display_order}</div>
+                                    <div class="text-sm">Order: ${g.display_order}</div>
                                 </div>
                                 <button class="btn btn-danger btn-xs" onclick="deleteGallery(${g.id})">Hapus</button>
                             </div>
@@ -612,7 +607,7 @@
             try {
                 const res = await apiCall('/cms/instagram/settings');
                 if (res.success && res.data.has_token) {
-                    document.getElementById('tokenStatus').innerHTML = '<span style="color: #10b981;"><i data-lucide="check-circle" size="14"></i> Token tersimpan</span>';
+                    document.getElementById('tokenStatus').innerHTML = '<span class="text-success"><i data-lucide="check-circle" size="14"></i> Token tersimpan</span>';
                     if (window.lucide) lucide.createIcons();
                 }
                 // Load widget if exists

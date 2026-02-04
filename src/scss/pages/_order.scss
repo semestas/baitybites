@@ -2,7 +2,8 @@
 @use '../abstracts/mixins' as *;
 
 .main-content.order-main-content {
-    padding: 4rem 0 !important; // Reduce from default 7.5rem
+    padding-top: 6rem !important; // Increased to prevent header overlap
+    padding-bottom: 4rem !important;
 }
 
 .order-page-container {
@@ -321,6 +322,8 @@
 #loyalty-notice {
     display: none;
     background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    width: fit-content;
+    margin: 2rem auto;
     padding: 1.25rem;
     border-radius: 1rem;
     border: 1px solid #fed7aa;

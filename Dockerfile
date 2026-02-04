@@ -12,6 +12,9 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Build styles (SCSS -> CSS)
+RUN bun run style:build
+
 # Expose port
 EXPOSE 9876
 

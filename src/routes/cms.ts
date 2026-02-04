@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
 import { InstagramService } from '../services/instagram';
+import { uploadToCloudinary } from '../services/cloudinary';
 
 export const cmsRoutes = (db: Sql) =>
     new Elysia({ prefix: '/cms' })
@@ -228,14 +229,7 @@ export const cmsRoutes = (db: Sql) =>
 
             let imageUrl = '';
             if (image && image instanceof File) {
-                const safeName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `${Date.now()}-${safeName}`;
-                // Folder logic (ensure directory exists)
-                const dir = 'public/uploads/gallery';
-                const fileNameWithDir = `${dir}/${fileName}`;
-
-                await Bun.write(fileNameWithDir, image);
-                imageUrl = `/uploads/gallery/${fileName}`;
+                imageUrl = await uploadToCloudinary(image, 'baitybites/gallery');
             } else if (typeof body.image_url === 'string') {
                 imageUrl = body.image_url;
             }
@@ -411,21 +405,16 @@ export const cmsRoutes = (db: Sql) =>
             return { success: true, data: products };
         })
         .post('/products', async ({ body }: { body: any }) => {
-            const { name, description, price, unit, stock, image } = body;
+            const { name, description, category, price, unit, stock, image } = body;
 
             let imageUrl = null;
             if (image && image instanceof File) {
-                // Sanitize filename: remove spaces and special chars
-                const safeName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `${Date.now()}-${safeName}`;
-                const filePath = `public/uploads/products/${fileName}`;
-                await Bun.write(filePath, image);
-                imageUrl = `/uploads/products/${fileName}`;
+                imageUrl = await uploadToCloudinary(image, 'baitybites/products');
             }
 
             const [product] = await db`
-                INSERT INTO products (name, description, price, unit, stock, image_url)
-                VALUES (${name}, ${description}, ${Number(price)}, ${unit}, ${Number(stock)}, ${imageUrl})
+                INSERT INTO products (name, description, category, price, unit, stock, image_url)
+                VALUES (${name}, ${description}, ${category || 'General'}, ${Number(price)}, ${unit}, ${Number(stock)}, ${imageUrl})
                 RETURNING *
             `;
             return { success: true, data: product, message: 'Produk berhasil ditambahkan' };
@@ -433,6 +422,7 @@ export const cmsRoutes = (db: Sql) =>
             body: t.Object({
                 name: t.String(),
                 description: t.String(),
+                category: t.Optional(t.String()),
                 price: t.Numeric(),
                 unit: t.String(),
                 stock: t.Numeric(),
@@ -440,15 +430,11 @@ export const cmsRoutes = (db: Sql) =>
             })
         })
         .put('/products/:id', async ({ params, body }: { params: any, body: any }) => {
-            const { name, description, price, unit, stock, image } = body;
+            const { name, description, category, price, unit, stock, image } = body;
 
             let imageUrl = null;
             if (image && image instanceof File) {
-                const safeName = image.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `${Date.now()}-${safeName}`;
-                const filePath = `public/uploads/products/${fileName}`;
-                await Bun.write(filePath, image);
-                imageUrl = `/uploads/products/${fileName}`;
+                imageUrl = await uploadToCloudinary(image, 'baitybites/products');
             }
 
             // Construct update query dynamically or use simple logic
@@ -458,6 +444,7 @@ export const cmsRoutes = (db: Sql) =>
                     UPDATE products 
                     SET name = ${name}, 
                         description = ${description}, 
+                        category = ${category || 'General'},
                         price = ${Number(price)}, 
                         unit = ${unit}, 
                         stock = ${Number(stock)},
@@ -470,6 +457,7 @@ export const cmsRoutes = (db: Sql) =>
                     UPDATE products 
                     SET name = ${name}, 
                         description = ${description}, 
+                        category = ${category || 'General'},
                         price = ${Number(price)}, 
                         unit = ${unit}, 
                         stock = ${Number(stock)}
@@ -483,6 +471,7 @@ export const cmsRoutes = (db: Sql) =>
             body: t.Object({
                 name: t.String(),
                 description: t.String(),
+                category: t.Optional(t.String()),
                 price: t.Numeric(),
                 unit: t.String(),
                 stock: t.Numeric(),

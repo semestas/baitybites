@@ -52,7 +52,7 @@
 }
 
 .modal-body {
-  padding: 0;
+  padding: var(--spacing-xl);
   overflow-y: auto;
   max-height: calc(90vh - 180px);
   /* Account for header, footer, and margins */
