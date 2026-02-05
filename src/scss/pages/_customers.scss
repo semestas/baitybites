@@ -160,7 +160,6 @@
         white-space: normal;
         overflow: hidden;
         text-overflow: ellipsis;
-        ;
     }
 }
 
@@ -198,16 +197,12 @@
 .customer-modal-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    margin-bottom: 24px;
-    padding: var(--spacing-xl);
-    padding-bottom: 0;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: var(--spacing-lg);
-        padding-bottom: 0;
+        gap: var(--spacing-lg);
     }
 }
 
@@ -217,19 +212,23 @@
     border-radius: var(--radius-lg);
     padding: 1.5rem;
 
-    h4 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--neutral-800);
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid var(--neutral-100);
-    }
-
     .info-row {
-        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-sm);
         font-size: 0.9rem;
-        ;
+
+        &.info-row-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--neutral-800);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--neutral-100);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
 
         strong {
             color: var(--neutral-700);
@@ -242,9 +241,7 @@
     .member-since {
         font-size: 0.8rem;
         color: var(--neutral-500);
-        margin-top: 1rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid var(--neutral-100);
+        padding-bottom: var(--spacing-sm);
     }
 }
 
@@ -254,21 +251,23 @@
     border-radius: var(--radius-lg);
     padding: 1.5rem;
 
-    h4 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--primary-700);
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid var(--primary-200);
-    }
-
     .stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--primary-100);
+        margin-bottom: var(--spacing-sm);
+        font-size: 0.9rem;
+
+        &.stat-row-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-700);
+            border-bottom: 2px solid var(--primary-100);
+            padding-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
 
         &:last-child {
             border-bottom: none;
@@ -285,7 +284,7 @@
             color: var(--primary-600);
 
             &.highlight {
-                font-size: 1.25rem;
+                font-size: 1rem;
                 color: var(--primary-700);
             }
         }
@@ -293,21 +292,6 @@
 }
 
 .customer-orders-section {
-    padding: 0 var(--spacing-xl) var(--spacing-xl);
-
-    @media (max-width: 768px) {
-        padding: 0 var(--spacing-lg) var(--spacing-lg);
-    }
-
-    h4 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--neutral-900);
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--neutral-200);
-    }
-
     .orders-list {
         max-height: 350px;
         overflow-y: auto;
@@ -315,6 +299,19 @@
         flex-direction: column;
         gap: 0.75rem;
         padding-right: 0.5rem; // Room for scrollbar
+
+        &.orders-list-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            gap: var(--spacing-sm);
+        }
 
         &::-webkit-scrollbar {
             width: 6px;

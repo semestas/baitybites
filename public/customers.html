@@ -211,18 +211,33 @@
                 body.innerHTML = `
                     <div class="customer-modal-grid">
                         <div class="customer-info-card">
-                            <h4><i data-lucide="user" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Informasi Profil</h4>
-                            <div class="info-row"><strong>Nama:</strong> ${c.name}</div>
-                            <div class="info-row"><strong>Email:</strong> ${c.email}</div>
-                            <div class="info-row"><strong>Telepon:</strong> ${c.phone || '-'}</div>
+                            <div class="info-row info-row-header">
+                                <i data-lucide="user"></i>
+                                Informasi Profil
+                            </div>
+                            <div class="member-since">
+                                Member sejak ${formatDateTime(c.created_at)}
+                            </div>
+                            <div class="info-row">
+                                <strong>Nama:</strong> ${c.name}
+                            </div>
+                            <div class="info-row">
+                                <strong>Email:</strong> ${c.email}
+                            </div>
+                            <div class="info-row">
+                                <strong>Telepon:</strong> ${c.phone || '-'}
+                            </div>
+                            <div class="info-row">
                                 <strong>Alamat:</strong>
                                 <span class="customer-address-block">${c.address || 'Alamat tidak tersedia'}</span>
                             </div>
-                            <div class="member-since">Member sejak ${formatDateTime(c.created_at)}</div>
                         </div>
                         
                         <div class="customer-stats-card">
-                            <h4><i data-lucide="trending-up" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Statistik Belanja</h4>
+                            <div class="stat-row stat-row-header">
+                                <i data-lucide="trending-up"></i>
+                                Statistik Belanja
+                            </div>
                             <div class="stat-row">
                                 <span class="stat-label">Total Pesanan</span>
                                 <span class="badge badge-primary">${c.total_orders} ORDERS</span>
@@ -239,7 +254,7 @@
                     </div>
                     
                     <div class="customer-orders-section">
-                        <h4><i data-lucide="history" style="width: 18px; vertical-align: middle; margin-right: 8px;"></i>Riwayat Pesanan</h4>
+                        <div class="orders-list orders-list-header"><i data-lucide="history"></i>Riwayat Pesanan</div>
                         <div class="orders-list">
                             ${c.orders && c.orders.length ? c.orders.map(o => {
                     const isProductionStatus = ['confirmed', 'production', 'packaging', 'shipping'].includes(o.status);
