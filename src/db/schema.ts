@@ -312,9 +312,19 @@ export async function initDatabase() {
       content TEXT NOT NULL,
       rating INTEGER DEFAULT 5,
       is_approved BOOLEAN DEFAULT FALSE,
+      reply TEXT,
+      reply_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `;
+
+  // Migration for testimonials reply
+  try {
+    await sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS reply TEXT`;
+    await sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS reply_at TIMESTAMPTZ`;
+  } catch (e) {
+    console.error("Migration error on testimonials table:", e);
+  }
 
   // Insert default admin user (password: admin123)
   const adminExists = await sql`SELECT id FROM users WHERE username = 'admin' LIMIT 1`;

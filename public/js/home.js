@@ -17,6 +17,17 @@ function showTestimonyForm() {
     if (userStr) {
         // Logged In
         const user = JSON.parse(userStr);
+
+        // Prevent Admin
+        if (user.role === 'admin') {
+            if (window.app && window.app.showNotification) {
+                window.app.showNotification('Admin tidak dapat mengirim testimoni', 'error');
+            } else {
+                alert('Admin tidak dapat mengirim testimoni');
+            }
+            return;
+        }
+
         nameInputWrapper.style.display = 'none';
         loggedInUserDisplay.style.display = 'flex';
         currentUserNameSpan.textContent = user.name;
@@ -90,9 +101,19 @@ async function loadContent() {
         // 2. Load Testimonials
         const testJson = await apiCall('/public/testimonials');
         const testContainer = document.getElementById('testimony-container');
+
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const isAdmin = user && user.role === 'admin';
+
+        if (isAdmin) {
+            const formCard = document.querySelector('.testimony-form-card');
+            if (formCard) formCard.style.display = 'none';
+        }
+
         if (testJson.success) {
             testContainer.innerHTML = testJson.data.map(t => `
-                <div class="testimony-card">
+                <div class="testimony-card" id="testimony-${t.id}">
                     <div class="testimony-rating">${renderRatingStars(t.rating)}</div>
                     <p class="quote">"${t.content}"</p>
                     <div class="user-info">
@@ -109,6 +130,28 @@ async function loadContent() {
                             </div>
                         </div>
                     </div>
+                    
+                    ${t.reply ? `
+                        <div class="admin-reply">
+                            <div class="reply-header">
+                                <i data-lucide="corner-down-right" size="14"></i>
+                                <span>Balasan Admin</span>
+                            </div>
+                            <p>${t.reply}</p>
+                        </div>
+                    ` : ''}
+
+                    ${isAdmin ? `
+                        <div class="admin-actions quick-reply-admin-actions">
+                            <button onclick="toggleReplyForm(${t.id})" class="btn-text quick-reply-btn">
+                                <i data-lucide="message-circle" size="14"></i> ${t.reply ? 'Edit Balasan' : 'Balas'}
+                            </button>
+                            <div id="reply-form-${t.id}" style="display: none; margin-top: 0.5rem;">
+                                <textarea id="reply-input-${t.id}" class="form-input" style="font-size: 0.9rem; min-height: 60px; margin-bottom: 0.5rem;" placeholder="Tulis balasan...">${t.reply || ''}</textarea>
+                                <button onclick="submitReply(${t.id})" class="btn btn-primary btn-sm" style="width: 100%;">Kirim</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
             if (window.app && window.app.initIcons) window.app.initIcons();
@@ -168,6 +211,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Hide testimony button for admin
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.role === 'admin') {
+            const testimonyBtn = document.querySelector('button[onclick="showTestimonyForm()"]');
+            if (testimonyBtn) {
+                testimonyBtn.style.display = 'none'; // Or replace with "Admin Mode" badge?
+                // User asked "just replying", maybe we intentionally leave it hidden or show a different message?
+                // For now, hiding is safest "prevention".
+            }
+        }
+    }
+
     const hero = document.querySelector('.hero-section');
     if (hero) observer.observe(hero);
 
@@ -202,3 +259,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Admin Reply Functions
+function toggleReplyForm(id) {
+    const form = document.getElementById(`reply-form-${id}`);
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+async function submitReply(id) {
+    const { apiCall, showNotification } = window.app;
+    const replyInput = document.getElementById(`reply-input-${id}`);
+    const reply = replyInput.value;
+
+    if (!reply.trim()) return;
+
+    try {
+        const result = await apiCall(`/cms/testimonials/${id}/reply`, {
+            method: 'PUT',
+            body: JSON.stringify({ reply })
+        });
+
+        if (result.success) {
+            showNotification('Balasan berhasil dikirim', 'success');
+            loadContent(); // Reload to show update
+        } else {
+            showNotification(result.message || 'Gagal mengirim balasan', 'error');
+        }
+    } catch (error) {
+        console.error('Reply error:', error);
+        showNotification('Terjadi kesalahan', 'error');
+    }
+}

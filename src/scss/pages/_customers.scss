@@ -174,7 +174,8 @@
 
 .customer-stat {
     display: flex;
-    flex-direction: column;
+    // flex-direction: column;
+    align-items: center;
     gap: 0.25rem;
     flex: 1;
 

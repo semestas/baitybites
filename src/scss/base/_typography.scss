@@ -35,7 +35,7 @@ html {
 body {
   font-family: var(--font-primary);
   font-size: fluid($p-min, $p-max);
-  line-height: 1.6;
+  line-height: normal;
   color: var(--neutral-800);
   background: var(--neutral-50);
   -webkit-font-smoothing: antialiased;

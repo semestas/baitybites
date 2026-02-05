@@ -24,7 +24,14 @@ export const customerRoutes = (db: Sql) =>
             return { success: true, data: orders };
         })
         .post('/testimony', async (context: any) => {
-            const { body, set } = context;
+            const { body, set, user } = context;
+
+            // Prevent Admin from posting testimony
+            if (user && user.role === 'admin') {
+                set.status = 403;
+                return { success: false, message: 'Admin tidak diizinkan mengirim testimoni' };
+            }
+
             const { name, content, rating, avatar_url, role } = body as any;
 
             try {

@@ -313,6 +313,19 @@ export const cmsRoutes = (db: Sql) =>
                 is_approved: t.Boolean()
             })
         })
+        .put('/testimonials/:id/reply', async ({ params, body }: { params: any, body: any }) => {
+            const [item] = await db`
+                UPDATE testimonials 
+                SET reply = ${body.reply}, reply_at = CURRENT_TIMESTAMP 
+                WHERE id = ${params.id}
+                RETURNING *
+            `;
+            return { success: true, data: item, message: 'Balasan berhasil dikirim' };
+        }, {
+            body: t.Object({
+                reply: t.String()
+            })
+        })
 
         .get('/customers/:id', async ({ params }) => {
             const [customer] = await db`
