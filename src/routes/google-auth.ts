@@ -15,11 +15,13 @@ export const googleAuthRoutes = (db: Sql) => {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
     const redirectUri = process.env.GOOGLE_REDIRECT_URI?.trim();
 
+    /* 
     console.log('Setup Google Auth with:', {
         clientId: clientId ? clientId.substring(0, 10) : 'MISSING',
         hasSecret: !!clientSecret,
         redirectUri
     });
+    */
 
     // Determine environment
     const isLocal = process.env.HOST === 'localhost' || process.env.NODE_ENV === 'development';
@@ -35,11 +37,13 @@ export const googleAuthRoutes = (db: Sql) => {
     // The redirect URI sent to Google must match the Proxy URL (Netlify) not Render directly
     const finalRedirectUri = `${baseUrl}/api/auth/google/callback`;
 
+    /*
     console.log('Setup Google Auth Proxy Aware:', {
         isLocal,
         baseUrl,
         callbackUrl: finalRedirectUri
     });
+    */
 
     return new Elysia({ prefix: '/auth' })
         .get('/version', () => ({ version: "2.0.0-netlify-proxy-fix" }))

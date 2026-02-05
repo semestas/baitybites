@@ -299,7 +299,7 @@
             modalContent.innerHTML = `
                 <div class="modal-new-header">
                     <div class="modal-order-info">
-                        <h2>Order #${order.order_number}</h2>
+                        <h5>Order #${order.order_number}</h5>
                         <div class="modal-order-date">${window.app.formatDateTime(order.order_date)}</div>
                     </div>
                     <div class="modal-status-badge" style="--badge-bg: ${getStatusColor(order.status)}">

@@ -9,7 +9,7 @@ export const webhookRoutes = (db: Sql, waService: WhatsAppService) => new Elysia
      */
     .post('/whatsapp', async ({ body }: { body: any }) => {
         try {
-            console.log('[Webhook] WhatsApp event received:', JSON.stringify(body, null, 2));
+            // console.log('[Webhook] WhatsApp event received:', JSON.stringify(body, null, 2));
 
             const event = body as any;
 
@@ -62,7 +62,7 @@ async function handleIncomingMessage(db: Sql, waService: WhatsAppService, event:
 
         // Ignore messages sent by us
         if (isFromMe) {
-            console.log('[Webhook] Ignoring message from self');
+            // console.log('[Webhook] Ignoring message from self');
             return;
         }
 

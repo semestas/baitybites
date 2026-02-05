@@ -11,7 +11,7 @@ if (process.env.CLOUDINARY_URL) {
             api_secret: matches[2],
             secure: true
         });
-        console.log("Cloudinary configured via URL parsing");
+        // console.log("Cloudinary configured via URL parsing");
     } else {
         cloudinary.config({ secure: true });
     }
@@ -20,11 +20,11 @@ if (process.env.CLOUDINARY_URL) {
 }
 
 export const uploadToCloudinary = async (file: File, folder: string = 'baitybites'): Promise<string> => {
-    console.log(`Starting Cloudinary upload for file: ${file.name}, size: ${file.size}`);
+    // console.log(`Starting Cloudinary upload for file: ${file.name}, size: ${file.size}`);
     const config = cloudinary.config();
     if (!config.api_key) {
-        console.error("Cloudinary Error: API Key is missing in current config!");
-        throw new Error("Cloudinary configuration failed (API Key missing)");
+        console.error("Cloudinary Error: API Key is missing. Please check CLOUDINARY_URL environment variable.");
+        throw new Error("Cloudinary configuration failed: API Key missing. Please set CLOUDINARY_URL.");
     }
     try {
         const arrayBuffer = await file.arrayBuffer();

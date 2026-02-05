@@ -1,5 +1,5 @@
-@use '../components/tabs';
-@use 'tracker';
+@use "../components/tabs";
+@use "tracker";
 
 .page_orders {
   .logo img {
@@ -77,7 +77,7 @@
 .progress-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 4px;
@@ -141,7 +141,6 @@
   color: var(--primary-900);
 }
 
-
 /* Refactored Modal Structure */
 .modal-new-header {
   display: flex;
@@ -152,10 +151,8 @@
   border-bottom: 1px solid var(--neutral-100);
 }
 
-.modal-order-info h2 {
+.modal-order-info h5 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
   color: var(--neutral-900);
 }
 
@@ -166,11 +163,11 @@
 }
 
 .modal-status-badge {
-  padding: 12px 24px;
+  padding: 0.5em 0.65em;
   border-radius: var(--radius-full);
   color: white;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
