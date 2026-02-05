@@ -41,7 +41,7 @@
 @use 'utilities/flex';
 @use 'utilities/animations';
 
-@import 'pages/profile';
+@use 'pages/profile';
 
 // Import Google Fonts (Must be after @use in Sass modules if passing through, or just use standard CSS import)
 @import url('https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap');

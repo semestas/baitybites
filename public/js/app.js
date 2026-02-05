@@ -140,7 +140,10 @@ function handleImageError(img) {
 
     div.textContent = initials;
 
-    // Retain classes from original img to ensure size matching if classes are used
+    // Retain classes and ID from original img
+    if (img.id) {
+        div.id = img.id;
+    }
     if (img.className) {
         div.className += ' ' + img.className;
     }
@@ -166,7 +169,7 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
         const response = await fetch(`${API_BASE}${endpoint}`, {
             ...options,
             headers,
-            signal: options.signal || AbortSignal.timeout(30000) // 30s timeout
+            signal: options.signal || AbortSignal.timeout(60000) // 60s timeout
         });
 
         if (!response.ok) {
@@ -182,14 +185,14 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
                 return;
             }
 
-            // Handle 504 Gateway Timeout (cold start)
-            if (response.status === 504 && retryCount < MAX_RETRIES) {
+            // Handle 504 Gateway Timeout or 503 Service Unavailable (cold start)
+            if ((response.status === 504 || response.status === 503) && retryCount < MAX_RETRIES) {
                 const delay = RETRY_DELAYS[retryCount];
                 const waitSeconds = delay / 1000;
 
-                console.log(`Server is waking up... Retry ${retryCount + 1}/${MAX_RETRIES} in ${waitSeconds}s`);
+                console.log(`Server waking up or busy (Status ${response.status}). Retry ${retryCount + 1}/${MAX_RETRIES} in ${waitSeconds}s`);
                 showNotification(
-                    `Server sedang memuat... Mencoba lagi dalam ${waitSeconds} detik (${retryCount + 1}/${MAX_RETRIES})`,
+                    `Server sedang bersiap... Mencoba lagi dalam ${waitSeconds} detik (${retryCount + 1}/${MAX_RETRIES})`,
                     'info'
                 );
 
@@ -211,24 +214,12 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
         return await response.json();
     } catch (error) {
         // Handle network errors and timeouts
-        if (error.name === 'TimeoutError' || error.message.includes('504')) {
-            if (retryCount < MAX_RETRIES) {
-                const delay = RETRY_DELAYS[retryCount];
-                const waitSeconds = delay / 1000;
-
-                console.log(`Connection timeout. Retry ${retryCount + 1}/${MAX_RETRIES} in ${waitSeconds}s`);
-                showNotification(
-                    `Koneksi timeout. Mencoba lagi dalam ${waitSeconds} detik...`,
-                    'info'
-                );
-
-                await new Promise(resolve => setTimeout(resolve, delay));
-                return apiCall(endpoint, options, retryCount + 1);
-            }
+        if (error.name === 'TimeoutError') {
+            console.error('API call timed out:', endpoint);
+            throw new Error('Koneksi lambat atau terputus. Silakan coba lagi nanti.');
         }
 
         console.error('API call failed:', error);
-        showNotification('Error: ' + error.message, 'error');
         throw error;
     }
 }

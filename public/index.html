@@ -199,31 +199,62 @@
                 if (window.lucide) lucide.createIcons();
             });
         </script>
-        <footer style="background: var(--neutral-900); color: white; padding: 4rem 0; text-align: center;">
+        <footer class="footer-main">
             <div class="container">
-                <img src="/assets/logo.png" alt="Baitybites Logo"
-                    style="height: 60px; margin-bottom: 2rem; filter: brightness(0) invert(1);">
-                <p style="color: var(--neutral-400); margin-bottom: 2rem;">Risol Mayo Premium dengan cita rasa otentik
-                    dan bahan berkualitas.</p>
-                <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem;">
-                    <a href="/order.html" style="color: white; text-decoration: none;">Pesan Sekarang</a>
-                    <a href="/track.html" style="color: white; text-decoration: none;">Lacak Pesanan</a>
-                </div>
-                <div id="footer-contact" style="margin-bottom: 2rem; color: var(--neutral-400);">
-                    <!-- Dynamic Contact Info -->
+                <div class="footer-content-wrapper">
+                    <!-- Left Section: CTA -->
+                    <div class="footer-left">
+                        <span class="footer-small-label">HUBUNGI KAMI</span>
+                        <h2 class="footer-heading">Nikmati Kelezatan<br>Risol Mayo Premium.</h2>
+
+                        <a href="https://wa.me/6285173270984" target="_blank" class="btn-footer-cta">
+                            Pesan Sekarang <i data-lucide="arrow-right"></i>
+                        </a>
+
+                        <div class="footer-email-section">
+                            <span class="footer-small-label">ATAU EMAIL KAMI</span>
+                            <div class="email-capsule">
+                                <span>id.baitybites@gmail.com</span>
+                                <button class="btn-copy-email"
+                                    onclick="navigator.clipboard.writeText('id.baitybites@gmail.com')">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Links -->
+                    <div class="footer-right">
+                        <div class="footer-nav-col">
+                            <h4>QUICK LINKS</h4>
+                            <nav>
+                                <a href="/">Home</a>
+                                <a href="/order.html">Menu Risol</a>
+                                <!-- Fixed link since filter function might not exist on home -->
+                                <a href="/order.html">Kue Kering</a>
+                                <a href="/track.html">Lacak Pesanan</a>
+                            </nav>
+                        </div>
+                        <div class="footer-nav-col">
+                            <h4>INFORMATION</h4>
+                            <nav>
+                                <a href="/tos.html">Terms of Service</a>
+                                <a href="/privacy.html">Privacy Policy</a>
+                                <a href="#">Cookies Settings</a>
+                            </nav>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="footer-socials"
-                    style="display: flex; justify-content: center; margin-bottom: 2rem; gap: 1rem; color: white;">
-                    <!-- Dynamic Social Links -->
-                </div>
-                <div style="height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 2rem;"></div>
-                <div
-                    style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; font-size: 0.9rem; color: var(--neutral-500);">
-                    <span>&copy; 2026 Baitybites. All rights reserved.</span>
-                    <a href="/privacy.html" style="color: var(--neutral-500); text-decoration: none;">Kebijakan
-                        Privasi</a>
-                    <a href="/tos.html" style="color: var(--neutral-500); text-decoration: none;">Ketentuan Layanan</a>
+                <div class="footer-divider"></div>
+
+                <div class="footer-bottom">
+                    <p class="copyright">&copy; 2026 BAITYBITES. ALL RIGHTS RESERVED.</p>
+                    <div class="footer-socials">
+                        <a href="https://instagram.com/baitybites" target="_blank"><i data-lucide="instagram"></i></a>
+                        <a href="#"><i data-lucide="facebook"></i></a>
+                        <a href="#"><i data-lucide="twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </footer>

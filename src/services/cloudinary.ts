@@ -1,17 +1,40 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-// The CLOUDINARY_URL environment variable is automatically read by the SDK
-// But we can ensure config just in case or for debugging
-cloudinary.config({
-    secure: true
-});
+// Cloudinary automatically reads CLOUDINARY_URL from env, but let's be explicit to ensure it's picked up
+if (process.env.CLOUDINARY_URL) {
+    const url = process.env.CLOUDINARY_URL;
+    const matches = url.match(/cloudinary:\/\/(\d+):([^@]+)@([^/]+)/);
+    if (matches) {
+        cloudinary.config({
+            cloud_name: matches[3],
+            api_key: matches[1],
+            api_secret: matches[2],
+            secure: true
+        });
+        console.log("Cloudinary configured via URL parsing");
+    } else {
+        cloudinary.config({ secure: true });
+    }
+} else {
+    cloudinary.config({ secure: true });
+}
 
 export const uploadToCloudinary = async (file: File, folder: string = 'baitybites'): Promise<string> => {
+    console.log(`Starting Cloudinary upload for file: ${file.name}, size: ${file.size}`);
+    const config = cloudinary.config();
+    if (!config.api_key) {
+        console.error("Cloudinary Error: API Key is missing in current config!");
+        throw new Error("Cloudinary configuration failed (API Key missing)");
+    }
     try {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
         return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('Cloudinary upload timed out (50s)'));
+            }, 50000);
+
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     folder: folder,
@@ -19,13 +42,14 @@ export const uploadToCloudinary = async (file: File, folder: string = 'baitybite
                     transformation: [
                         {
                             width: 1000,
-                            crop: 'limit', // Resize only if larger than 1000px
-                            quality: 'auto', // Automatic quality optimization
-                            fetch_format: 'auto' // Automatic format selection (WebP for modern browsers)
+                            crop: 'limit',
+                            quality: 'auto',
+                            fetch_format: 'auto'
                         }
                     ]
                 },
                 (error, result) => {
+                    clearTimeout(timeout);
                     if (error) {
                         console.error('Cloudinary error:', error);
                         return reject(error);

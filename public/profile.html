@@ -62,8 +62,8 @@
                                 </div>
                             </div>
                             <div class="profile-actions">
-                                <button type="button" onclick="toggleEditMode(true)"
-                                    class="btn btn-primary btn-save">Ubah Profil</button>
+                                <button type="button" onclick="toggleEditMode(true)" class="btn btn-primary w-full">Ubah
+                                    Profil</button>
                             </div>
                         </div>
 
@@ -71,37 +71,38 @@
                         <form id="profileForm" class="hidden">
                             <div class="avatar-container">
                                 <div class="avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
-                                    <img id="edit-avatar-preview" src="/assets/placeholder-user.png" alt="Profile"
+                                    <img id="edit-avatar-preview" src="/assets/placeholder-user.png" alt="User"
                                         class="profile-avatar">
                                     <div class="avatar-edit-icon">
-                                        <i data-lucide="camera" class="w-16 h-16"></i>
+                                        <i data-lucide="camera" class="wh-16"></i>
                                     </div>
                                 </div>
                                 <input type="file" id="avatar-input" accept="image/*" class="hidden"
                                     onchange="previewAvatar(this)">
-                                <small class="text-muted block mt-2">Klik foto untuk mengubah</small>
+                                <p class="text-muted text-xs mt-2">Klik foto untuk mengubah</p>
+                            </div>
+
+                            <div class="grid grid-2 gap-4">
+                                <div class="form-group">
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" id="name" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Nomor WhatsApp</label>
+                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Nama Lengkap</label>
-                                <input type="text" id="name" class="form-input" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
+                                <label class="form-label">Email (Tidak dapat diubah)</label>
                                 <input type="email" id="email" class="form-input bg-neutral-100 cursor-not-allowed"
                                     disabled>
-                                <small class="text-muted">Email tidak dapat diubah.</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Nomor WhatsApp</label>
-                                <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Alamat Pengiriman</label>
-                                <textarea id="address" class="form-textarea min-h-120"
+                                <textarea id="address" class="form-textarea"
                                     placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
                             </div>
 
@@ -110,7 +111,7 @@
                                     class="btn btn-outline flex-1">Batal</button>
                                 <button type="submit" class="btn btn-primary flex-2">
                                     <span id="btnText">Simpan Perubahan</span>
-                                    <div id="btnSpinner" class="spinner hidden wh-24 border-t-white"></div>
+                                    <div id="btnSpinner" class="spinner hidden wh-20 border-t-white"></div>
                                 </button>
                             </div>
                         </form>

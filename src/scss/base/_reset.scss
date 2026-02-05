@@ -26,3 +26,70 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.hidden {
+  display: none !important;
+}
+
+.block {
+  display: block !important;
+}
+
+.inline-block {
+  display: inline-block !important;
+}
+
+.wh-16 {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.wh-20 {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.wh-24 {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+.border-t-white {
+  border-top-color: white !important;
+}
+
+.no-cursor {
+  cursor: default !important;
+}
+
+.gap-1 {
+  gap: var(--spacing-xs) !important;
+}
+
+.gap-2 {
+  gap: var(--spacing-sm) !important;
+}
+
+.gap-3 {
+  gap: var(--spacing-md) !important;
+}
+
+.gap-4 {
+  gap: var(--spacing-lg) !important;
+}
+
+.flex-1 {
+  flex: 1 !important;
+}
+
+.flex-2 {
+  flex: 2 !important;
+}
+
+.flex-3 {
+  flex: 3 !important;
+}

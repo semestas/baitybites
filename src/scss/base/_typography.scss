@@ -1,37 +1,78 @@
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display);
-  margin-bottom: var(--spacing-md);
+@use "sass:math";
+
+// Typography System Configuration
+$ratio: 0.9;
+
+// MAX (desktop)
+$h1-max: 32px;
+$h1-space-max: 16px;
+
+// MIN (mobile)
+$h1-min: 26px;
+$h1-space-min: 12px;
+
+// body & small
+$p-max: 14px;
+$p-min: 13px;
+
+$small-max: 10px;
+$small-min: 10px; // fixed
+
+
+@function scale($value, $level) {
+  @return $value * math.pow($ratio, $level - 1);
 }
 
-h1 {
-  font-size: 2rem;
+@function fluid($min, $max) {
+  @return clamp($min, 4vw, $max);
 }
 
-h2 {
-  font-size: 1.75rem;
+// Global Base
+html {
+  font-size: 16px; // Base for rem if needed, but we use calc/fluid mostly
 }
 
-h3 {
-  font-size: 1.5rem;
+body {
+  font-family: var(--font-primary);
+  font-size: fluid($p-min, $p-max);
+  line-height: 1.6;
+  color: var(--neutral-800);
+  background: var(--neutral-50);
+  -webkit-font-smoothing: antialiased;
 }
 
-h4 {
-  font-size: 1.25rem;
-}
+// Header Loop
+@for $i from 1 through 6 {
 
-h5 {
-  font-size: 1.125rem;
-}
+  h#{$i},
+  .h#{$i} {
+    font-size: fluid(scale($h1-min, $i),
+        scale($h1-max, $i));
 
-h6 {
-  font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: fluid(scale($h1-space-min, $i),
+        scale($h1-space-max, $i));
+
+    line-height: 1.25;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--neutral-900);
+  }
 }
 
 p {
-  margin-bottom: var(--spacing-md);
+  font-size: fluid($p-min, $p-max);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+small,
+.text-xs {
+  font-size: fluid($small-min, $small-max);
+  line-height: 1.4;
+}
+
+strong,
+b {
+  font-weight: 700;
 }

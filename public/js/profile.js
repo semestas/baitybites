@@ -3,15 +3,34 @@
  */
 
 function toggleEditMode(isEdit) {
-    document.getElementById('profileView').style.display = isEdit ? 'none' : 'block';
-    document.getElementById('profileForm').style.display = isEdit ? 'block' : 'none';
+    const view = document.getElementById('profileView');
+    const form = document.getElementById('profileForm');
+
+    if (isEdit) {
+        view.classList.add('hidden');
+        form.classList.remove('hidden');
+    } else {
+        view.classList.remove('hidden');
+        form.classList.add('hidden');
+    }
 }
 
 function previewAvatar(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            document.getElementById('edit-avatar-preview').src = e.target.result;
+            const preview = document.getElementById('edit-avatar-preview');
+            if (preview.tagName === 'DIV') {
+                // If it was a letter avatar (DIV), replace it back with an IMG
+                const img = document.createElement('img');
+                img.id = 'edit-avatar-preview';
+                img.className = preview.className.replace('letter-avatar', 'profile-avatar');
+                img.src = e.target.result;
+                img.alt = 'Preview';
+                preview.replaceWith(img);
+            } else {
+                preview.src = e.target.result;
+            }
         }
         reader.readAsDataURL(input.files[0]);
     }
@@ -37,15 +56,29 @@ async function loadProfile() {
             document.getElementById('view-address').textContent = user.address || '-';
 
             // Set Avatar
-            const avatarUrl = user.avatar_url || '/assets/placeholder-user.png';
+            // Add a timestamp for cache busting if it's the same URL (though Cloudinary usually changes them)
+            const avatarUrl = user.avatar_url ? `${user.avatar_url}?t=${Date.now()}` : '/assets/placeholder-user.png';
+
             const viewAvatar = document.getElementById('view-avatar');
             const editAvatar = document.getElementById('edit-avatar-preview');
 
-            if (viewAvatar) viewAvatar.src = avatarUrl;
-            if (editAvatar) editAvatar.src = avatarUrl;
+            const refreshImage = (el, id) => {
+                if (!el) return;
+                if (el.tagName === 'DIV') {
+                    const img = document.createElement('img');
+                    img.id = id;
+                    img.className = el.className.replace('letter-avatar', 'profile-avatar');
+                    img.src = avatarUrl;
+                    img.alt = user.name || 'User';
+                    el.replaceWith(img);
+                } else {
+                    el.src = avatarUrl;
+                    el.alt = user.name || 'User';
+                }
+            };
 
-            // Handle image error for view avatar (fallback to initials handled by app.js global error listener)
-            if (viewAvatar) viewAvatar.alt = user.name;
+            refreshImage(viewAvatar, 'view-avatar');
+            refreshImage(editAvatar, 'edit-avatar-preview');
 
             // Fill Edit Fields
             document.getElementById('name').value = user.name || '';
@@ -76,8 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const btnText = document.getElementById('btnText');
             const btnSpinner = document.getElementById('btnSpinner');
-            btnText.style.display = 'none';
-            btnSpinner.style.display = 'inline-block';
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
 
             const formData = new FormData();
             formData.append('name', document.getElementById('name').value);
@@ -90,10 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
+                console.log('Sending profile update request...');
                 const result = await apiCall('/customer/profile', {
                     method: 'PUT',
                     body: formData
                 });
+                console.log('Profile update result:', result);
 
                 if (result.success) {
                     showNotification('Profil berhasil diperbarui!', 'success');
@@ -113,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Update profile failed:', error);
                 showNotification('Gagal memperbarui profil: ' + error.message, 'error');
             } finally {
-                btnText.style.display = 'inline-block';
-                btnSpinner.style.display = 'none';
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
             }
         });
     }

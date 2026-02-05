@@ -1,4 +1,4 @@
-const CACHE_VERSION = '1.8.1';
+const CACHE_VERSION = '1.8.2';
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
@@ -99,7 +99,18 @@ self.addEventListener('fetch', (event) => {
                 })
                 .catch(() => {
                     // If network fails, try cache
-                    return caches.match(event.request);
+                    return caches.match(event.request).then((cached) => {
+                        if (cached) return cached;
+
+                        // If it's an HTML request and both network/cache fail, show a fallback or just a 404
+                        const acceptHeader = event.request.headers.get('Accept');
+                        if (acceptHeader && acceptHeader.includes('text/html')) {
+                            return new Response('<div style="padding: 20px; font-family: sans-serif;"><h1>Offline</h1><p>Halaman ini sedang tidak tersedia secara offline.</p><a href="/">Kembali ke Beranda</a></div>', {
+                                headers: { 'Content-Type': 'text/html' }
+                            });
+                        }
+                        return new Response('Not found', { status: 404 });
+                    });
                 })
         );
         return;
@@ -134,6 +145,9 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return response;
+            }).catch(() => {
+                // Return a generic error response instead of undefined
+                return new Response('Asset not found', { status: 404 });
             });
         })
     );

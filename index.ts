@@ -32,7 +32,12 @@ const app = new Elysia()
 
         // Return JSON for API routes
         if (path.startsWith('/api')) {
-            set.status = code === 'NOT_FOUND' ? 404 : 500;
+            if (code === 'VALIDATION') {
+                set.status = 400;
+            } else {
+                set.status = code === 'NOT_FOUND' ? 404 : 500;
+            }
+
             return {
                 success: false,
                 message: (error as any).message || 'Internal Server Error',

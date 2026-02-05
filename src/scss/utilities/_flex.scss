@@ -1,32 +1,19 @@
 .flex {
-  display: flex;
+  display: flex !important;
 }
 
 .flex-col {
-  flex-direction: column;
+  flex-direction: column !important;
 }
 
 .items-center {
-  align-items: center;
+  align-items: center !important;
 }
 
 .justify-between {
-  justify-content: space-between;
+  justify-content: space-between !important;
 }
 
 .justify-center {
-  justify-content: center;
+  justify-content: center !important;
 }
-
-.gap-1 {
-  gap: var(--spacing-sm);
-}
-
-.gap-2 {
-  gap: var(--spacing-md);
-}
-
-.gap-3 {
-  gap: var(--spacing-lg);
-}
-

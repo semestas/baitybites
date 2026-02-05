@@ -391,50 +391,7 @@ BaityBites 🍰
     }
 }
 
-/**
- * Handle help request
- */
-async function handleHelpRequest(waService: WhatsAppService, phone: string) {
-    const reply = `
-🤖 *BaityBites - Bantuan*
 
-Kirim pesan dengan kata kunci:
-
-📦 *LACAK* - Cek status pesanan
-🍰 *MENU* - Lihat produk kami
-📞 *KONTAK* - Hubungi admin
-
-Or kunjungi website kami:
-https://baitybites.netlify.app
-
-Terima kasih! 💕
-    `.trim();
-
-    console.log('[Webhook] Auto-reply (help):', reply);
-    await waService.sendText(phone, reply);
-}
-
-/**
- * Handle menu request
- */
-async function handleMenuRequest(waService: WhatsAppService, phone: string) {
-    const reply = `
-🍰 *Menu BaityBites*
-
-Lihat semua produk kami di:
-https://baitybites.netlify.app
-
-📱 Pesan langsung:
-https://baitybites.netlify.app/order.html
-
-Kami menyediakan berbagai kue dan makanan lezat untuk acara spesial Anda!
-
-BaityBites - Salam Manis 💕
-    `.trim();
-
-    console.log('[Webhook] Auto-reply (menu):', reply);
-    await waService.sendText(phone, reply);
-}
 
 /**
  * Handle session status changes

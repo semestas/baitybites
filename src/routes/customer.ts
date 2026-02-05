@@ -28,10 +28,6 @@ export const customerRoutes = (db: Sql) =>
             const { name, content, rating, avatar_url, role } = body as any;
 
             try {
-                // Optional: we could enforce user login here if we wanted to link testimony to user
-                // But keeping logic similar to before where it extracts if present, but the prompt said 'not remove code referenced'.
-                // The previous code verified token manually if header existed.
-
                 await db`
                     INSERT INTO testimonials (name, content, rating, avatar_url, role, is_approved)
                     VALUES (${name}, ${content}, ${rating || 5}, ${avatar_url || null}, ${role || 'Pelanggan'}, FALSE)
@@ -93,10 +89,10 @@ export const customerRoutes = (db: Sql) =>
                     message: 'Profil berhasil diperbarui',
                     data: customer
                 };
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Profile update error:', error);
                 set.status = 500;
-                return { success: false, message: 'Gagal memperbarui profil' };
+                return { success: false, message: 'Gagal memperbarui profil: ' + error.message };
             }
         }, {
             body: t.Object({

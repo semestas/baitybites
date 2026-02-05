@@ -5,235 +5,153 @@
 
 let products = [];
 let quantities = {};
+let localQuantities = {};
+let currentCategory = 'Risol';
 
-async function autoFillUser() {
-    const { apiCall } = window.app;
+// Helper to check valid input (not empty, not just a dash)
+const isValidField = (val) => val && val.trim().length > 2 && val.trim() !== '-';
 
-    // 1. Initialize DOM elements immediately
+// Load initial quantities from localStorage
+const savedCart = localStorage.getItem('baitybites_cart');
+if (savedCart) {
+    try {
+        quantities = JSON.parse(savedCart);
+        localQuantities = { ...quantities }; // Init local staging with saved quantities
+    } catch (e) {
+        console.error('Failed to parse saved cart');
+        quantities = {};
+    }
+}
+
+function saveCart() {
+    localStorage.setItem('baitybites_cart', JSON.stringify(quantities));
+    checkResumeCart();
+}
+
+function clearCart() {
+    console.log('Cart successfully cleared');
+    quantities = {};
+    localQuantities = {};
+    saveCart();
+    updateTotal();
+    renderProducts();
+}
+
+function clearCartConfirm() {
+    if (confirm('Apakah Anda yakin ingin menghapus semua item di keranjang?')) {
+        clearCart();
+    }
+}
+
+function checkResumeCart() {
+    const warning = document.getElementById('resume-cart-warning');
+    const totalItems = Object.values(quantities).reduce((a, b) => a + Number(b), 0);
+    const productList = document.getElementById('productList');
+
+    // Only show if we are in product list view
+    const isListView = productList && !productList.classList.contains('hidden') && productList.style.display !== 'none';
+
+    if (totalItems > 0 && warning && isListView) {
+        warning.classList.remove('hidden');
+        warning.style.display = 'block';
+    } else if (warning) {
+        warning.classList.add('hidden');
+        warning.style.display = 'none';
+    }
+}
+
+function checkFormValidity() {
     const nameEl = document.getElementById('name');
-    const emailEl = document.getElementById('email');
     const phoneEl = document.getElementById('phone');
     const addressEl = document.getElementById('address');
     const submitBtn = document.querySelector('button[type="submit"]');
 
-    // 2. Default State: Disable Button immediately
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
-        submitBtn.style.cursor = 'not-allowed';
-    }
+    if (!nameEl || !phoneEl || !addressEl || !submitBtn) return false;
 
-    // 3. Define Validation Logic (Global to this function scope)
-    const isValidField = (val) => val && val.trim().length > 2 && val.trim() !== '-';
+    const isNameValid = isValidField(nameEl.value);
+    const isPhoneValid = isValidField(phoneEl.value);
+    const isAddressValid = isValidField(addressEl.value) && addressEl.value.trim().length > 5;
 
-    const checkFormValidity = () => {
-        if (!nameEl || !phoneEl || !addressEl || !submitBtn) return false;
+    const isValid = isNameValid && isPhoneValid && isAddressValid;
 
-        const isNameValid = isValidField(nameEl.value);
-        const isPhoneValid = isValidField(phoneEl.value);
-        const isAddressValid = isValidField(addressEl.value) && addressEl.value.trim().length > 5;
+    submitBtn.disabled = !isValid;
+    submitBtn.style.opacity = isValid ? '1' : '0.5';
+    submitBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
 
-        const isValid = isNameValid && isPhoneValid && isAddressValid;
+    return isValid;
+}
 
-        submitBtn.disabled = !isValid;
-        submitBtn.style.opacity = isValid ? '1' : '0.5';
-        submitBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
-
-        return isValid;
-    };
-
-    // 4. Attach Listeners immediately
-    if (nameEl && phoneEl && addressEl) {
-        [nameEl, phoneEl, addressEl].forEach(el => el.addEventListener('input', checkFormValidity));
-    }
-
-    let userStr = localStorage.getItem('user');
+async function autoFillUser() {
+    const { apiCall } = window.app;
+    const userStr = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
-    if (token && !userStr) {
-        try {
-            const result = await apiCall('/auth/me');
-            if (result && result.success) {
-                localStorage.setItem('user', JSON.stringify(result.data));
-                userStr = JSON.stringify(result.data);
-            }
-        } catch (e) {
-            console.error('Failed to fetch user during auto-fill');
-        }
-    }
-
-    if (userStr) {
+    if (userStr && token) {
         try {
             const user = JSON.parse(userStr);
+            if (user.role === 'customer') {
+                const nameEl = document.getElementById('name');
+                const emailEl = document.getElementById('email');
+                const phoneEl = document.getElementById('phone');
+                const addressEl = document.getElementById('address');
 
-            // Block admins from placing orders
-            if (user.role === 'admin') {
-                showAdminWarning();
-                return;
-            }
+                if (nameEl) nameEl.value = user.name || '';
+                if (emailEl) emailEl.value = user.email || '';
+                if (phoneEl) phoneEl.value = user.phone || '';
+                if (addressEl) addressEl.value = user.address || '';
 
-            if (user.role === 'customer' || user.role === 'guest') {
-                // Elements already initialized in outer scope
+                const formFields = document.getElementById('customer-form-fields');
+                const preview = document.getElementById('customer-info-preview');
 
-
-                if (user.name && nameEl) nameEl.value = user.name;
-                if (user.email && emailEl) emailEl.value = user.email;
-                if (user.phone && phoneEl) phoneEl.value = user.phone;
-                if (user.address && addressEl) addressEl.value = user.address;
-
-                // Helper to check valid input (not empty, not just a dash)
-                const isValidField = (val) => val && val.trim().length > 2 && val.trim() !== '-';
-
-                // Validation function
-                const checkFormValidity = () => {
-                    const isNameValid = nameEl ? isValidField(nameEl.value) : false;
-                    const isPhoneValid = phoneEl ? isValidField(phoneEl.value) : false;
-                    // Address is critical, ensure it's substantial
-                    const isAddressValid = addressEl ? (isValidField(addressEl.value) && addressEl.value.trim().length > 5) : false;
-
-                    const isValid = isNameValid && isPhoneValid && isAddressValid;
-
-                    if (submitBtn) {
-                        submitBtn.disabled = !isValid;
-                        submitBtn.style.opacity = isValid ? '1' : '0.5';
-                        submitBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
-                    }
-
-                    return isValid;
-                };
-
-                // Add listeners
-                // Listeners already attached in outer scope
-
-
-                // Initial check
-                const formValid = checkFormValidity();
-
-                // Only show preview if ALL mandatory fields are strictly valid
-                const userAddressValid = isValidField(user.address) && user.address.trim().length > 5;
-                const userPhoneValid = isValidField(user.phone);
-                const userNameValid = isValidField(user.name);
-
-                if (user.role === 'customer' && userNameValid && userPhoneValid && userAddressValid) {
-                    const formFields = document.getElementById('customer-form-fields');
-                    const preview = document.getElementById('customer-info-preview');
-
-                    if (formFields) formFields.style.display = 'none';
-                    if (preview) {
+                if (formFields && preview) {
+                    if (user.name && user.phone && user.address) {
+                        formFields.classList.add('hidden');
+                        formFields.style.display = 'none';
+                        preview.classList.remove('hidden');
                         preview.style.display = 'block';
-
-                        const pName = document.getElementById('preview-name');
-                        const pPhone = document.getElementById('preview-phone');
-                        const pEmail = document.getElementById('preview-email');
-                        const pAddress = document.getElementById('preview-address');
-
-                        if (pName) pName.textContent = user.name;
-                        if (pPhone) pPhone.textContent = user.phone;
-                        if (pEmail) pEmail.textContent = user.email || '-';
-                        if (pAddress) pAddress.textContent = user.address;
+                        document.getElementById('preview-name').textContent = user.name;
+                        document.getElementById('preview-phone').textContent = user.phone;
+                        document.getElementById('preview-address').textContent = user.address;
                     }
-
-                    // Enable button if preview is shown (assumed valid)
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.style.opacity = '1';
-                        submitBtn.style.cursor = 'pointer';
-                    }
-                } else {
-                    // Force form edit if incomplete or invalid (like just a dash)
-                    const formFields = document.getElementById('customer-form-fields');
-                    const preview = document.getElementById('customer-info-preview');
-
-                    if (formFields) formFields.style.display = 'block';
-                    if (preview) preview.style.display = 'none';
-
-                    // Re-run check on the visual form elements
-                    checkFormValidity();
                 }
-
-                if (user.email && user.role === 'customer' && (user.google_id || user.auth_provider === 'google') && emailEl) {
-                    emailEl.disabled = true;
-                }
-
-                // First-time notice logic
-                if (user.role === 'customer' && (!user.phone || !user.address)) {
-                    if (!document.getElementById('google-first-login-notice')) {
-                        const notice = document.createElement('div');
-                        notice.id = 'google-first-login-notice';
-                        notice.className = 'info-box mb-4 animate-fade-in';
-                        notice.style.cssText = `
-                            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                            padding: 1.25rem;
-                            border-radius: 1rem;
-                            font-size: 0.9rem;
-                            color: #0369a1;
-                            border: 1px solid #bae6fd;
-                            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                        `;
-
-                        notice.innerHTML = `
-                            <div style="display: flex; gap: 1rem; align-items: start; text-align: left;">
-                                <div style="font-size: 1.5rem; color: #0ea5e9;"><i data-lucide="sparkles"></i></div>
-                                <div>
-                                    <p style="margin: 0 0 0.5rem 0; font-weight: 700;">Halo ${user.name || 'Pelanggan'}, Terima kasih telah menjadi pelanggan setia Baitybites!</p>
-                                    <p style="margin: 0;">Kami perhatikan ini adalah login pertama Anda melalui akun Google. Silakan <strong>lengkapi semua data diri</strong> pada form di bawah ini agar sistem kami dapat langsung <strong>mengaitkan data tersebut ke akun Google Anda</strong>. Selamat berbelanja!</p>
-                                </div>
+            } else if (user.role === 'admin') {
+                const container = document.querySelector('.order-page-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="card text-center p-6 animate-fade-in" style="margin: 4rem auto; max-width: 600px; border: 2px solid #fda4af; background: #fff1f2;">
+                            <div style="font-size: 4rem; margin-bottom: 2rem; color: #e11d48;"><i data-lucide="lock"></i></div>
+                            <h2 style="margin-bottom: 1.5rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
+                            <p style="font-size: 1.1rem; margin-bottom: 3rem; line-height: 1.6; color: #9f1239;">
+                                Demi integritas data, akun <strong>Administrator</strong> dilarang membuat pesanan.<br>
+                                Gunakan akun pelanggan untuk transaksi asli.
+                            </p>
+                            <div class="flex flex-col gap-4" style="max-width: 320px; margin: 0 auto;">
+                                <a href="/dashboard.html" class="btn btn-primary" style="width: 100%;">Ke Dashboard</a>
+                                <button onclick="logout()" class="btn btn-outline" style="width: 100%;">Logout & Pesan Kembali</button>
                             </div>
-                        `;
-
-                        const form = document.getElementById('orderForm');
-                        if (form) form.parentNode.insertBefore(notice, form);
-                    }
+                        </div>
+                    `;
                     if (window.lucide) lucide.createIcons();
                 }
             }
         } catch (e) {
-            console.error('Failed to parse user for auto-fill', e);
+            console.error('Auto-fill error:', e);
         }
     }
 }
 
-function showAdminWarning() {
-    const orderForm = document.getElementById('orderForm');
-    const loyaltyNotice = document.getElementById('loyalty-notice');
-    if (loyaltyNotice) loyaltyNotice.style.display = 'none';
-
-    const warning = document.createElement('div');
-    warning.className = 'animate-fade-in';
-    warning.style.cssText = `
-        background: #fff1f2;
-        border: 2px solid #fda4af;
-        border-radius: 1.5rem;
-        padding: 3rem 2rem;
-        text-align: center;
-        color: #9f1239;
-        margin: 2rem 0;
-    `;
-    warning.innerHTML = `
-        <div style="font-size: 4rem; margin-bottom: 1rem; color: #e11d48;"><i data-lucide="lock" size="64"></i></div>
-        <h2 style="margin-bottom: 1rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
-        <p style="font-size: 1.1rem; margin-bottom: 2rem;">
-            Untuk menjaga integritas rekapitulasi data transaksi, akun <strong>Administrator</strong> tidak diperbolehkan membuat pesanan.<br>
-            Pastikan data laporan 100% berasal dari transaksi pelanggan asli.
-        </p>
-        <div class="flex flex-col gap-3" style="max-width: 300px; margin: 0 auto;">
-            <a href="/dashboard.html" class="btn btn-primary" style="width: 100%;">Kembali ke Dashboard</a>
-            <button onclick="logout()" class="btn btn-outline" style="width: 100%; border-color: #fda4af; color: #9f1239;">Logout & Pesan sbg Pelanggan</button>
-        </div>
-    `;
-
-    if (orderForm) {
-        orderForm.parentNode.replaceChild(warning, orderForm);
-        if (window.lucide) lucide.createIcons();
+function showOrderFormEdit() {
+    const formFields = document.getElementById('customer-form-fields');
+    const preview = document.getElementById('customer-info-preview');
+    if (formFields) {
+        formFields.classList.remove('hidden');
+        formFields.style.display = 'block';
+    }
+    if (preview) {
+        preview.classList.add('hidden');
+        preview.style.display = 'none';
     }
 }
-
-function showOrderFormEdit() {
-    document.getElementById('customer-form-fields').style.display = 'block';
-    document.getElementById('customer-info-preview').style.display = 'none';
-}
-
-let currentCategory = 'Risol';
 
 async function loadProducts() {
     const { apiCall } = window.app;
@@ -242,17 +160,19 @@ async function loadProducts() {
         if (result.success) {
             products = result.data;
             renderProducts();
+            updateTotal();
+            checkResumeCart();
         }
     } catch (error) {
         console.error('Load products error:', error);
     }
 }
 
-let localQuantities = {};
-
 function renderProducts() {
     const { formatCurrency } = window.app;
     const list = document.getElementById('productList');
+
+    if (!list) return;
 
     if (products.length === 0) {
         list.innerHTML = '<p class="text-center p-3 text-muted">Produk tidak tersedia.</p>';
@@ -261,52 +181,51 @@ function renderProducts() {
 
     const filtered = products.filter(p => p.category === currentCategory);
 
-    if (filtered.length === 0) {
-        list.innerHTML = `<p class="text-center p-5 text-muted" style="grid-column: 1/-1">Belum ada produk di kategori ${currentCategory}.</p>`;
-        return;
-    }
-
     list.innerHTML = filtered.map(p => {
-        // Sync local with cart if not set (or on first load)
-        if (localQuantities[p.id] === undefined) {
-            localQuantities[p.id] = quantities[p.id] || 0;
-        }
+        const currentQty = localQuantities[p.id] || 0;
+        const inCartQty = quantities[p.id] || 0;
+        const hasChanged = currentQty !== inCartQty;
+        const inCart = inCartQty > 0;
 
-        const currentQty = localQuantities[p.id];
-        const inCart = (quantities[p.id] || 0) > 0;
-        const isZero = currentQty === 0;
+        let btnLabel = 'Tambahkan';
+        let btnClass = 'btn-add-cart';
+        if (currentQty === 0) {
+            // Disabled state
+        } else if (hasChanged) {
+            btnLabel = inCart ? 'Update Keranjang' : 'Tambahkan';
+            btnClass += ' animate-dizzy';
+        } else if (inCart) {
+            btnLabel = 'Dalam Keranjang';
+            btnClass += ' added';
+        }
 
         return `
             <div class="product-card animate-fade-in">
-                <div class="product-image-wrapper">
-                    <img src="${p.image_url || '/assets/placeholder-product.png'}" alt="${p.name}" onerror="this.onerror=null;this.src='/assets/placeholder-product.png'">
-                    ${inCart ? '<div class="product-badge"><i data-lucide="shopping-cart" size="14"></i></div>' : ''}
+                <div class="product-image">
+                    <img src="${p.image_url || 'https://via.placeholder.com/300x200?text=BaityBites'}" alt="${p.name}">
+                    <div class="product-badge">${p.category}</div>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-title">${p.name}</h3>
+                    <h3 class="product-name">${p.name}</h3>
                     <p class="product-desc">${p.description}</p>
-                    
                     <div class="product-price-row">
-                        <div class="price-wrapper">
-                            <span class="price">${formatCurrency(p.price)}</span>
-                            <span class="unit">/${p.unit || 'pak'}</span>
-                        </div>
+                        <span class="price">${formatCurrency(p.price)}</span>
+                        <span class="unit">/${p.unit}</span>
                     </div>
-
-                    <div class="product-actions" id="actions-${p.id}">
-                        <div class="qty-selector">
-                            <button type="button" onclick="adjustQty(${p.id}, -1)">-</button>
+                    <div class="product-actions">
+                        <div class="qty-control">
+                            <button type="button" class="btn-qty" onclick="adjustQty(${p.id}, -1)">
+                                <i data-lucide="minus" class="wh-16"></i>
+                            </button>
                             <span class="qty-value" id="qty-${p.id}">${currentQty}</span>
-                            <button type="button" onclick="adjustQty(${p.id}, 1)">+</button>
+                            <button type="button" class="btn-qty" onclick="adjustQty(${p.id}, 1)">
+                                <i data-lucide="plus" class="wh-16"></i>
+                            </button>
                         </div>
-                        <button type="button" 
-                                id="btn-add-${p.id}"
-                                class="btn-add ${inCart ? 'added' : ''}" 
-                                onclick="addToCart(${p.id})"
-                                ${isZero ? 'disabled' : ''}
-                                style="${isZero ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
-                            ${inCart ? 'Update Keranjang' : 'Tambahkan'}
-                        </button>
+                        <button type="button" id="btn-add-${p.id}" 
+                            class="${btnClass}"
+                            ${currentQty === 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}
+                            onclick="addToCart(${p.id})">${btnLabel}</button>
                     </div>
                 </div>
             </div>
@@ -329,15 +248,12 @@ function filterProducts(category) {
     renderProducts();
 }
 
-// Adjusts the local visible quantity ONLY
 function adjustQty(id, delta) {
     if (localQuantities[id] === undefined) localQuantities[id] = 0;
 
-    // Prevent negative
     const newVal = Math.max(0, localQuantities[id] + delta);
     localQuantities[id] = newVal;
 
-    // Update UI elements
     const qtyEl = document.getElementById(`qty-${id}`);
     const btnAdd = document.getElementById(`btn-add-${id}`);
 
@@ -348,68 +264,83 @@ function adjustQty(id, delta) {
             btnAdd.disabled = true;
             btnAdd.style.opacity = '0.5';
             btnAdd.style.cursor = 'not-allowed';
-            btnAdd.textContent = 'Tambahkan'; // Reset text if 0
-            btnAdd.classList.remove('added');
+            btnAdd.textContent = 'Tambahkan';
+            btnAdd.classList.remove('added', 'pulse-once', 'animate-dizzy');
         } else {
             btnAdd.disabled = false;
             btnAdd.style.opacity = '1';
             btnAdd.style.cursor = 'pointer';
 
-            // Allow user to see they can update/add
-            const inCart = (quantities[id] || 0) > 0;
-            btnAdd.textContent = inCart ? 'Update Keranjang' : 'Tambahkan';
+            const inCartValue = quantities[id] || 0;
+            const hasChanged = newVal !== inCartValue;
+
+            if (hasChanged) {
+                btnAdd.classList.add('animate-dizzy');
+                btnAdd.textContent = inCartValue > 0 ? 'Update Keranjang' : 'Tambahkan';
+
+                // Pulse feedback
+                btnAdd.classList.remove('pulse-once');
+                void btnAdd.offsetWidth;
+                btnAdd.classList.add('pulse-once');
+            } else {
+                btnAdd.classList.remove('animate-dizzy');
+                btnAdd.textContent = inCartValue > 0 ? 'Dalam Keranjang' : 'Tambahkan';
+            }
+
+            if (inCartValue > 0 && !hasChanged) {
+                btnAdd.classList.add('added');
+            } else {
+                btnAdd.classList.remove('added');
+            }
         }
     }
 }
 
-// Commits the local quantity to the actual cart
 function addToCart(id) {
     const val = localQuantities[id];
-
-    if (val === 0) return; // Should be handled by disabled state, but safety check
-
+    if (val === 0) return;
     quantities[id] = val;
+    saveCart();
 
-    // Visual feedback
     const btnAdd = document.getElementById(`btn-add-${id}`);
     if (btnAdd) {
-        const originalText = btnAdd.textContent;
         btnAdd.textContent = 'Berhasil!';
         btnAdd.classList.add('added');
-
+        btnAdd.classList.remove('animate-dizzy', 'pulse-once');
         setTimeout(() => {
-            btnAdd.textContent = 'Update Keranjang';
-        }, 1000);
+            btnAdd.textContent = 'Dalam Keranjang';
+        }, 1200);
     }
-
     updateTotal();
 }
 
 function updateTotal() {
-    const { formatCurrency } = window.app;
     let total = 0;
     let count = 0;
+    const { formatCurrency } = window.app;
 
-    products.forEach(p => {
-        const qty = quantities[p.id] || 0;
-        total += qty * p.price;
-        count += qty;
+    Object.keys(quantities).forEach(id => {
+        const p = products.find(x => x.id == id);
+        if (p) {
+            total += p.price * quantities[id];
+            count += quantities[id];
+        }
     });
 
-    // Update Sticky Bar
     const bar = document.getElementById('stickySummaryBar');
     const stickyTotal = document.getElementById('stickyTotal');
     const stickyCount = document.getElementById('stickyCount');
 
-    if (count > 0) {
-        bar.classList.add('visible');
-        stickyTotal.textContent = formatCurrency(total);
-        stickyCount.textContent = count + ' Items';
-    } else {
-        bar.classList.remove('visible');
+    if (bar) {
+        if (count > 0) {
+            bar.classList.add('visible');
+            if (stickyTotal) stickyTotal.textContent = formatCurrency(total);
+            if (stickyCount) stickyCount.textContent = count + ' Items';
+        } else {
+            bar.classList.remove('visible');
+        }
     }
 
-    // Update Summary Table (if visible)
     const summarySubtotal = document.getElementById('summary-subtotal');
     const summaryTotal = document.getElementById('summary-total');
     if (summarySubtotal) summarySubtotal.textContent = formatCurrency(total);
@@ -417,64 +348,46 @@ function updateTotal() {
 }
 
 function proceedToConfirmation() {
-    // Fill summary table
     const { formatCurrency } = window.app;
     const tbody = document.getElementById('summary-items');
     const selectedItems = products.filter(p => (quantities[p.id] || 0) > 0);
 
-    tbody.innerHTML = selectedItems.map(p => `
-        <div class="summary-table-row">
-            <div class="summary-table-row-text">
-                <strong>${p.name}</strong><br>
-                <small class="text-muted">${formatCurrency(p.price)}</small>
+    if (tbody) {
+        tbody.innerHTML = selectedItems.map(p => `
+            <div class="summary-table-row">
+                <div class="summary-table-row-text">
+                    <strong>${p.name}</strong><br>
+                    <small class="text-muted">${formatCurrency(p.price)}</small>
+                </div>
+                <div class="summary-table-row-text">${quantities[p.id]}x</div>
+                <div class="summary-table-row-text">${formatCurrency(quantities[p.id] * p.price)}</div>
             </div>
-            <div class="summary-table-row-text">${quantities[p.id]}x</div>
-            <div class="summary-table-row-text">${formatCurrency(quantities[p.id] * p.price)}</div>
-        </div>
-    `).join('');
+        `).join('');
+    }
 
-    // Switch view
-    document.getElementById('categoryTabs').style.display = 'none';
-    document.getElementById('productList').style.display = 'none';
-    document.getElementById('stickySummaryBar').classList.remove('visible');
-    document.getElementById('order-confirmation-section').style.display = 'block';
+    const bar = document.getElementById('stickySummaryBar');
+    const confirmSection = document.getElementById('order-confirmation-section');
+    const warning = document.getElementById('resume-cart-warning');
 
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (bar) bar.classList.remove('visible');
+    if (warning) warning.classList.add('hidden');
+
+    if (confirmSection) {
+        confirmSection.classList.remove('hidden');
+        confirmSection.style.display = 'flex'; // Modal overlay uses flex
+        document.body.style.overflow = 'hidden'; // Lock scroll
+    }
 }
 
 function backToProductList() {
-    document.getElementById('categoryTabs').style.display = 'flex';
-    document.getElementById('productList').style.display = 'grid';
-    document.getElementById('order-confirmation-section').style.display = 'none';
-    updateTotal(); // Re-show sticky bar if count > 0
-}
-
-function showAdminWarning() {
-    const mainContainer = document.querySelector('.order-page-container');
-    const loyaltyNotice = document.getElementById('loyalty-notice');
-    if (loyaltyNotice) loyaltyNotice.style.display = 'none';
-
-    mainContainer.innerHTML = `
-        <div class="card animate-fade-in" style="margin: 2rem auto; max-width: 600px; padding: 4rem 2rem; text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 2rem; color: #e11d48;"><i data-lucide="lock" size="64"></i></div>
-            <h2 style="margin-bottom: 1.5rem; color: #9f1239;">Akses Administrator Dideteksi</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 3rem; line-height: 1.6; color: #9f1239;">
-                Demi integritas data, akun <strong>Administrator</strong> dilarang membuat pesanan.<br>
-                Gunakan akun pelanggan untuk transaksi asli.
-            </p>
-            <div class="flex flex-col gap-4" style="max-width: 320px; margin: 0 auto;">
-                <a href="/dashboard.html" class="btn btn-primary" style="width: 100%;">Ke Dashboard</a>
-                <button onclick="logout()" class="btn btn-outline" style="width: 100%;">Logout & Pesan Kembali</button>
-            </div>
-        </div>
-    `;
-    if (window.lucide) lucide.createIcons();
-}
-
-function showOrderFormEdit() {
-    document.getElementById('customer-form-fields').style.display = 'block';
-    document.getElementById('customer-info-preview').style.display = 'none';
+    const confirmSection = document.getElementById('order-confirmation-section');
+    if (confirmSection) {
+        confirmSection.classList.add('hidden');
+        confirmSection.style.display = 'none';
+        document.body.style.overflow = ''; // Unlock scroll
+    }
+    updateTotal();
+    checkResumeCart();
 }
 
 async function loadRecentOrders() {
@@ -485,13 +398,17 @@ async function loadRecentOrders() {
 
     const section = document.getElementById('recentOrdersSection');
     const list = document.getElementById('recentOrdersList');
+    const productList = document.getElementById('productList');
+
+    if (!section || !list || !productList) return;
 
     // Recent orders should only show when in product list view
-    if (document.getElementById('productList').style.display === 'none') {
-        section.style.display = 'none';
+    if (productList.classList.contains('hidden') || productList.style.display === 'none') {
+        section.classList.add('hidden');
         return;
     }
 
+    section.classList.remove('hidden');
     section.style.display = 'block';
 
     try {
@@ -502,8 +419,10 @@ async function loadRecentOrders() {
                 return;
             }
 
-            list.innerHTML = result.data.slice(0, 5).map(o => `
-                <div class="recent-orders-item">
+            list.innerHTML = result.data.slice(0, 5).map(o => {
+                const isOrderPending = ['pending', 'confirmed', 'paid', 'production', 'packaging', 'shipping'].includes(o.status);
+                return `
+                <div class="recent-orders-item ${isOrderPending ? 'is-pending' : ''}">
                     <div class="order-main-info">
                         <div class="order-header-row">
                             <h4>${o.order_number}</h4>
@@ -516,7 +435,8 @@ async function loadRecentOrders() {
                     </div>
                     <a href="/track.html?number=${o.invoice_number || o.order_number}" class="btn btn-outline btn-sm btn-track-action">Lacak</a>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
     } catch (e) {
         console.error('Failed to load recent orders:', e);
@@ -526,20 +446,22 @@ async function loadRecentOrders() {
 function toggleRecentOrders() {
     const body = document.getElementById('recentOrdersBody');
     const chevron = document.getElementById('recentOrdersChevron');
+    if (!body) return;
 
-    // We assume default is visible (display: block or empty)
-    const isHidden = body.style.display === 'none';
+    const isHidden = body.classList.contains('hidden') || body.style.display === 'none';
 
     if (isHidden) {
+        body.classList.remove('hidden');
         body.style.display = 'block';
         if (chevron) chevron.style.transform = 'rotate(0deg)';
     } else {
+        body.classList.add('hidden');
         body.style.display = 'none';
         if (chevron) chevron.style.transform = 'rotate(180deg)';
     }
 }
 
-// Global scope for onclick handlers
+// Global scope
 window.adjustQty = adjustQty;
 window.addToCart = addToCart;
 window.filterProducts = filterProducts;
@@ -548,6 +470,7 @@ window.backToProductList = backToProductList;
 window.showOrderFormEdit = showOrderFormEdit;
 window.loadRecentOrders = loadRecentOrders;
 window.toggleRecentOrders = toggleRecentOrders;
+window.clearCartConfirm = clearCartConfirm;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await autoFillUser();
@@ -557,7 +480,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loyaltyNotice = document.getElementById('loyalty-notice');
 
     if (loyaltyNotice) {
-        loyaltyNotice.style.display = (!token && !userStr) ? 'block' : 'none';
+        if (!token && !userStr) {
+            loyaltyNotice.classList.remove('hidden');
+            loyaltyNotice.style.display = 'block';
+        } else {
+            loyaltyNotice.classList.add('hidden');
+            loyaltyNotice.style.display = 'none';
+        }
     }
 
     await loadProducts();
@@ -586,8 +515,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const btnText = document.getElementById('btnText');
             const btnSpinner = document.getElementById('btnSpinner');
-            btnText.style.display = 'none';
-            btnSpinner.style.display = 'inline-block';
+            if (btnText) btnText.classList.add('hidden');
+            if (btnSpinner) btnSpinner.classList.remove('hidden');
 
             const payload = {
                 name: document.getElementById('name').value,
@@ -605,6 +534,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 if (result.success) {
+                    const confirmSection = document.getElementById('order-confirmation-section');
+                    if (confirmSection) {
+                        confirmSection.classList.add('hidden');
+                        confirmSection.style.display = 'none';
+                    }
+                    document.body.style.overflow = ''; // Unlock scroll
+
                     document.getElementById('successOrderNumber').textContent = result.data.order_number;
                     document.getElementById('successInvoiceNumber').textContent = result.data.invoice_number;
                     document.getElementById('btnTrackLink').href = '/track.html?number=' + (result.data.invoice_number || result.data.order_number);
@@ -614,15 +550,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showNotification('Nomor order berhasil dicopy!', 'success');
                     };
 
+                    document.getElementById('successModal').classList.remove('hidden');
                     document.getElementById('successModal').style.display = 'flex';
+
+                    // Reset all cart states
+                    clearCart();
+
                     loadRecentOrders();
                 }
             } catch (error) {
                 console.error('Order submission failed:', error);
                 showNotification('Gagal membuat pesanan.', 'error');
             } finally {
-                btnText.style.display = 'inline-block';
-                btnSpinner.style.display = 'none';
+                if (btnText) btnText.classList.remove('hidden');
+                if (btnSpinner) btnSpinner.classList.add('hidden');
             }
         });
     }
