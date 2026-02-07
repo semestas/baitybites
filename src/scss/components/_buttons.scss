@@ -95,3 +95,44 @@
   font-size: 1.125rem;
 }
 
+// AI Enhancement Button
+.btn-ai-magic {
+  color: var(--primary-500);
+  background: rgba(var(--primary-rgb, 140, 70, 20), 0.1); // Fallback if rgb var not set
+  border: 1px solid rgba(var(--primary-rgb, 140, 70, 20), 0.2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all var(--transition-base, 0.2s);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-500);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.loading i {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

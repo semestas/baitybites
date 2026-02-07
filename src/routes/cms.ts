@@ -1,10 +1,25 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
+import { AIService } from '../services/ai';
 import { InstagramService } from '../services/instagram';
 import { uploadToCloudinary } from '../services/cloudinary';
 
-export const cmsRoutes = (db: Sql) =>
+export const cmsRoutes = (db: Sql, aiService: AIService) =>
     new Elysia({ prefix: '/cms' })
+        .post('/ai/enhance', async ({ body }: { body: any }) => {
+            const { content, context } = body;
+            try {
+                const enhanced = await aiService.enhanceContent(content, context);
+                return { success: true, data: enhanced };
+            } catch (error: any) {
+                return { success: false, message: error.message };
+            }
+        }, {
+            body: t.Object({
+                content: t.String(),
+                context: t.String()
+            })
+        })
         .get('/stats', async () => {
             const [stats] = await db`
                 SELECT 
@@ -552,7 +567,11 @@ export const cmsRoutes = (db: Sql) =>
         .get('/settings', async () => {
             const settingsList = await db`
                 SELECT key, value FROM settings 
-                WHERE key IN ('contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok')
+                WHERE key IN (
+                    'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 
+                    'social_instagram', 'social_facebook', 'social_tiktok',
+                    'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
+                )
             `;
 
             const settings = settingsList.reduce((acc: any, curr: any) => {
@@ -563,7 +582,11 @@ export const cmsRoutes = (db: Sql) =>
             return { success: true, data: settings };
         })
         .put('/settings', async ({ body }: { body: any }) => {
-            const keys = ['contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
+            const keys = [
+                'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address',
+                'social_instagram', 'social_facebook', 'social_tiktok',
+                'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
+            ];
 
             await db.begin(async (sql: any) => {
                 for (const key of keys) {
@@ -586,6 +609,12 @@ export const cmsRoutes = (db: Sql) =>
                 contact_address: t.Optional(t.String()),
                 social_instagram: t.Optional(t.String()),
                 social_facebook: t.Optional(t.String()),
-                social_tiktok: t.Optional(t.String())
+                social_tiktok: t.Optional(t.String()),
+                hero_greeting: t.Optional(t.String()),
+                hero_title: t.Optional(t.String()),
+                hero_description: t.Optional(t.String()),
+                hero_background_url: t.Optional(t.String()),
+                hero_button_text: t.Optional(t.String()),
+                hero_button_link: t.Optional(t.String())
             })
         });

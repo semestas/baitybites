@@ -13,6 +13,7 @@ import { googleAuthRoutes } from "./src/routes/google-auth";
 import { InstagramService } from "./src/services/instagram";
 import { WhatsAppService } from "./src/services/whatsapp";
 import { webhookRoutes } from "./src/routes/webhooks";
+import { AIService } from "./src/services/ai";
 
 // Initialize database
 const db = await initDatabase();
@@ -21,6 +22,7 @@ const PUBLIC_DIR = join(import.meta.dir, "public");
 // Initialize services
 const waService = new WhatsAppService(db);
 const igService = new InstagramService(db);
+const aiService = new AIService();
 
 // Create Elysia app
 const app = new Elysia()
@@ -76,7 +78,7 @@ const app = new Elysia()
             .use(customerRoutes(db))
             .use(authRoutes(db))
             .use(publicRoutes(db))
-            .use(cmsRoutes(db))
+            .use(cmsRoutes(db, aiService))
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
             .use(webhookRoutes(db, waService))

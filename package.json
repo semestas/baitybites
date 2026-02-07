@@ -31,6 +31,7 @@
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/jwt": "^1.4.0",
+    "@google/generative-ai": "^0.24.1",
     "arctic": "^3.7.0",
     "cloudinary": "^2.9.0",
     "crypto-js": "^4.2.0",

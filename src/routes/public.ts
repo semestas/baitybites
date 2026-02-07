@@ -164,7 +164,11 @@ export const publicRoutes = (db: Sql) =>
         .get('/settings', async () => {
             const settingsList = await db`
                 SELECT key, value FROM settings 
-                WHERE key IN ('contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok')
+                WHERE key IN (
+                    'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 
+                    'social_instagram', 'social_facebook', 'social_tiktok',
+                    'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
+                )
             `;
             const settings = settingsList.reduce((acc: any, curr: any) => {
                 acc[curr.key] = curr.value;

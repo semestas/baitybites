@@ -156,6 +156,47 @@ async function loadContent() {
             `).join('');
             if (window.app && window.app.initIcons) window.app.initIcons();
         }
+
+        // 3. Load Hero Settings
+        const settingsRes = await apiCall('/public/settings').catch(() => ({ success: false }));
+        if (settingsRes.success) {
+            const s = settingsRes.data;
+            if (s.hero_background_url) {
+                const heroBg = document.querySelector('.hero-bg');
+                if (heroBg) heroBg.style.setProperty('--hero-img', `url(${s.hero_background_url})`);
+            }
+            if (s.hero_title) {
+                const heroTitle = document.querySelector('.hero-title');
+                if (heroTitle) heroTitle.innerHTML = window.app.formatText(s.hero_title);
+            }
+            if (s.hero_description) {
+                const heroDesc = document.querySelector('.hero-description');
+                if (heroDesc) heroDesc.innerHTML = window.app.formatText(s.hero_description);
+            }
+            if (s.hero_greeting) {
+                const heroContent = document.querySelector('.hero-content');
+                let greetingEl = document.querySelector('.hero-greeting');
+                if (!greetingEl) {
+                    greetingEl = document.createElement('div');
+                    greetingEl.className = 'hero-greeting';
+                    // Insert before title
+                    const title = document.querySelector('.hero-title');
+                    if (title) title.parentNode.insertBefore(greetingEl, title);
+                }
+                greetingEl.textContent = s.hero_greeting;
+            }
+            if (s.hero_button_text) {
+                const mainBtn = document.querySelector('.cta-button:not(.secondary)');
+                if (mainBtn) {
+                    const span = mainBtn.querySelector('span');
+                    if (span) span.textContent = s.hero_button_text;
+                }
+            }
+            if (s.hero_button_link) {
+                const mainBtn = document.querySelector('.cta-button:not(.secondary)');
+                if (mainBtn) mainBtn.href = s.hero_button_link;
+            }
+        }
     } catch (e) {
         console.error('Failed to load home content:', e);
     }

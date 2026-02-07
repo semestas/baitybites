@@ -26,6 +26,8 @@
                         class="sidebar-icon"></i> Galeri Foto</a>
                 <a href="#instagram" onclick="switchSection('instagram', event)"><i data-lucide="instagram"
                         class="sidebar-icon"></i> Instagram Settings</a>
+                <a href="#homepage" onclick="switchSection('homepage', event)"><i data-lucide="home"
+                        class="sidebar-icon"></i> Home Page Custom</a>
                 <a href="#settings" onclick="switchSection('settings', event)"><i data-lucide="settings"
                         class="sidebar-icon"></i> Setting Kontak</a>
                 <a href="#testimonials" onclick="switchSection('testimonials', event)"><i data-lucide="message-square"
@@ -39,21 +41,66 @@
         <main class="content-area">
             <!-- Pesanan Section -->
             <section id="orders-section" class="section-card">
-                <div class="flex justify-between items-center mb-4">
-                    <h2>Manajemen Pesanan & Progress</h2>
-                    <button class="btn btn-primary btn-sm" onclick="loadOrders()">Refresh Data</button>
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="mb-1">Manajemen Pesanan & Progress</h2>
+                        <p class="text-sm text-muted">Pantau dan update status pesanan pelanggan.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm flex items-center gap-2" onclick="loadOrders()">
+                        <i data-lucide="refresh-cw" size="16"></i> Refresh Data
+                    </button>
                 </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Order #</th>
-                                <th>Customer</th>
-                                <th class="text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-list"></tbody>
-                    </table>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <div class="flex flex-wrap gap-2" id="order-filters">
+                        <button class="filter-chip active" onclick="filterByStatus('all')">Semua</button>
+                        <button class="filter-chip" onclick="filterByStatus('confirmed')">Konfirmasi</button>
+                        <button class="filter-chip" onclick="filterByStatus('production')">Produksi</button>
+                        <button class="filter-chip" onclick="filterByStatus('packaging')">Pengemasan</button>
+                        <button class="filter-chip" onclick="filterByStatus('shipping')">Pengiriman</button>
+                        <button class="filter-chip" onclick="filterByStatus('completed')">Selesai</button>
+                    </div>
+                </div>
+
+                <div id="orders-container">
+                    <!-- Ongoing Orders -->
+                    <div id="ongoing-orders-wrapper">
+                        <h4 class="mb-3 flex items-center gap-2 text-primary">
+                            <i data-lucide="clock" size="18"></i> Pesanan Berjalan
+                        </h4>
+                        <div class="table-wrapper mb-8">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-list-ongoing"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Completed Orders -->
+                    <div id="completed-orders-wrapper">
+                        <h4 class="mb-3 flex items-center gap-2 text-success">
+                            <i data-lucide="check-circle" size="18"></i> Pesanan Selesai
+                        </h4>
+                        <div class="table-wrapper">
+                            <table class="table table-completed">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-list-completed"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -136,51 +183,230 @@
                         </ol>
                     </details>
 
-                    <div class="form-group mt-3">
-                        <label class="form-label">Instagram Access Token</label>
-                        <input type="password" id="igToken" class="form-input"
-                            placeholder="Paste your Instagram Graph API token here">
-                        <small class="text-muted" id="tokenStatus"></small>
-                    </div>
+                    <form id="igTokenForm" onsubmit="event.preventDefault(); saveInstagramToken();">
+                        <div class="form-group mt-3">
+                            <label class="form-label">Instagram Access Token</label>
+                            <!-- Hidden username field for accessibility/password managers -->
+                            <input type="text" name="username" value="admin" style="display:none;"
+                                autocomplete="username">
+                            <input type="password" id="igToken" class="form-input"
+                                placeholder="Paste your Instagram Graph API token here" autocomplete="current-password">
+                            <small class="text-muted" id="tokenStatus"></small>
+                        </div>
 
-                    <div class="flex gap-2">
-                        <button class="btn btn-primary" onclick="saveInstagramToken()"><i data-lucide="save"
-                                size="16"></i> Simpan Token</button>
-                        <button class="btn btn-secondary" onclick="syncInstagram()"><i data-lucide="refresh-cw"
-                                size="16"></i> Sinkronkan Sekarang</button>
-                    </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Simpan
+                                Token</button>
+                            <button type="button" class="btn btn-secondary" onclick="syncInstagram()"><i
+                                    data-lucide="refresh-cw" size="16"></i> Sinkronkan Sekarang</button>
+                        </div>
+                    </form>
 
                     <div id="syncStatus" class="mt-4"></div>
                 </div>
             </section>
 
+            <!-- Home Page Settings Section -->
+            <section id="homepage-section" class="section-card" style="display:none;">
+                <div class="mb-5">
+                    <h2 class="flex items-center gap-3">
+                        <div class="p-2 bg-gray-100 rounded-lg"><i data-lucide="sparkles" size="24"
+                                class="text-primary"></i></div>
+                        Custom Hero Section
+                    </h2>
+                    <p class="text-muted mt-2 ml-14">Atur tampilan utama (banner) di halaman depan website.</p>
+                </div>
+
+                <div class="grid grid-2 gap-8">
+                    <div class="settings-column">
+                        <h4 class="mb-4 flex items-center gap-2">
+                            <i data-lucide="type" size="20" class="text-secondary"></i>
+                            Teks & Konten
+                        </h4>
+
+                        <!-- Hero Greeting -->
+                        <div class="editable-field" id="field-hero_greeting">
+                            <label class="field-label">Greeting (Teks Kecil di Atas)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_greeting')">
+                                <div class="field-value-text" id="text-hero_greeting">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_greeting" class="form-input"
+                                    placeholder="Contoh: 👋 Selamat Datang di BaityBites">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_greeting')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_greeting')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Title -->
+                        <div class="editable-field" id="field-hero_title">
+                            <label class="field-label">Judul Utama (H1)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_title')">
+                                <div class="field-value-text field-value-pre" id="text-hero_title">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <textarea id="hero_title" class="form-input" rows="2"
+                                    placeholder="Contoh: Fresh & Homemade Risol Mayo"></textarea>
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_title')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_title')">Simpan</button>
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-hero_title"
+                                        onclick="window.app.enhanceWithAI('hero_title', 'Hero Title (H1)')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Description -->
+                        <div class="editable-field" id="field-hero_description">
+                            <label class="field-label">Deskripsi Singkat</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_description')">
+                                <div class="field-value-text field-value-pre" id="text-hero_description">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <textarea id="hero_description" class="form-input" rows="3"
+                                    placeholder="Masukkan deskripsi singkat hero section..."></textarea>
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_description')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_description')">Simpan</button>
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-hero_description"
+                                        onclick="window.app.enhanceWithAI('hero_description', 'Hero Description')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-column">
+                        <h4 class="mb-4 flex items-center gap-2">
+                            <i data-lucide="mouse-pointer" size="20" class="text-secondary"></i>
+                            Tombol & Navigasi
+                        </h4>
+
+                        <!-- Hero Button Text -->
+                        <div class="editable-field" id="field-hero_button_text">
+                            <label class="field-label">Label Tombol</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_button_text')">
+                                <div class="field-value-text" id="text-hero_button_text">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_button_text" class="form-input"
+                                    placeholder="Contoh: Pesan Sekarang">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_button_text')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_button_text')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Button Link -->
+                        <div class="editable-field" id="field-hero_button_link">
+                            <label class="field-label">Link Tombol (URL)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_button_link')">
+                                <div class="field-value-text" id="text-hero_button_link">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_button_link" class="form-input"
+                                    placeholder="Contoh: #order">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_button_link')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_button_link')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h4 class="mb-4 flex items-center gap-2">
+                        <i data-lucide="image" size="20" class="text-secondary"></i>
+                        Background
+                    </h4>
+
+                    <div class="editable-field" id="field-hero_background_url">
+                        <label class="field-label">Background Image URL</label>
+                        <div class="field-display" onclick="startInlineEdit('hero_background_url')">
+                            <div class="field-value-text" id="text-hero_background_url">---</div>
+                            <button type="button" class="btn-edit-inline">
+                                <i data-lucide="edit-3" size="18"></i>
+                            </button>
+                        </div>
+                        <div class="field-edit-box">
+                            <input type="text" id="hero_background_url" class="form-input"
+                                placeholder="Paste URL gambar background di sini">
+                            <div class="edit-controls">
+                                <button type="button" class="btn btn-outline"
+                                    onclick="cancelInlineEdit('hero_background_url')">Batal</button>
+                                <button type="button" class="btn btn-primary"
+                                    onclick="saveIndividualSetting('hero_background_url')">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- General Settings Section -->
             <section id="settings-section" class="section-card" style="display:none;">
-                <div class="mb-4">
-                    <h2><i data-lucide="cog" size="24" class="v-middle-gap"></i> Pengaturan Kontak & Sosial
-                        Media</h2>
-                    <p class="text-muted">Informasi ini akan ditampilkan di footer website.</p>
+                <div class="mb-5">
+                    <h2 class="flex items-center gap-3">
+                        <div class="p-2 bg-gray-100 rounded-lg"><i data-lucide="settings" size="24"
+                                class="text-primary"></i></div>
+                        Pengaturan Kontak & Sosial Media
+                    </h2>
+                    <p class="text-muted mt-2 ml-14">Informasi ini akan ditampilkan di footer website.</p>
                 </div>
 
                 <form id="settingsForm" onsubmit="event.preventDefault();">
-                    <div class="grid grid-2 gap-4">
-                        <div>
-                            <h4 class="mb-3"><i data-lucide="phone" size="18"></i> Kontak Informasi</h4>
+                    <div class="grid grid-2 gap-8">
+                        <div class="settings-column">
+                            <h4 class="mb-4 flex items-center gap-2">
+                                <i data-lucide="phone" size="20" class="text-secondary"></i>
+                                Info Kontak
+                            </h4>
 
                             <div class="editable-field" id="field-contact_email">
                                 <label class="field-label">Email Support</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('contact_email')">
                                     <div class="field-value-text" id="text-contact_email">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_email')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="email" id="contact_email" class="form-input">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('contact_email')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('contact_email')">Simpan</button>
                                     </div>
                                 </div>
@@ -188,18 +414,18 @@
 
                             <div class="editable-field" id="field-contact_phone">
                                 <label class="field-label">Nomor Telepon Kantor</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('contact_phone')">
                                     <div class="field-value-text" id="text-contact_phone">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_phone')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="contact_phone" class="form-input">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('contact_phone')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('contact_phone', true)">Simpan</button>
                                     </div>
                                 </div>
@@ -207,19 +433,19 @@
 
                             <div class="editable-field" id="field-contact_whatsapp">
                                 <label class="field-label">Nomor WhatsApp Bisnis</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('contact_whatsapp')">
                                     <div class="field-value-text" id="text-contact_whatsapp">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_whatsapp')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="contact_whatsapp" class="form-input"
-                                        placeholder="628123456789 (Tanpa + atau spasi)">
+                                        placeholder="628123456789">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('contact_whatsapp')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('contact_whatsapp', true)">Simpan</button>
                                     </div>
                                 </div>
@@ -227,41 +453,44 @@
 
                             <div class="editable-field" id="field-contact_address">
                                 <label class="field-label">Alamat Fisik</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('contact_address')">
                                     <div class="field-value-text field-value-pre" id="text-contact_address">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('contact_address')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <textarea id="contact_address" class="form-input" rows="3"></textarea>
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('contact_address')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('contact_address')">Simpan</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <h4 class="mb-3"><i data-lucide="globe" size="18"></i> Sosial Media (Username/Link)</h4>
+                        <div class="settings-column">
+                            <h4 class="mb-4 flex items-center gap-2">
+                                <i data-lucide="globe" size="20" class="text-secondary"></i>
+                                Info Sosial Media
+                            </h4>
 
                             <div class="editable-field" id="field-social_instagram">
                                 <label class="field-label">Instagram URL</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('social_instagram')">
                                     <div class="field-value-text" id="text-social_instagram">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_instagram')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_instagram" class="form-input">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('social_instagram')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('social_instagram')">Simpan</button>
                                     </div>
                                 </div>
@@ -269,18 +498,18 @@
 
                             <div class="editable-field" id="field-social_facebook">
                                 <label class="field-label">Facebook URL</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('social_facebook')">
                                     <div class="field-value-text" id="text-social_facebook">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_facebook')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_facebook" class="form-input">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('social_facebook')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('social_facebook')">Simpan</button>
                                     </div>
                                 </div>
@@ -288,25 +517,32 @@
 
                             <div class="editable-field" id="field-social_tiktok">
                                 <label class="field-label">TikTok URL</label>
-                                <div class="field-display">
+                                <div class="field-display" onclick="startInlineEdit('social_tiktok')">
                                     <div class="field-value-text" id="text-social_tiktok">---</div>
-                                    <button type="button" class="btn-edit-inline"
-                                        onclick="startInlineEdit('social_tiktok')"> <i data-lucide="edit-3"
-                                            size="14"></i></button>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
                                 </div>
                                 <div class="field-edit-box">
                                     <input type="text" id="social_tiktok" class="form-input">
                                     <div class="edit-controls">
-                                        <button type="button" class="btn btn-outline btn-xs"
+                                        <button type="button" class="btn btn-outline"
                                             onclick="cancelInlineEdit('social_tiktok')">Batal</button>
-                                        <button type="button" class="btn btn-primary btn-xs"
+                                        <button type="button" class="btn btn-primary"
                                             onclick="saveIndividualSetting('social_tiktok')">Simpan</button>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="mt-6">
+                                <button type="button" class="btn-add-social">
+                                    <i data-lucide="plus" size="20"></i> Tambah Media Sosial
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
+            </section>
             </section>
         </main>
     </div>
@@ -346,6 +582,7 @@
             document.getElementById('testimonials-section').style.display = section === 'testimonials' ? 'block' : 'none';
             document.getElementById('gallery-section').style.display = section === 'gallery' ? 'block' : 'none';
             document.getElementById('instagram-section').style.display = section === 'instagram' ? 'block' : 'none';
+            document.getElementById('homepage-section').style.display = section === 'homepage' ? 'block' : 'none';
             document.getElementById('settings-section').style.display = section === 'settings' ? 'block' : 'none';
 
             document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
@@ -362,6 +599,7 @@
             if (section === 'testimonials') loadTestimonials();
             if (section === 'gallery') loadGallery();
             if (section === 'instagram') loadInstagramSettings();
+            if (section === 'homepage') loadSettings();
             if (section === 'settings') loadSettings();
         }
 
@@ -373,15 +611,56 @@
             'completed': 'Selesai'
         };
 
+        let currentFilter = 'all';
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === (status === 'all' ? 'semua' : statusLabels[status]?.toLowerCase() || status));
+            });
+            // Specific fix for "Selesai" vs "completed"
+            if (status === 'completed') {
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    if (btn.textContent === 'Selesai') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            } else if (status === 'all') {
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    if (btn.textContent === 'Semua') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+
+            loadOrders();
+        }
+
         async function loadOrders() {
             try {
                 const json = await apiCall('/cms/orders');
-                const container = document.getElementById('orders-list');
+                const ongoingList = document.getElementById('orders-list-ongoing');
+                const completedList = document.getElementById('orders-list-completed');
+                const ongoingWrapper = document.getElementById('ongoing-orders-wrapper');
+                const completedWrapper = document.getElementById('completed-orders-wrapper');
+
                 if (json.success) {
-                    container.innerHTML = json.data.map(o => {
+                    let orders = json.data;
+
+                    // Support manual PO numbers like PO-221-72
+                    const getOrderSortValue = (num) => {
+                        const match = num.match(/PO-(\d+)-(\d+)/);
+                        if (match) return parseInt(match[2]);
+                        return 0;
+                    };
+                    orders.sort((a, b) => getOrderSortValue(b.order_number) - getOrderSortValue(a.order_number));
+
+                    // Filter logic
+                    const filteredOrders = currentFilter === 'all'
+                        ? orders
+                        : orders.filter(o => o.status === currentFilter);
+
+                    const renderOrderRow = (o) => {
                         const steps = ['confirmed', 'production', 'packaging', 'shipping', 'completed'];
                         const currentStepIndex = steps.indexOf(o.status);
-
                         const isCompleted = o.status === 'completed';
 
                         return `
@@ -415,8 +694,25 @@
                                     `}
                                 </div>
                             </td>
-                        </tr>
-                    `}).join('');
+                        </tr>`;
+                    };
+
+                    const ongoingOrders = filteredOrders.filter(o => o.status !== 'completed');
+                    const completedOrders = filteredOrders.filter(o => o.status === 'completed');
+
+                    ongoingList.innerHTML = ongoingOrders.map(renderOrderRow).join('');
+                    completedList.innerHTML = completedOrders.map(renderOrderRow).join('');
+
+                    // Show/Hide sections based on content and filters
+                    ongoingWrapper.style.display = ongoingOrders.length > 0 ? 'block' : 'none';
+                    completedWrapper.style.display = completedOrders.length > 0 ? 'block' : 'none';
+
+                    if (ongoingOrders.length === 0 && completedOrders.length === 0) {
+                        ongoingWrapper.style.display = 'block';
+                        ongoingList.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-muted">Tidak ada pesanan ditemukan.</td></tr>';
+                    }
+
+                    if (window.lucide) lucide.createIcons();
                 }
             } catch (e) { console.error(e); }
         }
@@ -571,8 +867,13 @@
         function cancelInlineEdit(fieldId) {
             document.getElementById(`field-${fieldId}`).classList.remove('is-editing');
             // If it was a settings field, reload to undo local changes
-            if (fieldId !== 'elfsightWidget') loadSettings();
-            else loadInstagramSettings();
+            if (['hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'].includes(fieldId)) {
+                loadSettings();
+            } else if (fieldId !== 'elfsightWidget') {
+                loadSettings();
+            } else {
+                loadInstagramSettings();
+            }
         }
 
         async function saveElfsightWidget() {
@@ -666,27 +967,47 @@
                 const res = await apiCall('/cms/settings');
                 if (res.success) {
                     const data = res.data;
-                    const fields = ['contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'social_instagram', 'social_facebook', 'social_tiktok'];
+                    const fields = [
+                        'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address',
+                        'social_instagram', 'social_facebook', 'social_tiktok',
+                        'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
+                    ];
 
                     fields.forEach(f => {
-                        const val = data[f] || '---';
-                        document.getElementById(f).value = data[f] || '';
-                        document.getElementById(`text-${f}`).textContent = val;
+                        const val = data[f] || (f.includes('url') ? 'Belum ada URL' : '---');
+                        const input = document.getElementById(f);
+                        if (input) input.value = data[f] || '';
+                        const textDisplay = document.getElementById(`text-${f}`);
+                        if (textDisplay) {
+                            if (f.startsWith('hero_') || f.startsWith('contact_') || f.startsWith('social_')) {
+                                textDisplay.innerHTML = window.app.formatText(val);
+                            } else {
+                                textDisplay.textContent = val;
+                            }
+                        }
                     });
                 }
             } catch (e) { console.error(e); }
         }
 
+        // AI Enhancement is now handled globally in app.js
+
         async function saveIndividualSetting(fieldId) {
             const value = document.getElementById(fieldId).value;
             const payload = {
-                contact_email: document.getElementById('contact_email').value,
-                contact_phone: document.getElementById('contact_phone').value,
-                contact_whatsapp: document.getElementById('contact_whatsapp').value,
-                contact_address: document.getElementById('contact_address').value,
-                social_instagram: document.getElementById('social_instagram').value,
-                social_facebook: document.getElementById('social_facebook').value,
-                social_tiktok: document.getElementById('social_tiktok').value
+                contact_email: document.getElementById('contact_email')?.value,
+                contact_phone: document.getElementById('contact_phone')?.value,
+                contact_whatsapp: document.getElementById('contact_whatsapp')?.value,
+                contact_address: document.getElementById('contact_address')?.value,
+                social_instagram: document.getElementById('social_instagram')?.value,
+                social_facebook: document.getElementById('social_facebook')?.value,
+                social_tiktok: document.getElementById('social_tiktok')?.value,
+                hero_greeting: document.getElementById('hero_greeting')?.value,
+                hero_title: document.getElementById('hero_title')?.value,
+                hero_description: document.getElementById('hero_description')?.value,
+                hero_background_url: document.getElementById('hero_background_url')?.value,
+                hero_button_text: document.getElementById('hero_button_text')?.value,
+                hero_button_link: document.getElementById('hero_button_link')?.value
             };
 
             try {
@@ -695,7 +1016,10 @@
                     body: JSON.stringify(payload)
                 });
                 if (res.success) {
-                    document.getElementById(`text-${fieldId}`).textContent = value || '---';
+                    const textDisplay = document.getElementById(`text-${fieldId}`);
+                    if (textDisplay) {
+                        textDisplay.innerHTML = window.app.formatText(value) || '---';
+                    }
                     cancelInlineEdit(fieldId);
                 }
             } catch (error) {

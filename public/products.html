@@ -75,8 +75,14 @@
 
                             <div class="form-group">
                                 <label class="form-label">Description</label>
-                                <textarea name="description" class="form-textarea"
+                                <textarea name="description" id="productDescription" class="form-textarea"
                                     placeholder="Describe the product details..." rows="3"></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-product"
+                                        onclick="window.app.enhanceWithAI('product', 'Product Description', '#productDescription')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="form-group">

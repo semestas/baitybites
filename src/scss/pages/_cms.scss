@@ -181,6 +181,11 @@
 .status-popover-container {
     position: relative;
     display: inline-block;
+    z-index: 10; // Increased base z-index
+
+    &:hover {
+        z-index: 100; // Elevation on hover
+    }
 }
 
 // Clickable Status Badge Trigger
@@ -255,9 +260,10 @@
 // Status Popover & Timeline Themes
 .status-popover {
     position: absolute;
-    bottom: calc(100% + 15px);
-    right: 0;
-    width: 400px;
+    top: calc(100% + 12px); // Changed from bottom to top
+    right: 50%;
+    transform: translateX(50%) translateY(10px) scale(0.95);
+    width: 380px;
     border-radius: 16px;
     padding: 24px 15px;
     z-index: 1000;
@@ -266,25 +272,25 @@
     // Animation
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px) scale(0.95);
     transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-    transform-origin: bottom right;
+    transform-origin: top center;
 
     &.show {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateX(50%) translateY(0) scale(1);
         visibility: visible;
     }
 
     &::after {
         content: '';
         position: absolute;
-        bottom: -6px;
-        right: 40px;
+        top: -6px; // Flipped from bottom to top
+        left: 50%;
+        margin-left: -6px;
         width: 12px;
         height: 12px;
-        border-bottom: 1px solid transparent;
-        border-right: 1px solid transparent;
+        border-top: 1px solid transparent;
+        border-left: 1px solid transparent;
         transform: rotate(45deg);
     }
 
@@ -465,8 +471,8 @@
     th {
         position: sticky;
         top: 0;
-        z-index: 10;
-        background: #fff;
+        z-index: 1100; // Above popovers (1000) and active rows (1001)
+        background-color: #ffffff !important; // Ensure it's opaque
         font-weight: 700;
         color: #636e72;
         text-transform: uppercase;
@@ -475,8 +481,19 @@
         box-shadow: 0 1px 0 #eee;
     }
 
-    tbody tr:hover {
-        background: #fdfdfd;
+    tbody tr {
+        position: relative;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #fdfdfd;
+            z-index: 20; // Slightly elevate on hover
+        }
+
+        // Elevate row to top level when popover is shown
+        &:has(.status-popover.show) {
+            z-index: 1001 !important;
+        }
     }
 }
 
@@ -484,7 +501,7 @@
     width: 100%;
     overflow-x: auto;
     position: relative;
-    max-height: calc(100vh - 250px);
+    max-height: calc(100vh - 460px);
     overflow-y: auto;
 
     &::-webkit-scrollbar {
@@ -603,7 +620,7 @@
     }
 }
 
-// Editable Field Style (Minimalist with Icon)
+// 🎨 Premium Editable Field Style (Refined matching reference image)
 .editable-field {
     margin-bottom: 1.5rem;
     position: relative;
@@ -611,53 +628,68 @@
     .field-label {
         display: block;
         font-size: 0.85rem;
-        color: #718096; // Muted label color
-        margin-bottom: 4px;
+        color: #88939e;
+        margin-bottom: 8px;
         font-weight: 500;
+        letter-spacing: 0.01em;
     }
 
     .field-display {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: 38px;
-        padding: 4px 0;
-        border-bottom: 1px solid transparent;
-        transition: border-color 0.2s;
+        min-height: 52px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #edf2f7;
+        padding-left: 16px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
 
         &:hover {
-            border-bottom-color: #e2e8f0;
+            background: #fff;
+            border-color: #cbd5e0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 
             .btn-edit-inline {
-                opacity: 1;
+                background: #f1f5f9;
+                color: $primary;
             }
         }
 
         .field-value-text {
-            // font-size: 1.05rem;
-            // font-weight: 600;
-            color: #1a202c;
-            word-break: break-all;
+            color: #2d3436;
+            font-weight: 400;
+            font-size: 0.95rem;
             flex: 1;
+            padding-right: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &.field-value-pre {
+                white-space: pre-wrap;
+                overflow-wrap: break-word;
+                line-height: 1.6;
+                padding: 10px 0;
+            }
         }
 
         .btn-edit-inline {
-            background: none;
+            height: 52px;
+            width: 52px;
+            background: transparent;
             border: none;
+            border-left: 1px solid #edf2f7;
             cursor: pointer;
-            font-size: 1.1rem;
-            color: #2d3748;
-            opacity: 0.3; // Hidden until hover
+            color: #a0aec0;
             transition: all 0.2s;
-            padding: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px;
+            border-radius: 0 12px 12px 0;
 
             &:hover {
-                background: #88939e;
-                opacity: 1;
                 color: $primary;
             }
         }
@@ -665,26 +697,129 @@
 
     // When in editing mode
     &.is-editing {
+        .field-label {
+            color: $primary;
+            font-weight: 600;
+        }
+
         .field-display {
             display: none;
         }
 
         .field-edit-box {
             display: block;
+            background: $white;
+            border: 2px solid $primary;
+            border-radius: 14px;
+            padding: 4px;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+
+            .form-input {
+                border: none;
+                background: transparent;
+                box-shadow: none;
+                padding: 10px 12px;
+                font-size: 1rem;
+
+                &:focus {
+                    box-shadow: none;
+                }
+            }
+
+            .edit-controls {
+                display: flex;
+                align-items: center;
+                border-top: 1px solid #edf2f7;
+                background: #f8f9fa;
+                border-radius: 0 0 10px 10px;
+                padding: 8px 12px;
+                gap: 8px;
+
+                .btn {
+                    padding: 6px 16px;
+                    border-radius: 8px;
+                    font-size: 0.8rem;
+                }
+
+                .btn-ai-magic {
+                    margin-left: auto;
+                    color: $primary;
+                    background: rgba($primary, 0.1);
+                    border: 1px solid rgba($primary, 0.2);
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+
+                    &:hover:not(:disabled) {
+                        background: $primary;
+                        color: white;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 6px rgba($primary, 0.2);
+                    }
+
+                    &:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+
+                    &.loading i {
+                        animation: spin 1s linear infinite;
+                    }
+                }
+            }
         }
     }
 
     .field-edit-box {
         display: none;
-
-        .edit-controls {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            justify-content: flex-end;
-        }
     }
 }
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Button styles extensions
+.btn-add-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #1abc9c, #16a085);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(22, 160, 133, 0.3);
+    transition: all 0.3s ease;
+    width: fit-content;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(22, 160, 133, 0.4);
+        background: linear-gradient(135deg, #1dd1ad, #1abc9c);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
 
 textarea.form-input {
     resize: vertical;
@@ -732,10 +867,140 @@ textarea.form-input {
     max-width: 90%;
 }
 
-.flex-1 {
-    flex: 1;
+.flex {
+    display: flex;
 }
 
-.flex-2 {
-    flex: 2;
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
+.gap-8 {
+    gap: 2rem;
+}
+
+.mb-5 {
+    margin-bottom: 1.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.ml-14 {
+    margin-left: 3.5rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.bg-gray-100 {
+    background-color: #f3f4f6;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.text-primary {
+    color: $primary !important;
+}
+
+.text-secondary {
+    color: var(--secondary-500) !important;
+}
+
+.text-success {
+    color: #10b981 !important;
+}
+
+.bg-gray-50 {
+    background-color: #f9fafb;
+}
+
+.bg-gray-100 {
+    background-color: #f3f4f6;
+}
+
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+// Filter Chips
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-bottom: solid 1px var(--neutral-300);
+}
+
+.filter-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        border-color: $primary;
+        color: $primary;
+        background: rgba($primary, 0.05);
+    }
+
+    &.active {
+        background: $primary;
+        color: white;
+        border-color: $primary;
+        box-shadow: 0 4px 6px rgba($primary, 0.2);
+    }
+}
+
+.table-completed {
+    opacity: 0.85;
+
+    tr:hover {
+        opacity: 1;
+    }
+
+    .status-trigger-badge {
+        background: #dcfce7;
+        color: #166534;
+        cursor: default;
+    }
 }

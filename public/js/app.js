@@ -685,7 +685,58 @@ window.app = {
     getAvatarGradient,
     renderRatingStars,
     handleImageError,
-    initIcons: () => { if (window.lucide) lucide.createIcons(); }
+    initIcons: () => { if (window.lucide) lucide.createIcons(); },
+    formatText: (text) => {
+        if (!text) return '';
+        // Convert tabs to 4 spaces for consistent indents
+        let formatted = text.replace(/\t/g, '    ');
+        // Simple Markdown-like formatting
+        // Bold: **text**
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Italic: *text*
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        return formatted;
+    },
+    enhanceWithAI: async (fieldId, context, inputSelector = null) => {
+        const input = inputSelector ? document.querySelector(inputSelector) : document.getElementById(fieldId);
+        const btn = document.getElementById(`btn-ai-${fieldId}`);
+        if (!input || !btn) return;
+
+        const originalText = input.value.trim();
+
+        if (!originalText) {
+            window.app.showNotification('Silakan ketik sesuatu dulu sebelum minta bantuan AI.', 'info');
+            return;
+        }
+
+        try {
+            btn.disabled = true;
+            btn.classList.add('loading');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Memproses...';
+            if (window.lucide) lucide.createIcons();
+
+            const response = await window.app.apiCall('/cms/ai/enhance', {
+                method: 'POST',
+                body: JSON.stringify({ content: originalText, context: context })
+            });
+
+            if (response.success && response.data) {
+                input.value = response.data;
+                window.app.showNotification('Konten berhasil ditingkatkan oleh AI!', 'success');
+            } else {
+                throw new Error(response.message || 'Gagal terhubung ke AI');
+            }
+        } catch (error) {
+            console.error(error);
+            window.app.showNotification(error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+            btn.innerHTML = '<i data-lucide="sparkles" style="width:14px;height:14px;"></i> AI Magic';
+            if (window.lucide) lucide.createIcons();
+        }
+    }
 };
 
 // Global image error handler
