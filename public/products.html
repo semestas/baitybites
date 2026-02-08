@@ -270,6 +270,11 @@
                     </div>
                 </div>
             `).join('');
+
+            // Re-initialize Lucide icons after rendering
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // Modal Functions
@@ -281,6 +286,10 @@
         function openModal() {
             modal.style.display = 'flex';
             handleCategoryChange(document.getElementById('categorySelect').value);
+            // Initialize Lucide icons in the modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function closeModal() {
@@ -378,28 +387,36 @@
             saveText.style.display = 'none';
             saveSpinner.style.display = 'inline-block';
 
-            const formData = new FormData(e.target);
+            const formData = new FormData();
+
+            // Add form fields manually to have better control
+            formData.append('name', document.querySelector('input[name="name"]').value);
+            formData.append('description', document.querySelector('textarea[name="description"]').value || '');
+            formData.append('price', document.querySelector('input[name="price"]').value);
+            formData.append('unit', document.querySelector('input[name="unit"]').value);
+            formData.append('stock', document.querySelector('input[name="stock"]').value);
 
             // Handle Category
             let category = categorySelect.value;
             if (category === 'NEW') {
                 category = newCategoryInput.value.trim();
             }
-            formData.set('category', category);
+            formData.append('category', category);
 
             try {
-                // Process image if exists
+                // Process image ONLY if a file is selected
                 const imageFile = fileInput.files[0];
-                if (imageFile) {
+                if (imageFile && imageFile.size > 0) {
                     try {
                         const processedImage = await processImage(imageFile);
-                        formData.set('image', processedImage); // Replace original file
+                        formData.append('image', processedImage);
                         console.log(`Image processed: ${imageFile.size} -> ${processedImage.size} bytes`);
                     } catch (err) {
                         console.error('Image processing failed, using original:', err);
-                        // Continue with original file if processing fails, or handle error
+                        formData.append('image', imageFile);
                     }
                 }
+                // If no image selected, don't add the image field at all
 
                 // Determine URL and Method
                 const url = productId ? `/cms/products/${productId}` : '/cms/products';
@@ -440,6 +457,11 @@
                     closeModal();
                 }
             });
+
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         });
     </script>
 </body>

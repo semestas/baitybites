@@ -538,14 +538,14 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
 
             const [product] = await db`
                 INSERT INTO products (name, description, category, price, unit, stock, image_url)
-                VALUES (${name}, ${description}, ${category || 'General'}, ${Number(price)}, ${unit}, ${Number(stock)}, ${imageUrl})
+                VALUES (${name}, ${description || null}, ${category || 'General'}, ${Number(price)}, ${unit}, ${Number(stock)}, ${imageUrl})
                 RETURNING *
             `;
             return { success: true, data: product, message: 'Produk berhasil ditambahkan' };
         }, {
             body: t.Object({
                 name: t.String(),
-                description: t.String(),
+                description: t.Optional(t.String()),
                 category: t.Optional(t.String()),
                 price: t.Numeric(),
                 unit: t.String(),
@@ -567,7 +567,7 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 [product] = await db`
                     UPDATE products 
                     SET name = ${name}, 
-                        description = ${description}, 
+                        description = ${description || null}, 
                         category = ${category || 'General'},
                         price = ${Number(price)}, 
                         unit = ${unit}, 
@@ -580,7 +580,7 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 [product] = await db`
                     UPDATE products 
                     SET name = ${name}, 
-                        description = ${description}, 
+                        description = ${description || null}, 
                         category = ${category || 'General'},
                         price = ${Number(price)}, 
                         unit = ${unit}, 
@@ -594,7 +594,7 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
         }, {
             body: t.Object({
                 name: t.String(),
-                description: t.String(),
+                description: t.Optional(t.String()),
                 category: t.Optional(t.String()),
                 price: t.Numeric(),
                 unit: t.String(),
