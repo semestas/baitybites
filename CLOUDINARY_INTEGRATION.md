@@ -8,7 +8,7 @@ BaityBites now uses **Cloudinary** as the cloud-based image storage solution, re
 ### Environment Variable
 Add this to your `.env` file:
 ```env
-CLOUDINARY_URL=cloudinary://695963942234764:u70plXQCakDCt-gFYsnEHOiWQL0@dofkkqk3y
+CLOUDINARY_URL=cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME
 ```
 
 The Cloudinary SDK automatically reads this environment variable for authentication.

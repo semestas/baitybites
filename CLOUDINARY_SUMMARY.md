@@ -12,7 +12,7 @@ bun install cloudinary
 ### 2. **Environment Configuration**
 Added to `.env`:
 ```env
-CLOUDINARY_URL=cloudinary://695963942234764:u70plXQCakDCt-gFYsnEHOiWQL0@dofkkqk3y
+CLOUDINARY_URL=cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME
 ```
 
 ### 3. **Created Cloudinary Service** (`src/services/cloudinary.ts`)

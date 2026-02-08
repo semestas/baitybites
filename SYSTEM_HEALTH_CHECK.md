@@ -84,7 +84,7 @@ index.js  1.62 MB  (entry point)
 ### 6. **Environment Configuration**
 **CLOUDINARY_URL**: ✅ Present in `.env` file
 ```
-CLOUDINARY_URL=cloudinary://695963942234764:u70plXQCakDCt-gFYsnEHOiWQL0@dofkkqk3y
+CLOUDINARY_URL=cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME
 ```
 
 **Other Critical Variables:**

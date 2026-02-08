@@ -6,16 +6,32 @@
   flex-direction: column !important;
 }
 
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.flex-1 {
+  flex: 1 !important;
+}
+
 .items-center {
   align-items: center !important;
+}
+
+.items-start {
+  align-items: flex-start !important;
+}
+
+.justify-center {
+  justify-content: center !important;
 }
 
 .justify-between {
   justify-content: space-between !important;
 }
 
-.justify-center {
-  justify-content: center !important;
+.justify-end {
+  justify-content: flex-end !important;
 }
 
 .gap-2 {
