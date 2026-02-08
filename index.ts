@@ -92,7 +92,7 @@ const app = new Elysia()
     .group("", app => {
         [
             "login", "order", "track", "cms", "dashboard", "orders", "customers",
-            "products", "production", "kitchen", "privacy", "tos", "profile"
+            "products", "production", "kitchen", "privacy", "tos", "profile", "docs"
         ].forEach(page => {
             app.get(`/${page}.html`, () => new Response(readFileSync(join(PUBLIC_DIR, `${page}.html`), "utf-8"), {
                 headers: { "Content-Type": "text/html; charset=utf-8" }
@@ -125,6 +125,7 @@ const app = new Elysia()
         timestamp: new Date().toISOString(),
         env: process.env.NODE_ENV || 'development'
     }))
+    // BaityBites v1.1.2 - All reports registered
     .listen(process.env.PORT || 9876);
 
 // --- Background Job: Instagram Sync (Every 1 Hour) ---
@@ -136,6 +137,7 @@ setInterval(async () => {
 
 const port = app.server?.port || process.env.PORT || 9876;
 
+// Server started successfully
 console.log(`
 🚀 Baitybites Order Management System
 🌐 Server running at http://localhost:${port}

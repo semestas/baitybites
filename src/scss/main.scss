@@ -1,4 +1,5 @@
 // Main SCSS Entry Point
+@use 'base/reset';
 @use 'layout/base';
 @use 'components/buttons';
 @use 'components/tabs';
@@ -6,3 +7,9 @@
 @use 'pages/cms';
 @use 'pages/kitchen';
 @use 'pages/track';
+
+// Utilities
+@use 'utilities/spacing';
+@use 'utilities/text';
+@use 'utilities/flex';
+@use 'utilities/animations';

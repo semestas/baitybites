@@ -30,7 +30,6 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 FROM orders
             `;
 
-            // Top Metrics
             const [highestSpend] = await db`
                 SELECT c.name, SUM(o.total_amount)::int as value
                 FROM customers c
@@ -104,6 +103,103 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                     recentOrders
                 }
             };
+        })
+        // --- POS & Sales Reports ---
+        .get('/reports/pos', async ({ query }) => {
+            const days = parseInt(query.days as string) || 7;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfRange = new Date(startOfToday.getTime() - ((days - 1) * 24 * 60 * 60 * 1000));
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const [revenueStats] = await db`
+                SELECT 
+                    COALESCE(SUM(total_amount) FILTER (WHERE created_at >= ${startOfToday}), 0)::int as today_revenue,
+                    COALESCE(SUM(total_amount) FILTER (WHERE created_at >= ${startOfRange}), 0)::int as range_revenue,
+                    COUNT(*) FILTER (WHERE created_at >= ${startOfToday})::int as today_orders,
+                    COUNT(*) FILTER (WHERE created_at >= ${startOfRange})::int as range_orders
+                FROM orders
+                WHERE status NOT IN ('cancelled', 'pending')
+                  AND created_at >= ${startOfRange}
+            `;
+
+            const topProducts = await db`
+                SELECT p.name, SUM(oi.quantity)::int as total_qty, SUM(oi.subtotal)::int as total_sales
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                JOIN orders o ON oi.order_id = o.id
+                WHERE o.status NOT IN ('cancelled', 'pending')
+                  AND o.created_at >= ${startOfRange}
+                GROUP BY p.id, p.name
+                ORDER BY total_qty DESC
+                LIMIT 5
+            `;
+
+            const salesTrend = await db`
+                SELECT 
+                    TO_CHAR(days.d, 'DD Mon') as day,
+                    COALESCE(SUM(o.total_amount), 0)::int as revenue,
+                    COALESCE(COUNT(o.id), 0)::int as orders
+                FROM generate_series(
+                    date_trunc('day', ${startOfRange}::timestamp), 
+                    date_trunc('day', now()), 
+                    '1 day'::interval
+                ) as days(d)
+                LEFT JOIN orders o ON date_trunc('day', o.created_at) = days.d 
+                    AND o.status NOT IN ('cancelled', 'pending')
+                GROUP BY days.d
+                ORDER BY days.d ASC
+            `;
+
+            return { success: true, data: { summary: revenueStats, topProducts, trend: salesTrend, days } };
+        })
+        .get('/reports/payments', async ({ query }) => {
+            const days = parseInt(query.days as string) || 7;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfRange = new Date(startOfToday.getTime() - ((days - 1) * 24 * 60 * 60 * 1000));
+            const data = await db`
+                SELECT p.payment_method, SUM(p.amount)::int as total_sales, COUNT(*)::int as count
+                FROM payments p
+                WHERE created_at >= ${startOfRange}
+                GROUP BY p.payment_method
+                ORDER BY total_sales DESC
+            `;
+            return { success: true, data };
+        })
+        .get('/reports/items', async ({ query }) => {
+            const days = parseInt(query.days as string) || 7;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfRange = new Date(startOfToday.getTime() - ((days - 1) * 24 * 60 * 60 * 1000));
+            const data = await db`
+                SELECT p.name, p.category, SUM(oi.quantity)::int as total_qty, SUM(oi.subtotal)::int as total_sales
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                JOIN orders o ON oi.order_id = o.id
+                WHERE o.status NOT IN ('cancelled', 'pending')
+                  AND o.created_at >= ${startOfRange}
+                GROUP BY p.id, p.name, p.category
+                ORDER BY total_sales DESC
+            `;
+            return { success: true, data };
+        })
+        .get('/reports/categories', async ({ query }) => {
+            const days = parseInt(query.days as string) || 7;
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfRange = new Date(startOfToday.getTime() - ((days - 1) * 24 * 60 * 60 * 1000));
+            const data = await db`
+                SELECT p.category, SUM(oi.quantity)::int as total_qty, SUM(oi.subtotal)::int as total_sales
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                JOIN orders o ON oi.order_id = o.id
+                WHERE o.status NOT IN ('cancelled', 'pending')
+                  AND o.created_at >= ${startOfRange}
+                GROUP BY p.category
+                ORDER BY total_sales DESC
+            `;
+            return { success: true, data };
         })
         .get('/production', async () => {
             const stats = await db`

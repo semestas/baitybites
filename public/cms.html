@@ -10,6 +10,8 @@
     <meta name="theme-color" content="#f59638">
     <link rel="stylesheet" href="/css/main.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -20,18 +22,20 @@
                 <h3 class="mt-2 text-white">Admin CMS</h3>
             </div>
             <nav class="sidebar-nav">
-                <a href="#orders" class="active" onclick="switchSection('orders', event)"><i data-lucide="package"
+                <a href="#orders" class="active" onclick="switchSection('orders')"><i data-lucide="package"
                         class="sidebar-icon"></i> Kelola Pesanan</a>
-                <a href="#gallery" onclick="switchSection('gallery', event)"><i data-lucide="image"
-                        class="sidebar-icon"></i> Galeri Foto</a>
-                <a href="#instagram" onclick="switchSection('instagram', event)"><i data-lucide="instagram"
+                <a href="#gallery" onclick="switchSection('gallery')"><i data-lucide="image" class="sidebar-icon"></i>
+                    Galeri Foto</a>
+                <a href="#instagram" onclick="switchSection('instagram')"><i data-lucide="instagram"
                         class="sidebar-icon"></i> Instagram Settings</a>
-                <a href="#homepage" onclick="switchSection('homepage', event)"><i data-lucide="home"
-                        class="sidebar-icon"></i> Home Page Custom</a>
-                <a href="#settings" onclick="switchSection('settings', event)"><i data-lucide="settings"
+                <a href="#homepage" onclick="switchSection('homepage')"><i data-lucide="home" class="sidebar-icon"></i>
+                    Home Page Custom</a>
+                <a href="#settings" onclick="switchSection('settings')"><i data-lucide="settings"
                         class="sidebar-icon"></i> Setting Kontak</a>
-                <a href="#testimonials" onclick="switchSection('testimonials', event)"><i data-lucide="message-square"
+                <a href="#testimonials" onclick="switchSection('testimonials')"><i data-lucide="message-square"
                         class="sidebar-icon"></i> Moderasi Testimoni</a>
+                <a href="#reports" onclick="switchSection('reports')"><i data-lucide="bar-chart-2"
+                        class="sidebar-icon"></i> Laporan</a>
                 <a href="/kitchen.html"><i data-lucide="tv" class="sidebar-icon"></i> Kitchen View</a>
                 <a href="/dashboard" class="nav-back mt-4"><i data-lucide="arrow-left" class="sidebar-icon"></i>
                     Dashboard Utama</a>
@@ -543,6 +547,256 @@
                     </div>
                 </form>
             </section>
+
+            <!-- Reports Section (POS Reference Style) -->
+            <section id="reports-section" class="section-card" style="display: none;">
+                <div class="reports-wrapper">
+                    <!-- Reports Sidebar -->
+                    <aside class="reports-sidebar">
+                        <nav id="reports-nav">
+                            <a href="#" class="report-nav-item active" onclick="switchReportTab('summary', this)">
+                                <i data-lucide="bar-chart"></i> Sales Summary
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('payments', this)">
+                                <i data-lucide="credit-card"></i> Payment Method
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('items', this)">
+                                <i data-lucide="package"></i> Item Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('categories', this)">
+                                <i data-lucide="layout-grid"></i> Category Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('modifiers', this)">
+                                <i data-lucide="edit"></i> Modifier Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('discounts', this)">
+                                <i data-lucide="percent"></i> Discounts
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('taxes', this)">
+                                <i data-lucide="file-text"></i> Taxes
+                            </a>
+                        </nav>
+                    </aside>
+
+                    <!-- Reports Main Content -->
+                    <div class="reports-content">
+                        <!-- Summary View (Default) -->
+                        <div id="report-view-summary">
+                            <!-- Top Bar Filters -->
+                            <div class="flex justify-between items-center mb-8">
+                                <div class="flex gap-4">
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2"
+                                            onclick="toggleDropdown('date-dropdown')">
+                                            <i data-lucide="calendar" size="16"></i> <span id="current-range-label">Last
+                                                7 days</span> <i data-lucide="chevron-down" size="14"></i>
+                                        </button>
+                                        <div id="date-dropdown" class="dropdown-menu-custom">
+                                            <a href="#" onclick="updateDateRange(7, 'Last 7 days')">Last 7 days</a>
+                                            <a href="#" onclick="updateDateRange(30, 'Last 30 days')">Last 30 days</a>
+                                            <a href="#" onclick="updateDateRange(90, 'Last 90 days')">Last 90 days</a>
+                                            <a href="#" onclick="updateDateRange(365, 'Last 1 year')">Last 1 year</a>
+                                        </div>
+                                    </div>
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2"
+                                            onclick="toggleDropdown('export-dropdown')">
+                                            <i data-lucide="external-link" size="16"></i> Export <i
+                                                data-lucide="chevron-down" size="14"></i>
+                                        </button>
+                                        <div id="export-dropdown" class="dropdown-menu-custom text-left">
+                                            <a href="#" onclick="exportReport('pdf')"><i data-lucide="file-text"
+                                                    size="14"></i> PDF Report</a>
+                                            <a href="#" onclick="exportReport('csv')"><i data-lucide="file"
+                                                    size="14"></i> CSV Data</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary btn-sm flex items-center gap-2"
+                                    onclick="reloadCurrentReportTab()">
+                                    <i data-lucide="refresh-cw" size="16"></i> Refresh
+                                </button>
+                            </div>
+
+                            <!-- Metrics Grid -->
+                            <div class="pos-metrics-grid">
+                                <!-- Revenue Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Revenue</span>
+                                        <div class="trend-pill down" id="report-revenue-trend">
+                                            <i data-lucide="arrow-down" size="12"></i> 10%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle revenue">
+                                            <i data-lucide="trending-up" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-revenue-v2">Rp 0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Orders Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Orders</span>
+                                        <div class="trend-pill up" id="report-orders-trend">
+                                            <i data-lucide="arrow-up" size="12"></i> 20%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle orders">
+                                            <i data-lucide="shopping-cart" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-orders-v2">0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Average Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Average</span>
+                                        <div class="trend-pill down" id="report-avg-trend">
+                                            <i data-lucide="arrow-down" size="12"></i> 10%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle average">
+                                            <i data-lucide="repeat" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-avg-v2">Rp 0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sales Chart Box -->
+                            <div class="pos-chart-box">
+                                <div class="chart-header">
+                                    <h3>Sales chart</h3>
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-sm btn-ghost"
+                                            onclick="toggleDropdown('chart-more-dropdown')">
+                                            <i data-lucide="more-horizontal"></i>
+                                        </button>
+                                        <div id="chart-more-dropdown" class="dropdown-menu-custom">
+                                            <a href="#"
+                                                onclick="loadPOSReport(); toggleDropdown('chart-more-dropdown')"><i
+                                                    data-lucide="refresh-cw" size="14"></i> Refresh Chart</a>
+                                            <a href="#report-summary-rows"><i data-lucide="table" size="14"></i> View
+                                                Data Table</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-area" id="pos-chart-area">
+                                    <div class="chart-grid">
+                                        <div class="grid-line"><span>1200</span></div>
+                                        <div class="grid-line"><span>900</span></div>
+                                        <div class="grid-line"><span>600</span></div>
+                                        <div class="grid-line"><span>300</span></div>
+                                        <div class="grid-line"><span>0</span></div>
+                                    </div>
+                                    <div class="chart-svg-container">
+                                        <svg width="100%" height="100%" viewBox="0 0 800 200"
+                                            preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#f59638" stop-opacity="0.3" />
+                                                    <stop offset="100%" stop-color="#f59638" stop-opacity="0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path
+                                                d="M0,180 Q100,160 200,120 T400,80 T600,140 T800,160 L800,200 L0,200 Z"
+                                                fill="url(#chartGradient)" />
+                                            <path d="M0,180 Q100,160 200,120 T400,80 T600,140 T800,160" fill="none"
+                                                stroke="#f59638" stroke-width="3" />
+                                            <!-- Peak Tooltip Bubble -->
+                                            <g transform="translate(400, 75)">
+                                                <rect x="-20" y="-30" width="40" height="25" rx="12" fill="#1e293b" />
+                                                <text x="0" y="-13" fill="white" font-size="12" text-anchor="middle"
+                                                    font-weight="bold">956</text>
+                                                <circle cx="0" cy="5" r="4" fill="white" stroke="#f59638"
+                                                    stroke-width="2" />
+                                            </g>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="chart-labels">
+                                    <span>11:00am</span>
+                                    <span>12:00am</span>
+                                    <span>1:00pm</span>
+                                    <span>2:00pm</span>
+                                    <span>3:00pm</span>
+                                    <span>4:00pm</span>
+                                    <span>5:00pm</span>
+                                    <span>6:00pm</span>
+                                    <span>7:00pm</span>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Table -->
+                            <div class="pos-report-table-card">
+                                <div class="table-header">
+                                    <h3>Detailed Report</h3>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th class="text-right">Sales</th>
+                                                <th class="text-right">Refunds</th>
+                                                <th class="text-right">Net</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="report-summary-rows">
+                                            <tr>
+                                                <td class="font-bold">Gross Sales</td>
+                                                <td class="text-right" id="row-gross-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-gross-net">Rp 0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bold">Net Sales</td>
+                                                <td class="text-right" id="row-net-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-net-net">Rp 0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bold">Total Collected</td>
+                                                <td class="text-right" id="row-total-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-total-net">Rp 0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generic Detailed View (Shared for Payments, Items, Categories) -->
+                        <div id="report-view-detail" style="display: none;">
+                            <div class="pos-report-table-card">
+                                <div class="table-header">
+                                    <h3 id="detail-report-title">Report Title</h3>
+                                    <div class="flex gap-4">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2">
+                                            <i data-lucide="external-link" size="16"></i> Export
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="reloadCurrentReportTab()">
+                                            <i data-lucide="refresh-cw" size="16"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead id="detail-report-head"></thead>
+                                        <tbody id="detail-report-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
@@ -575,32 +829,23 @@
     <script>
         // apiCall is already globally available from app.js
 
-        function switchSection(section, event) {
-            if (event) event.preventDefault();
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section-card').forEach(s => s.style.display = 'none');
+            document.getElementById(`${sectionId}-section`).style.display = 'block';
 
-            document.getElementById('orders-section').style.display = section === 'orders' ? 'block' : 'none';
-            document.getElementById('testimonials-section').style.display = section === 'testimonials' ? 'block' : 'none';
-            document.getElementById('gallery-section').style.display = section === 'gallery' ? 'block' : 'none';
-            document.getElementById('instagram-section').style.display = section === 'instagram' ? 'block' : 'none';
-            document.getElementById('homepage-section').style.display = section === 'homepage' ? 'block' : 'none';
-            document.getElementById('settings-section').style.display = section === 'settings' ? 'block' : 'none';
+            document.querySelectorAll('.sidebar-nav a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('onclick')?.includes(sectionId)) a.classList.add('active');
+            });
 
-            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
-
-            if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            } else {
-                // If no event (like on initial load), find the link matching the hash
-                const link = document.querySelector(`.sidebar-nav a[href="#${section}"]`);
-                if (link) link.classList.add('active');
-            }
-
-            if (section === 'orders') loadOrders();
-            if (section === 'testimonials') loadTestimonials();
-            if (section === 'gallery') loadGallery();
-            if (section === 'instagram') loadInstagramSettings();
-            if (section === 'homepage') loadSettings();
-            if (section === 'settings') loadSettings();
+            if (sectionId === 'orders') loadOrders();
+            if (sectionId === 'testimonials') loadTestimonials();
+            if (sectionId === 'gallery') loadGallery();
+            // if (sectionId === 'customers') loadCustomers(); // Assuming this function exists if 'customers' is added
+            if (sectionId === 'reports') loadPOSReport();
+            if (sectionId === 'instagram') loadInstagramSettings();
+            if (sectionId === 'homepage') loadSettings();
+            if (sectionId === 'settings') loadSettings();
         }
 
         const statusLabels = {
@@ -632,6 +877,619 @@
             }
 
             loadOrders();
+        }
+
+        let currentReportTab = 'summary';
+
+        function switchReportTab(tab, element) {
+            currentReportTab = tab;
+            document.querySelectorAll('.report-nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            const summaryView = document.getElementById('report-view-summary');
+            const detailView = document.getElementById('report-view-detail');
+
+            if (tab === 'summary') {
+                summaryView.style.display = 'block';
+                detailView.style.display = 'none';
+                loadPOSReport();
+            } else {
+                summaryView.style.display = 'none';
+                detailView.style.display = 'block';
+                loadTabContent(tab);
+            }
+        }
+
+        function reloadCurrentReportTab() {
+            if (currentReportTab === 'summary') loadPOSReport();
+            else loadTabContent(currentReportTab);
+        }
+
+        async function loadTabContent(tab) {
+            const tableHead = document.getElementById('detail-report-head');
+            const tableBody = document.getElementById('detail-report-body');
+            const title = document.getElementById('detail-report-title');
+
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i data-lucide="refresh-cw" class="animate-spin mb-4 block mx-auto"></i> Memuat data...</td></tr>';
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                let endpoint = '';
+                let headHTML = '';
+                let renderRow = (item) => '';
+
+                switch (tab) {
+                    case 'payments':
+                        title.innerText = 'Payment Method Report';
+                        endpoint = `/cms/reports/payments?days=${currentDays}`;
+                        headHTML = '<tr><th>Payment Method</th><th class="text-center">Transactions</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.payment_method}</td>
+                                <td class="text-center">${item.count}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    case 'items':
+                        title.innerText = 'Item Sales Report';
+                        endpoint = `/cms/reports/items?days=${currentDays}`;
+                        headHTML = '<tr><th>Product Name</th><th>Category</th><th class="text-center">Qty Sold</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.name}</td>
+                                <td>${item.category}</td>
+                                <td class="text-center">${item.total_qty}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    case 'categories':
+                        title.innerText = 'Category Sales Report';
+                        endpoint = `/cms/reports/categories?days=${currentDays}`;
+                        headHTML = '<tr><th>Category Name</th><th class="text-center">Items Sold</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.category}</td>
+                                <td class="text-center">${item.total_qty}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    default:
+                        title.innerText = tab.charAt(0).toUpperCase() + tab.slice(1) + ' Report';
+                        tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-muted">Data untuk modul ini akan segera tersedia.</td></tr>';
+                        return;
+                }
+
+                const res = await apiCall(endpoint);
+                if (res.success) {
+                    tableHead.innerHTML = headHTML;
+                    if (res.data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-muted">Belum ada data penjualan tersedia.</td></tr>';
+                    } else {
+                        tableBody.innerHTML = res.data.map(renderRow).join('');
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            } catch (error) {
+                console.error('Report Tab Error:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-error">Gagal memuat data laporan.</td></tr>';
+            }
+        }
+
+        let currentDays = 7;
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isShow = dropdown.classList.contains('show');
+            document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            if (!isShow) dropdown.classList.add('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        async function updateDateRange(days, label) {
+            currentDays = days;
+            document.getElementById('current-range-label').innerText = label;
+            document.getElementById('date-dropdown').classList.remove('show');
+            reloadCurrentReportTab();
+        }
+
+        async function loadPOSReport() {
+            const chartArea = document.getElementById('pos-chart-area');
+            const summaryView = document.getElementById('report-view-summary');
+
+            try {
+                const res = await apiCall(`/cms/reports/pos?days=${currentDays}`);
+                if (res.success) {
+                    const data = res.data;
+                    const summary = data.summary;
+
+                    // Metrics V2
+                    const avgValue = summary.range_orders > 0 ? (summary.range_revenue / summary.range_orders) : 0;
+
+                    document.getElementById('report-revenue-v2').textContent = window.app.formatCurrency(summary.range_revenue);
+                    document.getElementById('report-orders-v2').textContent = summary.range_orders.toLocaleString();
+                    document.getElementById('report-avg-v2').textContent = window.app.formatCurrency(avgValue);
+
+                    // Table Rows
+                    const gross = summary.range_revenue;
+                    document.getElementById('row-gross-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-gross-net').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-net-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-net-net').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-total-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-total-net').textContent = window.app.formatCurrency(gross);
+
+                    // Draw Chart
+                    drawSalesChart(data.trend);
+
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('POS Report Error:', error);
+            }
+        }
+
+        function drawSalesChart(trend) {
+            const container = document.querySelector('.chart-svg-container');
+            const labelsContainer = document.querySelector('.chart-labels');
+            const gridContainer = document.querySelector('.chart-grid');
+
+            if (trend.length === 0) {
+                container.innerHTML = '<div class="flex items-center justify-center h-full text-muted">No data for this period</div>';
+                return;
+            }
+
+            const maxRevenue = Math.max(...trend.map(t => t.revenue), 1000);
+            const chartHeight = 200;
+            const chartWidth = 800;
+            const padding = 20;
+
+            // Generate grid
+            const gridCount = 4;
+            let gridHTML = '';
+            for (let i = 0; i <= gridCount; i++) {
+                const val = Math.round((maxRevenue / gridCount) * (gridCount - i));
+                gridHTML += `<div class="grid-line"><span>${val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : val.toLocaleString()}</span></div>`;
+            }
+            gridContainer.innerHTML = gridHTML;
+
+            // Generate path
+            const points = trend.map((t, i) => {
+                const x = (i / (trend.length - 1)) * chartWidth;
+                const y = chartHeight - ((t.revenue / maxRevenue) * (chartHeight - padding * 2) + padding);
+                return { x, y, data: t };
+            });
+
+            let pathD = `M ${points[0].x},${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                const prev = points[i - 1];
+                const curr = points[i];
+                const cp1x = prev.x + (curr.x - prev.x) / 2;
+                pathD += ` C ${cp1x},${prev.y} ${cp1x},${curr.y} ${curr.x},${curr.y}`;
+            }
+
+            const areaD = pathD + ` L ${chartWidth},${chartHeight} L 0,${chartHeight} Z`;
+
+            container.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 ${chartWidth} ${chartHeight}" preserveAspectRatio="none" id="sales-svg">
+                    <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#f59638" stop-opacity="0.3" />
+                            <stop offset="100%" stop-color="#f59638" stop-opacity="0" />
+                        </linearGradient>
+                    </defs>
+                    <path d="${areaD}" fill="url(#chartGradient)" />
+                    <path d="${pathD}" fill="none" stroke="#f59638" stroke-width="3" />
+                    ${points.map((p, i) => `
+                        <circle class="chart-point" cx="${p.x}" cy="${p.y}" r="4" fill="white" stroke="#f59638" stroke-width="2" 
+                                onmouseover="showChartTooltip(event, '${p.data.day}', ${p.data.revenue})"
+                                onmouseout="hideChartTooltip()">
+                        </circle>
+                    `).join('')}
+                </svg>
+                <div id="chart-tooltip" class="chart-tooltip-v2"></div>
+            `;
+
+            // Labels
+            labelsContainer.innerHTML = trend.map(t => `<span>${t.day}</span>`).join('');
+        }
+
+        function showChartTooltip(e, day, value) {
+            const tooltip = document.getElementById('chart-tooltip');
+            const svg = document.getElementById('sales-svg');
+            const rect = svg.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            tooltip.innerHTML = `
+                <span class="tooltip-date">${day}</span>
+                <span class="tooltip-value">${window.app.formatCurrency(value)}</span>
+            `;
+
+            tooltip.style.left = `${(x / rect.width) * 100}%`;
+            tooltip.style.top = `${(y / rect.height) * 100}%`;
+            tooltip.classList.add('show');
+        }
+
+        function hideChartTooltip() {
+            document.getElementById('chart-tooltip').classList.remove('show');
+        }
+
+        async function exportReport(type) {
+            if (type === 'pdf') {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4'); // Portrait mode for better readability
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    let yPos = 20;
+
+                    // ========== HEADER SECTION ==========
+                    // Company Logo & Branding
+                    doc.setFillColor(245, 150, 56); // Primary orange
+                    doc.rect(0, 0, pageWidth, 35, 'F');
+
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('BAITYBITES', 14, 15);
+
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('Risol Mayo Premium - Order Management System', 14, 22);
+
+                    // Report Title
+                    doc.setFontSize(16);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('SALES PERFORMANCE REPORT', 14, 30);
+
+                    yPos = 45;
+
+                    // ========== REPORT METADATA ==========
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+
+                    const periodLabel = document.getElementById('current-range-label').innerText;
+                    const generatedDate = new Date().toLocaleString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    doc.setFillColor(240, 240, 240);
+                    doc.roundedRect(14, yPos, pageWidth - 28, 20, 2, 2, 'F');
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Report Period:', 18, yPos + 7);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(periodLabel, 50, yPos + 7);
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Generated:', 18, yPos + 14);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(generatedDate, 50, yPos + 14);
+
+                    yPos += 30;
+
+                    if (currentReportTab === 'summary') {
+                        // ========== EXECUTIVE SUMMARY ==========
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('EXECUTIVE SUMMARY', 14, yPos);
+                        yPos += 8;
+
+                        // Key Metrics Cards
+                        const metrics = [
+                            {
+                                label: 'Total Revenue',
+                                value: document.getElementById('report-revenue-v2').textContent,
+                                icon: 'Rp',
+                                color: [16, 185, 129] // Green
+                            },
+                            {
+                                label: 'Total Orders',
+                                value: document.getElementById('report-orders-v2').textContent,
+                                icon: '#',
+                                color: [59, 130, 246] // Blue
+                            },
+                            {
+                                label: 'Average Order Value',
+                                value: document.getElementById('report-avg-v2').textContent,
+                                icon: 'AVG',
+                                color: [245, 150, 56] // Orange
+                            }
+                        ];
+
+                        metrics.forEach((metric, index) => {
+                            const xOffset = 14 + (index * 62);
+
+                            // Card background
+                            doc.setFillColor(...metric.color);
+                            doc.roundedRect(xOffset, yPos, 58, 28, 3, 3, 'F');
+
+                            // Icon
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(metric.icon, xOffset + 4, yPos + 10);
+
+                            // Label
+                            doc.setFontSize(8);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(metric.label, xOffset + 4, yPos + 17);
+
+                            // Value
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'bold');
+                            const valueText = metric.value.length > 15 ? metric.value.substring(0, 12) + '...' : metric.value;
+                            doc.text(valueText, xOffset + 4, yPos + 24);
+                        });
+
+                        yPos += 38;
+
+                        // ========== DETAILED BREAKDOWN ==========
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('DETAILED BREAKDOWN', 14, yPos);
+                        yPos += 5;
+
+                        // Comprehensive metrics table
+                        doc.autoTable({
+                            startY: yPos,
+                            head: [['Performance Indicator', 'Current Period', 'Status']],
+                            body: [
+                                [
+                                    'Revenue Performance',
+                                    document.getElementById('report-revenue-v2').textContent,
+                                    'Active'
+                                ],
+                                [
+                                    'Order Volume',
+                                    document.getElementById('report-orders-v2').textContent,
+                                    'Tracked'
+                                ],
+                                [
+                                    'Average Transaction Value',
+                                    document.getElementById('report-avg-v2').textContent,
+                                    'Calculated'
+                                ],
+                                [
+                                    'Gross Sales',
+                                    document.getElementById('row-gross-sales')?.textContent || 'N/A',
+                                    'Verified'
+                                ],
+                                [
+                                    'Net Sales',
+                                    document.getElementById('row-net-sales')?.textContent || 'N/A',
+                                    'Verified'
+                                ]
+                            ],
+                            theme: 'striped',
+                            headStyles: {
+                                fillColor: [245, 150, 56],
+                                textColor: [255, 255, 255],
+                                fontStyle: 'bold',
+                                fontSize: 10
+                            },
+                            bodyStyles: {
+                                fontSize: 9
+                            },
+                            alternateRowStyles: {
+                                fillColor: [250, 250, 250]
+                            },
+                            columnStyles: {
+                                0: { cellWidth: 80, fontStyle: 'bold' },
+                                1: { cellWidth: 60, halign: 'right' },
+                                2: { cellWidth: 40, halign: 'center', textColor: [16, 185, 129] }
+                            }
+                        });
+
+                        yPos = doc.lastAutoTable.finalY + 10;
+
+                        // ========== TOP PRODUCTS SECTION ==========
+                        if (yPos > pageHeight - 80) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('TOP PERFORMING PRODUCTS', 14, yPos);
+                        yPos += 5;
+
+                        // Get top products data
+                        const topProductsRows = document.querySelectorAll('#top-products-table tbody tr');
+                        const topProductsData = [];
+                        topProductsRows.forEach((row, index) => {
+                            if (index < 5) { // Top 5 products
+                                const cells = row.querySelectorAll('td');
+                                if (cells.length >= 3) {
+                                    topProductsData.push([
+                                        `${index + 1}. ${cells[0].textContent.trim()}`,
+                                        cells[1].textContent.trim(),
+                                        cells[2].textContent.trim()
+                                    ]);
+                                }
+                            }
+                        });
+
+                        if (topProductsData.length > 0) {
+                            doc.autoTable({
+                                startY: yPos,
+                                head: [['Product Name', 'Units Sold', 'Revenue']],
+                                body: topProductsData,
+                                theme: 'grid',
+                                headStyles: {
+                                    fillColor: [59, 130, 246],
+                                    textColor: [255, 255, 255],
+                                    fontStyle: 'bold',
+                                    fontSize: 10
+                                },
+                                bodyStyles: {
+                                    fontSize: 9
+                                },
+                                columnStyles: {
+                                    0: { cellWidth: 100 },
+                                    1: { cellWidth: 40, halign: 'center' },
+                                    2: { cellWidth: 50, halign: 'right', fontStyle: 'bold' }
+                                }
+                            });
+                            yPos = doc.lastAutoTable.finalY + 10;
+                        }
+
+                        // ========== SALES TREND ANALYSIS ==========
+                        if (yPos > pageHeight - 60) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('SALES TREND ANALYSIS', 14, yPos);
+                        yPos += 5;
+
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'italic');
+                        doc.setTextColor(100, 100, 100);
+                        doc.text('Daily sales performance breakdown for the selected period', 14, yPos);
+                        yPos += 8;
+
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('For detailed trend visualization, please refer to the dashboard chart.', 14, yPos);
+                        yPos += 10;
+
+                    } else {
+                        // ========== DETAILED REPORT (Payments/Items/Categories) ==========
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        const reportTitle = document.getElementById('detail-report-title').textContent;
+                        doc.text(reportTitle.toUpperCase(), 14, yPos);
+                        yPos += 5;
+
+                        // Export the visible table
+                        const visibleTable = document.querySelector('.table:visible');
+                        if (visibleTable) {
+                            doc.autoTable({
+                                startY: yPos,
+                                html: visibleTable,
+                                theme: 'grid',
+                                headStyles: {
+                                    fillColor: [245, 150, 56],
+                                    textColor: [255, 255, 255],
+                                    fontStyle: 'bold',
+                                    fontSize: 10
+                                },
+                                bodyStyles: {
+                                    fontSize: 9
+                                },
+                                alternateRowStyles: {
+                                    fillColor: [250, 250, 250]
+                                }
+                            });
+                        }
+                    }
+
+                    // ========== FOOTER ON EVERY PAGE ==========
+                    const totalPages = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= totalPages; i++) {
+                        doc.setPage(i);
+
+                        // Footer line
+                        doc.setDrawColor(245, 150, 56);
+                        doc.setLineWidth(0.5);
+                        doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
+
+                        // Footer text
+                        doc.setFontSize(8);
+                        doc.setTextColor(100, 100, 100);
+                        doc.setFont(undefined, 'normal');
+                        doc.text('Baitybites OMS - Confidential Business Report', 14, pageHeight - 10);
+                        doc.text(`Page ${i} of ${totalPages}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+                        doc.text(`Generated: ${new Date().toLocaleDateString('id-ID')}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    }
+
+                    // Save the PDF
+                    const filename = `Baitybites_Sales_Report_${periodLabel.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    doc.save(filename);
+
+                    window.app.showNotification('PDF report generated successfully!', 'success');
+                    toggleDropdown('export-dropdown');
+
+                } catch (error) {
+                    console.error('PDF Export Error:', error);
+                    window.app.showNotification('Failed to generate PDF report', 'error');
+                }
+            } else if (type === 'csv') {
+                // ========== CSV EXPORT ==========
+                try {
+                    let csv = '';
+                    const periodLabel = document.getElementById('current-range-label').innerText;
+
+                    // CSV Header
+                    csv += `Baitybites Sales Report\n`;
+                    csv += `Period: ${periodLabel}\n`;
+                    csv += `Generated: ${new Date().toLocaleString('id-ID')}\n\n`;
+
+                    if (currentReportTab === 'summary') {
+                        csv += 'Metric,Value\n';
+                        csv += `Total Revenue,${document.getElementById('report-revenue-v2').textContent}\n`;
+                        csv += `Total Orders,${document.getElementById('report-orders-v2').textContent}\n`;
+                        csv += `Average Order Value,${document.getElementById('report-avg-v2').textContent}\n`;
+                        csv += `Gross Sales,${document.getElementById('row-gross-sales')?.textContent || 'N/A'}\n`;
+                        csv += `Net Sales,${document.getElementById('row-net-sales')?.textContent || 'N/A'}\n`;
+                    } else {
+                        const table = document.querySelector('.table:visible');
+                        if (table) {
+                            const rows = table.querySelectorAll('tr');
+                            rows.forEach(row => {
+                                const cols = row.querySelectorAll('th, td');
+                                const rowData = Array.from(cols).map(col => {
+                                    let text = col.textContent.trim();
+                                    // Escape commas and quotes
+                                    if (text.includes(',') || text.includes('"')) {
+                                        text = `"${text.replace(/"/g, '""')}"`;
+                                    }
+                                    return text;
+                                }).join(',');
+                                csv += rowData + '\n';
+                            });
+                        }
+                    }
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Baitybites_Report_${periodLabel.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    window.app.showNotification('CSV data exported successfully!', 'success');
+                    toggleDropdown('export-dropdown');
+
+                } catch (error) {
+                    console.error('CSV Export Error:', error);
+                    window.app.showNotification('Failed to export CSV data', 'error');
+                }
+            }
         }
 
         async function loadOrders() {
@@ -1029,7 +1887,8 @@
         }
 
         // Initial Load
-        switchSection('orders');
+        const initialSection = window.location.hash.replace('#', '') || 'orders';
+        switchSection(initialSection);
         loadInstagramSettings();
 
         // Close popovers when clicking outside
