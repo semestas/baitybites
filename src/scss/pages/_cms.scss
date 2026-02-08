@@ -261,7 +261,7 @@
 .status-popover {
     position: absolute;
     top: calc(100% + 12px); // Changed from bottom to top
-    right: 50%;
+    right: 100%;
     transform: translateX(50%) translateY(10px) scale(0.95);
     width: 380px;
     border-radius: 16px;
@@ -285,7 +285,7 @@
         content: '';
         position: absolute;
         top: -6px; // Flipped from bottom to top
-        left: 50%;
+        right: 30%;
         margin-left: -6px;
         width: 12px;
         height: 12px;
