@@ -8,16 +8,15 @@
 .docs-layout {
     display: grid;
     grid-template-columns: var(--docs-sidebar-width) 1fr;
-    min-height: calc(100vh - 80px);
+    height: calc(100vh - 80px);
+    overflow: hidden;
 }
 
 .docs-sidebar {
     background: var(--neutral-50);
     border-right: 1px solid var(--neutral-200);
     padding: var(--spacing-xl);
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 80px);
+    height: 100%;
     overflow-y: auto;
 }
 
@@ -59,13 +58,16 @@
 }
 
 .docs-content {
-    padding: var(--spacing-2xl) var(--spacing-3xl);
-    max-width: 900px;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    // max-width: 900px;
     margin: 0 auto;
+    height: 100%;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 }
 
 .docs-section {
-    margin-bottom: var(--spacing-3xl);
+    margin-bottom: var(--spacing-2xl);
     scroll-margin-top: 100px;
 }
 

@@ -1,31 +1,5 @@
 @use "sass:math";
-
-// Typography System Configuration
-$ratio: 0.9;
-
-// MAX (desktop)
-$h1-max: 32px;
-$h1-space-max: 16px;
-
-// MIN (mobile)
-$h1-min: 26px;
-$h1-space-min: 12px;
-
-// body & small
-$p-max: 14px;
-$p-min: 13px;
-
-$small-max: 10px;
-$small-min: 10px; // fixed
-
-
-@function scale($value, $level) {
-  @return $value * math.pow($ratio, $level - 1);
-}
-
-@function fluid($min, $max) {
-  @return clamp($min, 4vw, $max);
-}
+@use '../abstracts/typography' as t;
 
 // Global Base
 html {
@@ -34,7 +8,7 @@ html {
 
 body {
   font-family: var(--font-primary);
-  font-size: fluid($p-min, $p-max);
+  font-size: t.fluid(t.$p-min, t.$p-max);
   line-height: normal;
   color: var(--neutral-800);
   background: var(--neutral-50);
@@ -46,13 +20,9 @@ body {
 
   h#{$i},
   .h#{$i} {
-    font-size: fluid(scale($h1-min, $i),
-        scale($h1-max, $i));
-
+    font-size: t.fluid(t.scale(t.$h1-min, $i), t.scale(t.$h1-max, $i));
     margin-top: 0;
-    margin-bottom: fluid(scale($h1-space-min, $i),
-        scale($h1-space-max, $i));
-
+    margin-bottom: t.fluid(t.scale(t.$h1-space-min, $i), t.scale(t.$h1-space-max, $i));
     line-height: 1.25;
     font-weight: 700;
     font-family: var(--font-display);
@@ -61,14 +31,14 @@ body {
 }
 
 p {
-  font-size: fluid($p-min, $p-max);
+  font-size: t.fluid(t.$p-min, t.$p-max);
   margin-top: 0;
   margin-bottom: 1rem;
 }
 
 small,
 .text-xs {
-  font-size: fluid($small-min, $small-max);
+  font-size: t.fluid(t.$small-min, t.$small-max);
   line-height: 1.4;
 }
 

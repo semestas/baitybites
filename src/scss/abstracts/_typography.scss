@@ -1,0 +1,31 @@
+@use "sass:math";
+
+// Typography Constants
+$ratio: 0.9;
+
+// MAX (desktop)
+$h1-max: 32px;
+$h1-space-max: 16px;
+
+// MIN (mobile)
+$h1-min: 26px;
+$h1-space-min: 12px;
+
+// body & small
+$p-max: 14px;
+$p-min: 13px;
+
+$small-max: 10px;
+$small-min: 10px;
+
+// Display (metrics, large numbers)
+$display-max: 28px;
+$display-min: 22px;
+
+@function fluid($min, $max) {
+    @return clamp($min, 4vw, $max);
+}
+
+@function scale($value, $level) {
+    @return $value * math.pow($ratio, $level - 1);
+}

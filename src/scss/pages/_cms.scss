@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 
 @use '../abstracts/variables' as *;
+@use '../abstracts/typography' as t;
 
 .cms-grid {
     display: grid;
@@ -78,11 +79,7 @@
 }
 
 .section-card {
-    background: $white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: $shadow-sm;
-    margin-bottom: 30px;
+    margin-bottom: var(--spacing-md);
 }
 
 .badge {
@@ -1009,13 +1006,12 @@ textarea.form-input {
 .reports-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-md);
     min-height: 700px;
 }
 
 .reports-sidebar {
     background: white;
-    padding: 0.5rem;
     border-radius: 16px;
     box-shadow: var(--shadow-sm);
     border: 1px solid #f1f5f9;
@@ -1025,17 +1021,18 @@ textarea.form-input {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 0.25rem;
+        padding: var(--spacing-sm);
     }
 
     .report-nav-item {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        color: #8898aa;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-sm) var(--spacing-md);
+        color: var(--neutral-500);
         text-decoration: none;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.65rem;
         border-radius: 10px;
         transition: all 0.2s;
         white-space: nowrap;
@@ -1066,15 +1063,19 @@ textarea.form-input {
 .pos-metrics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .pos-metric-card {
     background: white;
-    padding: 24px;
+    padding: var(--spacing-md);
     border-radius: 20px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     border: 1px solid #f1f5f9;
     position: relative;
 
@@ -1135,7 +1136,7 @@ textarea.form-input {
         }
 
         .metric-value {
-            font-size: 1.75rem;
+            font-size: t.fluid(t.$display-min, t.$display-max);
             font-weight: 800;
             color: #1e293b;
             letter-spacing: -0.02em;
@@ -1149,7 +1150,7 @@ textarea.form-input {
     padding: 24px;
     border-radius: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    margin-bottom: 2rem;
+    margin-bottom: var(--spacing-md);
 
     .chart-header {
         display: flex;
