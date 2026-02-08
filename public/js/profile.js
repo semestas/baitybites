@@ -55,9 +55,9 @@ async function loadProfile() {
             document.getElementById('view-phone').textContent = user.phone || '-';
             document.getElementById('view-address').textContent = user.address || '-';
 
-            // Set Avatar
-            // Add a timestamp for cache busting if it's the same URL (though Cloudinary usually changes them)
-            const avatarUrl = user.avatar_url ? `${user.avatar_url}?t=${Date.now()}` : '/assets/placeholder-user.png';
+            // Set Avatar - don't use cache buster for Google profile images to avoid rate limiting
+            // Only add timestamp for non-Google/Cloudinary URLs if needed, but safer to omit for now
+            const avatarUrl = user.avatar_url || '/assets/placeholder-user.png';
 
             const viewAvatar = document.getElementById('view-avatar');
             const editAvatar = document.getElementById('edit-avatar-preview');
@@ -74,6 +74,9 @@ async function loadProfile() {
                 } else {
                     el.src = avatarUrl;
                     el.alt = user.name || 'User';
+                    if (avatarUrl.includes('googleusercontent.com')) {
+                        el.setAttribute('referrerpolicy', 'no-referrer');
+                    }
                 }
             };
 

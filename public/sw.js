@@ -120,17 +120,19 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
-                // Return cached version but update cache in background
-                fetch(event.request).then((response) => {
-                    const vary = response.headers.get('Vary');
-                    if (response.ok && (!vary || !vary.includes('*'))) {
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, response);
-                        });
-                    }
-                }).catch(() => {
-                    // Ignore fetch errors for background updates
-                });
+                // Return cached version 
+                // Only update cache in background for SAME-ORIGIN assets
+                // This prevents excessive requests to external APIs like Google (avoiding 429)
+                if (url.origin === self.location.origin) {
+                    fetch(event.request).then((response) => {
+                        const vary = response.headers.get('Vary');
+                        if (response.ok && (!vary || !vary.includes('*'))) {
+                            caches.open(CACHE_NAME).then((cache) => {
+                                cache.put(event.request, response);
+                            });
+                        }
+                    }).catch(() => { });
+                }
                 return cachedResponse;
             }
 

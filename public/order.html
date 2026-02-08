@@ -246,43 +246,49 @@
 
 
                 <!-- Redesigned Success Modal -->
-                <div id="successModal" class="modal-overlay">
-                    <div class="modal animate-scale-up">
+                <div id="successModal" class="modal-overlay hidden">
+                    <div class="modal animate-scale-up success-modal-compact">
                         <div class="modal-header">
                             <div class="icon-wrapper">
-                                <i data-lucide="party-popper" size="64"></i>
+                                <i data-lucide="party-popper" size="48"></i>
                             </div>
                             <h2>Pesanan Berhasil!</h2>
                             <p>Terima kasih telah memesan di Baitybites</p>
-                            <div class="decorative-curve"></div>
                         </div>
 
                         <div class="modal-body">
-                            <div class="order-info">
-                                <p class="text-muted text-sm">
-                                    Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
-                                </p>
+                            <p class="text-muted text-sm text-center mb-4">
+                                Silakan simpan nomor order Anda untuk melacak proses produksi & pengiriman.
+                            </p>
 
-                                <div class="info-box">
-                                    <div class="info-row">
-                                        <span>Nomor Order</span>
-                                        <div id="successOrderNumber" class="info-value order-id">PO-XXXX</div>
+                            <div class="info-box-compact">
+                                <div class="info-row-compact">
+                                    <span class="label">Nomor Order</span>
+                                    <div class="value-wrapper">
+                                        <span id="successOrderNumber" class="info-value">PO-XXXX</span>
+                                        <button class="btn-copy-inline" id="copyOrderBtn" title="Salin Nomor Order">
+                                            <i data-lucide="copy" size="14"></i>
+                                            <span>Salin</span>
+                                        </button>
                                     </div>
-                                    <div class="info-row">
-                                        <span>Nomor Invoice</span>
-                                        <div id="successInvoiceNumber" class="info-value invoice-id">INV-XXXX</div>
+                                </div>
+                                <div class="info-row-compact">
+                                    <span class="label">Nomor Invoice</span>
+                                    <div class="value-wrapper">
+                                        <span id="successInvoiceNumber" class="info-value">INV-XXXX</span>
+                                        <button class="btn-copy-inline" id="copyInvoiceBtn" title="Salin Nomor Invoice">
+                                            <i data-lucide="copy" size="14"></i>
+                                            <span>Salin</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="action-buttons">
-                                <button id="btnCopy" class="btn btn-primary btn-copy">
-                                    <span>Salin Nomor Order</span>
-                                </button>
-                                <a id="btnTrackLink" href="#" class="btn btn-primary btn-track">
+                            <div class="action-buttons-compact">
+                                <a id="btnTrackLink" href="/track.html" class="btn btn-primary btn-track">
                                     <span>Lacak Pesanan</span>
                                 </a>
-                                <button onclick="location.reload()" class="btn btn-outline btn-order-close">
+                                <button onclick="location.reload()" class="btn btn-neutral btn-close-success">
                                     <span>Tutup</span>
                                 </button>
                             </div>

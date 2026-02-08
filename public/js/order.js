@@ -545,10 +545,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.getElementById('successInvoiceNumber').textContent = result.data.invoice_number;
                     document.getElementById('btnTrackLink').href = '/track.html?number=' + (result.data.invoice_number || result.data.order_number);
 
-                    document.getElementById('btnCopy').onclick = () => {
-                        navigator.clipboard.writeText(result.data.order_number);
-                        showNotification('Nomor order berhasil dicopy!', 'success');
-                    };
+                    // Setup inline copy buttons
+                    const copyOrderBtn = document.getElementById('copyOrderBtn');
+                    const copyInvoiceBtn = document.getElementById('copyInvoiceBtn');
+
+                    if (copyOrderBtn) {
+                        copyOrderBtn.onclick = () => {
+                            navigator.clipboard.writeText(result.data.order_number);
+                            showNotification('Nomor order berhasil dicopy!', 'success');
+
+                            // Visual feedback on button
+                            const origText = copyOrderBtn.innerHTML;
+                            copyOrderBtn.innerHTML = '<i data-lucide="check" size="14"></i><span>Tersalin</span>';
+                            if (window.lucide) lucide.createIcons();
+                            setTimeout(() => {
+                                copyOrderBtn.innerHTML = origText;
+                                if (window.lucide) lucide.createIcons();
+                            }, 2000);
+                        };
+                    }
+
+                    if (copyInvoiceBtn) {
+                        copyInvoiceBtn.onclick = () => {
+                            navigator.clipboard.writeText(result.data.invoice_number);
+                            showNotification('Nomor invoice berhasil dicopy!', 'success');
+
+                            // Visual feedback on button
+                            const origText = copyInvoiceBtn.innerHTML;
+                            copyInvoiceBtn.innerHTML = '<i data-lucide="check" size="14"></i><span>Tersalin</span>';
+                            if (window.lucide) lucide.createIcons();
+                            setTimeout(() => {
+                                copyInvoiceBtn.innerHTML = origText;
+                                if (window.lucide) lucide.createIcons();
+                            }, 2000);
+                        };
+                    }
 
                     document.getElementById('successModal').classList.remove('hidden');
                     document.getElementById('successModal').style.display = 'flex';

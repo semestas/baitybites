@@ -34,6 +34,9 @@ function showTestimonyForm() {
         if (modalUserAvatar) {
             modalUserAvatar.src = user.avatar_url || '/assets/avatar-1.png';
             modalUserAvatar.alt = user.name;
+            if (user.avatar_url && user.avatar_url.includes('googleusercontent.com')) {
+                modalUserAvatar.setAttribute('referrerpolicy', 'no-referrer');
+            }
         }
         aliasHint.style.display = 'block';
         testNameInput.value = user.name;
@@ -117,7 +120,7 @@ async function loadContent() {
                     <div class="testimony-rating">${renderRatingStars(t.rating)}</div>
                     <p class="quote">"${t.content}"</p>
                     <div class="user-info">
-                        <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}">
+                        <img src="${t.avatar_url || '/assets/avatar-1.png'}" alt="${t.name}" ${t.avatar_url && t.avatar_url.includes('googleusercontent.com') ? 'referrerpolicy="no-referrer"' : ''}>
                         <div>
                             <h4>
                                 ${t.name}

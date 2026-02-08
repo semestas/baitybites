@@ -3,25 +3,25 @@
 
 .main-content.order-main-content {
     padding-top: 6rem !important; // Increased to prevent header overlap
-    padding-bottom: 4rem !important;
+    // padding-bottom: 4rem !important;
 }
 
-.order-page-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem 1rem 1rem; // Minimal bottom padding
-}
+// .order-page-container {
+//     max-width: 1200px;
+//     margin: 0 auto;
+//     padding: 0 1rem 1rem 1rem; // Minimal bottom padding
+// }
 
 // Category Tabs
 .category-tabs {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
     flex-wrap: wrap;
 
     .category-tab {
-        padding: 0.6rem 1.75rem;
+        padding: var(--spacing-sm) var(--spacing-md);
         background: white;
         border: 2px solid var(--neutral-200);
         border-radius: 50px;
@@ -30,7 +30,7 @@
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: 'Exo', sans-serif;
-        margin-bottom: 0.5rem;
+        margin-bottom: var(--spacing-sm);
 
         &:hover {
             border-color: var(--primary-300);
@@ -50,8 +50,8 @@
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
-    gap: 2rem;
-    margin-bottom: 1rem; // Reduced from 3rem
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg); // Reduced from 3rem
 }
 
 // Redesigned Product Card
@@ -199,13 +199,11 @@
 
             .btn-add-cart {
                 flex: 1;
-                height: 42px;
+                height: 2rem;
                 background: var(--primary-500);
                 color: white;
                 border: none;
                 border-radius: 10px;
-                font-weight: 700;
-                font-size: 0.9rem;
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 display: flex;
@@ -774,110 +772,165 @@
 
 // Success Modal specific styles
 #successModal {
-    .modal {
-        max-width: 500px;
-        border-radius: 2rem;
-        overflow: hidden;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+
+    .modal.success-modal-compact {
+        max-width: 420px;
+        border-radius: 1.5rem;
+        padding: 0;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
         .modal-header {
-            text-align: center;
-            padding: 3rem 2rem 2rem;
-            background: white;
-            border-bottom: none;
+            padding: 2rem 2rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
+            text-align: center;
+            border: none;
 
             .icon-wrapper {
-                width: 80px;
-                height: 80px;
+                width: 60px;
+                height: 60px;
                 background: var(--success);
                 color: white;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-bottom: 1.5rem;
-                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+                margin-bottom: 1.25rem;
+                box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
 
                 svg {
-                    width: 40px;
-                    height: 40px;
+                    width: 32px;
+                    height: 32px;
                 }
             }
 
             h2 {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
+                font-weight: 800;
                 color: var(--neutral-900);
                 margin-bottom: 0.5rem;
-                font-weight: 800;
             }
 
             p {
+                font-size: 0.9rem;
                 color: var(--neutral-500);
-                margin: 0;
             }
         }
 
         .modal-body {
-            padding: 0 2rem 3rem;
+            padding: 1rem 2rem 2.5rem;
 
-            .order-info {
-                text-align: center;
+            .info-box-compact {
+                background: var(--neutral-50);
+                border: 1px solid var(--neutral-200);
+                border-radius: 12px;
+                padding: 1rem 1.25rem;
                 margin-bottom: 2rem;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 
-                .info-box {
-                    background: var(--neutral-50);
-                    border: 1px solid var(--neutral-100);
-                    border-radius: 1rem;
-                    padding: 1.5rem;
-                    margin-top: 1.5rem;
+                .info-row-compact {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.75rem 0;
 
-                    .info-row {
+                    &:not(:last-child) {
+                        border-bottom: 1px solid var(--neutral-100);
+                    }
+
+                    .label {
+                        font-size: 0.8rem;
+                        color: var(--neutral-500);
+                        font-weight: 500;
+                    }
+
+                    .value-wrapper {
                         display: flex;
-                        justify-content: space-between;
                         align-items: center;
-                        margin-bottom: 1rem;
-
-                        &:last-child {
-                            margin-bottom: 0;
-                        }
-
-                        span {
-                            font-size: 0.9rem;
-                            color: var(--neutral-500);
-                            font-weight: 600;
-                        }
+                        gap: 0.5rem;
 
                         .info-value {
-                            font-family: monospace;
-                            font-size: 1.1rem;
+                            font-size: 0.95rem;
                             font-weight: 700;
                             color: var(--neutral-900);
-                            background: white;
-                            padding: 0.25rem 0.75rem;
-                            border-radius: 0.5rem;
-                            border: 1px solid var(--neutral-200);
+                            font-family: 'Exo', sans-serif;
+                        }
+
+                        .btn-copy-inline {
+                            background: var(--status-shipping); // Teal/Cyan color from ref
+                            color: white;
+                            border: none;
+                            padding: 0.35rem 0.6rem;
+                            border-radius: 6px;
+                            font-size: 0.7rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.35rem;
+                            transition: all 0.2s;
+
+                            &:hover {
+                                background: #0891b2;
+                                transform: translateY(-1px);
+                            }
+
+                            &:active {
+                                transform: translateY(0);
+                            }
+
+                            span {
+                                font-size: 0.65rem;
+                            }
                         }
                     }
                 }
             }
 
-            .action-buttons {
+            .action-buttons-compact {
                 display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
+                gap: 1rem;
+                justify-content: center;
 
                 .btn {
-                    width: 100%;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 10px;
+                    font-weight: 700;
+                    font-size: 0.95rem;
+                    flex: 0 1 auto;
+                    min-width: 120px;
+                    display: flex;
+                    align-items: center;
                     justify-content: center;
-                    padding: 0.875rem;
-                    font-size: 1rem;
                 }
 
-                .btn-copy {
-                    background: var(--neutral-900);
+                .btn-track {
+                    background: linear-gradient(135deg, #f59e0b, #ea580c);
+                    color: white;
+                    border: none;
+                    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+
+                    &:hover {
+                        box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4);
+                        transform: translateY(-2px);
+                    }
+                }
+
+                .btn-neutral {
+                    background: var(--neutral-600);
+                    color: white;
+                    border: none;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+                    &:hover {
+                        background: var(--neutral-700);
+                        transform: translateY(-2px);
+                    }
                 }
             }
         }
@@ -890,8 +943,8 @@
 .footer-main {
     background: #030014; // Deep dark blue/black
     color: white;
-    padding: 5rem 0 2rem;
-    margin-top: 6rem;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    // margin-top: 6rem;
     position: relative;
     overflow: hidden;
 
@@ -904,8 +957,8 @@
     .footer-content-wrapper {
         display: flex;
         flex-direction: column;
-        gap: 4rem;
-        margin-bottom: 5rem;
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
 
         @media (min-width: 992px) {
             flex-direction: row;
@@ -1031,12 +1084,11 @@
             nav {
                 display: flex;
                 flex-direction: column;
-                gap: 1rem;
+                gap: var(--spacing-sm);
 
                 a {
-                    color: var(--neutral-300);
+                    color: var(--neutral-500);
                     text-decoration: none;
-                    font-size: 1rem;
                     transition: color 0.2s;
 
                     &:hover {
@@ -1051,7 +1103,7 @@
     .footer-divider {
         height: 1px;
         background: rgba(255, 255, 255, 0.1);
-        margin-bottom: 2rem;
+        margin-bottom: var(--spacing-lg);
     }
 
     .footer-bottom {
