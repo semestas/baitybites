@@ -1007,44 +1007,53 @@ textarea.form-input {
 
 // 📊 Reports Styles (Reference POS Style)
 .reports-wrapper {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     min-height: 700px;
 }
 
 .reports-sidebar {
+    background: white;
+    padding: 0.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #f1f5f9;
+
     nav {
         display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.25rem;
     }
 
     .report-nav-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 16px;
+        gap: 8px;
+        padding: 8px 16px;
         color: #8898aa;
         text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9rem;
-        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 10px;
         transition: all 0.2s;
+        white-space: nowrap;
 
         &:hover {
-            background: #f1f5f9;
+            background: #f8fafc;
             color: #2d3748;
         }
 
         &.active {
             background: #fff5eb;
             color: #f59638;
-            border-left: 4px solid #f59638;
+            border-bottom: 2px solid #f59638;
+            border-radius: 10px 10px 0 0;
         }
 
         i {
-            width: 18px;
+            width: 16px;
         }
     }
 }
