@@ -32,9 +32,12 @@
 @use 'pages/customers';
 @use 'pages/production';
 @use 'pages/tracker';
+@use 'pages/track';
 @use 'pages/order';
 @use 'pages/products';
 @use 'pages/cms';
+@use 'pages/login';
+@use 'pages/index';
 
 // Utilities
 @use 'utilities/spacing';

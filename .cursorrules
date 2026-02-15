@@ -1,0 +1,16 @@
+
+# SCSS File Architecture Rules
+
+1.  **Strict File Structure**: All styling must be done using SCSS files.
+    -   Create a new SCSS file for each distinct page or major component.
+    -   Store these files in `src/scss/pages/` or `src/scss/components/` as appropriate.
+    -   File names must start with an underscore (e.g., `_login.scss`).
+
+2.  **No Inline Styles**: Do not use `<style>` blocks or inline `style="..."` attributes in HTML files.
+
+3.  **Registration**: Always register new SCSS partials in `src/scss/style.scss` using the `@use` directive.
+    -   Example: `@use 'pages/login';`
+
+4.  **Utility Usage**: Use utility classes (like `.text-center`, `.mt-md`) where possible instead of writing new CSS rules for simple layout tweaks.
+
+5.  **Build Process**: After creating or modifying SCSS files, verify the build by running `bun run style:build`.

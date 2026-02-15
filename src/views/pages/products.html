@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Products - Baitybites OMS</title>
+    {{> head_shared }}
+</head>
+
+<body class="products-page">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="flex justify-between items-center mb-4 mt-4">
+                    <div>
+                        <h1 class="animate-fade-in">Products</h1>
+                        <p class="text-muted">Katalog produk dan stok Baitybites</p>
+                    </div>
+                    <!-- Added ID for easier selection -->
+                    <button id="btnAddProduct" class="btn btn-primary"><i data-lucide="plus" size="18"></i> Add
+                        Product</button>
+                </div>
+
+                <div id="categoryTabs" class="tabs-container mb-6 animate-fade-in"></div>
+
+                <div class="animate-fade-in" id="productGrid">
+                    <div class="card initial-loading-card">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Add Product Modal -->
+            <!-- Enhanced Add Product Modal -->
+            <div id="addProductModal" class="modal-overlay" style="display: none;">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Add New Product</h2>
+                        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <form id="addProductForm">
+                        <input type="hidden" name="id" id="productId">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-input" placeholder="e.g. Risol Mayo Original"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" id="productDescription" class="form-textarea"
+                                    placeholder="Describe the product details..." rows="3"></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-product"
+                                        onclick="window.app.enhanceWithAI('product', 'Product Description', '#productDescription')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <div class="flex gap-2">
+                                    <select name="category" id="categorySelect" class="form-select form-select-flexible"
+                                        required onchange="handleCategoryChange(this.value)">
+                                        <option value="">Select Category</option>
+                                        <option value="NEW">+ Add New Category</option>
+                                    </select>
+                                    <input type="text" id="newCategoryInput" class="form-input" style="display: none;"
+                                        placeholder="New Category Name">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Product Image</label>
+                                <input type="file" name="image" class="form-input" accept="image/*">
+                            </div>
+
+                            <div class="grid grid-2 gap-4">
+                                <div class="form-group mb-0">
+                                    <label class="form-label">Price (Rp) <span class="text-danger">*</span></label>
+                                    <input type="number" name="price" class="form-input" placeholder="50000" required
+                                        min="0">
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="form-label">Unit <span class="text-danger">*</span></label>
+                                    <input type="text" name="unit" class="form-input" placeholder="box, pcs, pack"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Initial Stock <span class="text-danger">*</span></label>
+                                <input type="number" name="stock" class="form-input" placeholder="0" required min="0"
+                                    value="0">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="btnSaveProduct">
+                                <span id="saveText">Save Product</span>
+                                <span id="saveSpinner" class="spinner" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        {{> footer_admin }}
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script>
+        // const { apiCall, formatCurrency, showNotification } = window.app;
+
+        // Destructure only if they aren't globally available or rename them to avoid conflict
+        // However, 'app.js' doesn't automatically declare them into global scope as vars, 
+        // it attaches them to 'window.app'.
+        // BUT, if you already have a script that does `const apiCall = ...` in the same scope, it errors.
+        // In this case, let's just use window.app.apiCall or rename the destructuring.
+
+        const { apiCall: callApi, formatCurrency: fmtMoney, showNotification: notify } = window.app;
+
+        // Store products globally for easy access
+        window.currentProducts = [];
+        window.activeCategory = 'All';
+
+        async function loadProducts() {
+            try {
+                const response = await callApi('/cms/products');
+                if (response.success) {
+                    window.currentProducts = response.data;
+                    updateCategoryDropdown(response.data);
+                    renderCategoryTabs(response.data);
+                    renderProducts(response.data);
+                }
+            } catch (e) {
+                document.getElementById('productGrid').innerHTML = '<p class="text-danger">Gagal memuat produk.</p>';
+            }
+        }
+
+        function updateCategoryDropdown(products) {
+            const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
+            const select = document.getElementById('categorySelect');
+
+            // Keep first two options (Select and Add New)
+            const options = Array.from(select.options).slice(0, 2);
+            select.innerHTML = '';
+            options.forEach(opt => select.add(opt));
+
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.add(opt);
+            });
+        }
+
+        function renderCategoryTabs(products) {
+            const categories = ['All', ...new Set(products.map(p => p.category || 'General'))];
+            const container = document.getElementById('categoryTabs');
+
+            container.innerHTML = categories.map(cat => `
+                <button class="tab-btn ${window.activeCategory === cat ? 'active' : ''}" 
+                        onclick="switchCategory('${cat}')">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function switchCategory(cat) {
+            window.activeCategory = cat;
+            renderCategoryTabs(window.currentProducts);
+            renderProducts(window.currentProducts);
+        }
+
+        function handleCategoryChange(value) {
+            const input = document.getElementById('newCategoryInput');
+            if (value === 'NEW') {
+                input.style.display = 'block';
+                input.required = true;
+                input.focus();
+            } else {
+                input.style.display = 'none';
+                input.required = false;
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+
+            const filtered = window.activeCategory === 'All'
+                ? products
+                : products.filter(p => (p.category || 'General') === window.activeCategory);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="text-muted text-center w-full py-8">Tidak ada produk di kategori ini.</p>';
+                return;
+            }
+
+            // Group by category
+            const grouped = filtered.reduce((acc, p) => {
+                const cat = p.category || 'General';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(p);
+                return acc;
+            }, {});
+
+            grid.className = "animate-fade-in";
+            grid.innerHTML = Object.entries(grouped).map(([category, items]) => `
+                <div class="category-section mb-8">
+                    <h2 class="category-title">${category}</h2>
+                    <div class="grid grid-4">
+                        ${items.map(p => `
+                            <div class="product-card">
+                                ${p.image_url ? `
+                                <div class="product-image-wrapper">
+                                    <div class="product-image" style="background-image: url('${p.image_url}');"></div>
+                                </div>
+                                ` : ''}
+                                <div class="product-card-content">
+                                    <div class="product-card-header">
+                                        <h3>${p.name}</h3>
+                                        <span class="badge ${p.stock > 10 ? 'badge-success' : 'badge-warning'} badge-stock">STOK: ${p.stock}</span>
+                                    </div>
+                                    <p class="product-description line-clamp-2">${p.description || 'No description available.'}</p>
+                                    <div class="product-card-footer">
+                                        <div class="price-container">
+                                            <span class="price-value">${fmtMoney(p.price)}</span>
+                                            <span class="price-unit">/${p.unit}</span>
+                                        </div>
+                                        <button class="btn btn-outline btn-sm btn-edit" onclick="editProduct(${p.id})">Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-initialize Lucide icons after rendering
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Modal Functions
+        const modal = document.getElementById('addProductModal');
+        const btnAdd = document.getElementById('btnAddProduct');
+        const modalTitle = document.querySelector('.modal-title');
+        const btnSaveText = document.getElementById('saveText');
+
+        function openModal() {
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            handleCategoryChange(document.getElementById('categorySelect').value);
+            // Initialize Lucide icons in the modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modal.style.display = 'none';
+            document.getElementById('addProductForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('newCategoryInput').style.display = 'none';
+            modalTitle.textContent = 'Add New Product';
+            btnSaveText.textContent = 'Save Product';
+        }
+
+        function editProduct(id) {
+            const product = window.currentProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('productId').value = product.id;
+            document.querySelector('input[name="name"]').value = product.name;
+            document.querySelector('textarea[name="description"]').value = product.description || '';
+            document.querySelector('input[name="price"]').value = product.price;
+            document.querySelector('input[name="unit"]').value = product.unit;
+            document.querySelector('input[name="stock"]').value = product.stock;
+
+            const categorySelect = document.getElementById('categorySelect');
+            categorySelect.value = product.category || 'General';
+            handleCategoryChange(categorySelect.value);
+
+            modalTitle.textContent = 'Edit Product';
+            btnSaveText.textContent = 'Update Product';
+
+            openModal();
+        }
+
+        // Image Processing Function
+        function processImage(file) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    reject(new Error('Invalid file type'));
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Target dimensions: Max width 1000px, maintain aspect ratio
+                    const maxWidth = 1000;
+                    let targetWidth = img.width;
+                    let targetHeight = img.height;
+
+                    if (img.width > maxWidth) {
+                        targetWidth = maxWidth;
+                        targetHeight = img.height * (maxWidth / img.width);
+                    }
+
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    // Draw image scaled
+                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+                    // Convert to Blob/File
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            // Create a new File object with the same name
+                            const processedFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(processedFile);
+                        } else {
+                            reject(new Error('Canvas to Blob failed'));
+                        }
+                    }, 'image/jpeg', 0.9); // 90% quality JPEG
+                };
+                img.onerror = (e) => reject(e);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Handle Add/Edit Product Logic
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btnSave = document.getElementById('btnSaveProduct');
+            const saveText = document.getElementById('saveText');
+            const saveSpinner = document.getElementById('saveSpinner');
+            const fileInput = document.querySelector('input[name="image"]');
+            const productId = document.getElementById('productId').value;
+            const categorySelect = document.getElementById('categorySelect');
+            const newCategoryInput = document.getElementById('newCategoryInput');
+
+            // Loading State
+            btnSave.disabled = true;
+            saveText.style.display = 'none';
+            saveSpinner.style.display = 'inline-block';
+
+            const formData = new FormData();
+
+            // Add form fields manually to have better control
+            formData.append('name', document.querySelector('input[name="name"]').value);
+            formData.append('description', document.querySelector('textarea[name="description"]').value || '');
+            formData.append('price', document.querySelector('input[name="price"]').value);
+            formData.append('unit', document.querySelector('input[name="unit"]').value);
+            formData.append('stock', document.querySelector('input[name="stock"]').value);
+
+            // Handle Category
+            let category = categorySelect.value;
+            if (category === 'NEW') {
+                category = newCategoryInput.value.trim();
+            }
+            formData.append('category', category);
+
+            try {
+                // Process image ONLY if a file is selected
+                const imageFile = fileInput.files[0];
+                if (imageFile && imageFile.size > 0) {
+                    try {
+                        const processedImage = await processImage(imageFile);
+                        formData.append('image', processedImage);
+                        console.log(`Image processed: ${imageFile.size} -> ${processedImage.size} bytes`);
+                    } catch (err) {
+                        console.error('Image processing failed, using original:', err);
+                        formData.append('image', imageFile);
+                    }
+                }
+                // If no image selected, don't add the image field at all
+
+                // Determine URL and Method
+                const url = productId ? `/cms/products/${productId}` : '/cms/products';
+                const method = productId ? 'PUT' : 'POST';
+
+                const result = await callApi(url, {
+                    method: method,
+                    body: formData
+                });
+
+                if (result.success) {
+                    notify(productId ? 'Produk berhasil diperbarui!' : 'Produk berhasil ditambahkan!', 'success');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    notify(result.message || 'Gagal menyimpan produk', 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save product:', error);
+                notify('Terjadi kesalahan saat menyimpan produk', 'error');
+            } finally {
+                // Reset State
+                btnSave.disabled = false;
+                saveText.style.display = 'inline-block';
+                saveSpinner.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            if (btnAdd) {
+                btnAdd.onclick = openModal;
+            }
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

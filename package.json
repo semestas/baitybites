@@ -1,17 +1,19 @@
 {
   "name": "baitybites",
-  "version": "1.6.1",
+  "version": "1.6.4",
   "description": "Order Management System for Baitybites",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"bun run dev:server\" \"bun run style:watch\"",
+    "build:html": "bun build-html.ts",
+    "update-version": "bun build-html.ts",
+    "dev": "bun run build:html && concurrently \"bun run dev:server\" \"bun run style:watch\" \"bun --watch build-html.ts\"",
     "dev:server": "bun --watch index.ts",
-    "start": "bun index.ts",
-    "build": "bun run style:build && bun build index.ts --outdir ./dist --target bun",
-    "style:watch": "sass --watch src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css",
-    "style:build": "sass src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css --style compressed"
+    "start": "bun run build:html && bun index.ts",
+    "build": "bun run build:html && bun run style:build && bun build index.ts --outdir ./dist --target bun",
+    "style:watch": "sass --watch src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css",
+    "style:build": "sass src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css --style compressed"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -23,7 +25,7 @@
     "eslint": "^9.39.2",
     "eslint-plugin-unused-imports": "^4.3.0",
     "prettier": "^3.8.0",
-    "sass": "^1.97.2"
+    "sass": "^1.97.3"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -32,12 +34,15 @@
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/jwt": "^1.4.0",
     "@google/generative-ai": "^0.24.1",
+    "@types/nodemailer": "^7.0.9",
     "arctic": "^3.7.0",
     "cloudinary": "^2.9.0",
     "crypto-js": "^4.2.0",
     "elysia": "^1.4.22",
     "elysia-oauth2": "^2.1.0",
+    "nodemailer": "^8.0.1",
     "oauth-1.0a": "^2.2.6",
-    "postgres": "^3.4.8"
+    "postgres": "^3.4.8",
+    "puppeteer": "^24.37.3"
   }
 }

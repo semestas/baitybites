@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Production - Baitybites OMS</title>
+    {{> head_shared }}
+</head>
+
+<body class="page_production">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content production-main-content">
+            <div class="container">
+                <div class="mb-4">
+                    <h1 class="animate-fade-in">Production</h1>
+                    <p class="text-muted">Pantau status produksi Risol Mayo</p>
+                </div>
+
+                <div class="grid grid-3 mb-4 animate-fade-in production-grid">
+                    <div class="stat-card border-info">
+                        <div class="stat-label">In Production</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="flame"></i></div>
+                    </div>
+                    <div class="stat-card border-warning">
+                        <div class="stat-label">Wait for Packing</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="package"></i></div>
+                    </div>
+                    <div class="stat-card border-success">
+                        <div class="stat-label">Ready to Ship</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-icon-bg"><i data-lucide="truck"></i></div>
+                    </div>
+                </div>
+
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">Antrean Produksi</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Status</th>
+                                        <th colspan="2">Update Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productionTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="spinner mx-auto my-5"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        {{> footer_admin }}
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/production.js?v={{VERSION}}"></script>
+</body>
+
+</html>

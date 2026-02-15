@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Login - Baitybites Order Management</title>
+    <meta name="description"
+        content="Masuk ke akun Baitybites Anda untuk menikmati kemudahan pemesanan, gratis ongkir, dan kumpulkan poin reward setiap hari!">
+    {{> head_shared }}
+    <!-- Styles moved to src/scss/pages/_login.scss -->
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-container customer-login">
+            <div class="login-card">
+                <div class="login-logo">
+                    <img src="/assets/logo.png" alt="Baitybites Logo">
+                </div>
+                <div class="login-header">
+                    <h1>Portal Pelanggan</h1>
+                    <p>Masuk untuk mendapatkan promo khusus & kemudahan lacak pesanan</p>
+                </div>
+
+                <div class="google-login-area">
+                    <button type="button" onclick="loginWithGoogle()" class="btn btn-outline btn-lg btn-google-login">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                            style="width: 24px;">
+                        <span>Lanjutkan dengan Google</span>
+                    </button>
+
+                    <div class="benefit-box">
+                        <p>
+                            <i data-lucide="star"></i> Keuntungan Akun Google:
+                        </p>
+                        <ul>
+                            <li><i data-lucide="truck"></i>
+                                <strong>Gratis Ongkir</strong> harian otomatis.
+                            </li>
+                            <li><i data-lucide="line-chart"></i>
+                                <strong>Riwayat Pesanan</strong> tersimpan permanen.
+                            </li>
+                            <li><i data-lucide="gem"></i>
+                                <strong>Poin Reward</strong> per transaksi.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script>
+        // const { showNotification } = window.app;
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            // Check if already authenticated using global helpers
+            const { isAdmin, getUser } = window.app;
+            const user = getUser();
+
+            if (user) {
+                // If admin is already logged in, redirect to dashboard
+                if (isAdmin()) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // If customer/guest is logged in, redirect to home
+                    window.location.href = '/';
+                }
+                return;
+            }
+
+            // Check if redirected with token from OAuth
+            const params = new URLSearchParams(window.location.search);
+            const oauthToken = params.get('token');
+            const authStatus = params.get('auth');
+
+            if (authStatus === 'success' && oauthToken) {
+                localStorage.setItem('token', oauthToken);
+                // We show notification and redirect
+                showNotification('Login Google Berhasil!', 'success');
+
+                // Fetch user data to store in localStorage
+                fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${oauthToken}` }
+                })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            localStorage.setItem('user', JSON.stringify(result.data));
+
+                            // Check for saved redirect path (e.g. from order page)
+                            const redirectPath = localStorage.getItem('login_redirect');
+                            if (redirectPath) {
+                                localStorage.removeItem('login_redirect');
+                                window.location.href = redirectPath;
+                                return;
+                            }
+
+                            // Default redirect using global logic
+                            if (result.data.role === 'admin') {
+                                window.location.href = '/dashboard.html';
+                            } else {
+                                window.location.href = '/';
+                            }
+                        }
+                    });
+            } else if (authStatus === 'error') {
+                const message = params.get('message') || 'Gagal login Google';
+                showNotification(message, 'error');
+            }
+        });
+
+        async function loginWithGoogle() {
+            // Redirect to backend to initiate Google flow
+            window.location.href = '/api/auth/google/login';
+        }
+
+    </script>
+</body>
+
+</html>

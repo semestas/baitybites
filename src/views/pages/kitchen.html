@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Production Keeper - Baitybites</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    {{> head_shared }}
+</head>
+
+<body class="kitchen-page">
+    <div id="alert-overlay" class="alert-overlay">
+        <div id="toast" class="kitchen-alert">
+            <div class="alert-icon" id="alert-icon"><i data-lucide="bell"></i></div>
+            <div id="alert-order-number" class="alert-order-num">#ORD-XXXX</div>
+            <div id="alert-status-state" class="alert-status-state">[STATUS]</div>
+            <div id="alert-description" class="alert-desc">Keterangan alert</div>
+            <button class="alert-close-btn" onclick="hideAlert()">MENGERTI</button>
+        </div>
+    </div>
+
+    <div class="sticky-nav-container">
+        <header class="app-header">
+            <div class="app-header-logo">
+                <img src="/assets/logo.png" class="app-header-logo-img">
+                <span class="app-header-logo-text">Kitchen</span>
+            </div>
+            <div class="header-actions">
+                <div class="custom-dropdown" id="sortDropdown">
+                    <button class="dropdown-trigger" id="dropdownTrigger">
+                        <span id="selectedValue">Terbaru</span>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <div class="dropdown-item active" data-value="newest">
+                            <i data-lucide="clock" class="mr-2"></i>
+                            <span>Terbaru</span>
+                        </div>
+                        <div class="dropdown-item" data-value="oldest">
+                            <i data-lucide="history" class="mr-2"></i>
+                            <span>Terlama (FIFO)</span>
+                        </div>
+                        <div class="dropdown-item" data-value="items">
+                            <i data-lucide="layers" class="mr-2"></i>
+                            <span>Banyak Item</span>
+                        </div>
+                        <div class="dropdown-item hidden" data-value="urgent" id="opt-urgent">
+                            <i data-lucide="zap" class="mr-2"></i>
+                            <span>Paling Mendesak</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="soundToggle" class="btn-icon" onclick="toggleAudio()" title="Test/Enable Sound">
+                    <i data-lucide="volume-2" id="soundIcon"></i>
+                </button>
+                <button id="themeToggle" class="btn-icon" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
+                <div id="connectionStatus" class="connection-dot">
+                </div>
+            </div>
+        </header>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('incoming')">
+                Masuk <span id="count-incoming" class="badge badge-sm badge-ghost ml-2">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('production')">
+                Produksi <span id="count-production" class="badge badge-sm badge-ghost ml-2">0</span>
+            </button>
+        </div>
+    </div>
+
+    <main id="app-content" class="app-main-content">
+        <div class="loading-container">
+            <i data-lucide="loader-2" class="animate-spin"></i>
+            <p>Memuat data...</p>
+        </div>
+    </main>
+
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kitchen-theme', newTheme);
+
+            // Update icon
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                themeIcon.setAttribute('data-lucide', newTheme === 'dark' ? 'sun' : 'moon');
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        // Initialize theme on page load
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('kitchen-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Update icon after Lucide loads
+            window.addEventListener('load', () => {
+                const themeIcon = document.getElementById('themeIcon');
+                if (themeIcon && savedTheme === 'light') {
+                    themeIcon.setAttribute('data-lucide', 'moon');
+                    if (window.lucide) {
+                        lucide.createIcons();
+                    }
+                }
+            });
+        })();
+    </script>
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/kitchen.js?v={{VERSION}}"></script>
+</body>
+
+</html>

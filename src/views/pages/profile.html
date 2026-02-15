@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Profil Pelanggan - Baitybites</title>
+    {{> head_shared }}
+</head>
+
+<body class="bg-neutral-50">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" class="h-50">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container profile-page-container">
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">Profil Saya</h2>
+                        <p class="text-muted">Kelola informasi pribadi Anda untuk pemesanan yang lebih cepat.</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- Profile View (Read-only) -->
+                        <div id="profileView" class="animate-fade-in">
+                            <div class="avatar-container">
+                                <div class="avatar-wrapper no-cursor">
+                                    <img id="view-avatar" src="/assets/placeholder-user.png" alt="Profile"
+                                        class="profile-avatar">
+                                </div>
+                            </div>
+
+                            <div class="profile-view-grid">
+                                <div class="view-item">
+                                    <label>Nama Lengkap</label>
+                                    <div id="view-name" class="view-value">-</div>
+                                </div>
+                                <div class="view-item">
+                                    <label>Nomor WhatsApp</label>
+                                    <div id="view-phone" class="view-value">-</div>
+                                </div>
+                                <div class="view-item full-width">
+                                    <label>Email Konfirmasi</label>
+                                    <div id="view-email" class="view-value">-</div>
+                                </div>
+                                <div class="view-item full-width">
+                                    <label>Alamat Tujuan</label>
+                                    <div id="view-address" class="view-value">-</div>
+                                </div>
+                            </div>
+                            <div class="profile-actions">
+                                <button type="button" onclick="toggleEditMode(true)" class="btn btn-primary w-full">Ubah
+                                    Profil</button>
+                            </div>
+                        </div>
+
+                        <!-- Profile Form (Hidden by default) -->
+                        <form id="profileForm" class="hidden">
+                            <div class="avatar-container">
+                                <div class="avatar-wrapper" onclick="document.getElementById('avatar-input').click()">
+                                    <img id="edit-avatar-preview" src="/assets/placeholder-user.png" alt="User"
+                                        class="profile-avatar">
+                                    <div class="avatar-edit-icon">
+                                        <i data-lucide="camera" class="wh-16"></i>
+                                    </div>
+                                </div>
+                                <input type="file" id="avatar-input" accept="image/*" class="hidden"
+                                    onchange="previewAvatar(this)">
+                                <p class="text-muted text-xs mt-2">Klik foto untuk mengubah</p>
+                            </div>
+
+                            <div class="grid grid-2 gap-4">
+                                <div class="form-group">
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" id="name" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Nomor WhatsApp</label>
+                                    <input type="tel" id="phone" class="form-input" placeholder="0812..." required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email (Tidak dapat diubah)</label>
+                                <input type="email" id="email" class="form-input bg-neutral-100 cursor-not-allowed"
+                                    disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Alamat Pengiriman</label>
+                                <textarea id="address" class="form-textarea"
+                                    placeholder="Alamat lengkap tujuan pengiriman" required></textarea>
+                            </div>
+
+                            <div class="mt-4 flex gap-2">
+                                <button type="button" onclick="toggleEditMode(false)"
+                                    class="btn btn-outline flex-1">Batal</button>
+                                <button type="submit" class="btn btn-primary flex-2">
+                                    <span id="btnText">Simpan Perubahan</span>
+                                    <div id="btnSpinner" class="spinner hidden wh-20 border-t-white"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a href="/order.html" class="btn btn-outline">Kembali ke Pemesanan</a>
+                </div>
+            </div>
+        </main>
+
+        {{> footer_public }}
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/profile.js?v={{VERSION}}"></script>
+</body>
+
+</html>

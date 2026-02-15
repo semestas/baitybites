@@ -64,3 +64,4 @@ coverage/
 *.temp
 .cache/
 *credentials.txt
+email.css

@@ -2,8 +2,9 @@ import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
 import { generateOrderNumber, generateInvoiceNumber } from '../utils/helpers';
 import { authPlugin } from '../middleware/auth';
+import type { EmailService } from '../services/email';
 
-export const publicRoutes = (db: Sql) =>
+export const publicRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/public' })
         .use(authPlugin)
         .post('/order', async ({ body, set, user }) => {
@@ -62,6 +63,21 @@ export const publicRoutes = (db: Sql) =>
                         INSERT INTO invoices (order_id, invoice_number, invoice_date, due_date, total_amount, status)
                         VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', ${totalAmount}, 'unpaid')
                     `;
+
+                    // 5. Send Email
+                    try {
+                        await emailService.sendPOInvoice({
+                            order_number: orderNumber,
+                            invoice_number: invoiceNumber,
+                            total_amount: totalAmount,
+                            name,
+                            email,
+                            address,
+                            items
+                        }, sql); // Pass transaction
+                    } catch (e) {
+                        console.error("[OrderRoute] Email sending failed, but order created:", e);
+                    }
 
                     return {
                         success: true,

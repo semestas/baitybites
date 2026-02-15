@@ -14,6 +14,7 @@ import { InstagramService } from "./src/services/instagram";
 import { WhatsAppService } from "./src/services/whatsapp";
 import { webhookRoutes } from "./src/routes/webhooks";
 import { AIService } from "./src/services/ai";
+import { EmailService } from "./src/services/email";
 
 // Initialize database
 const db = await initDatabase();
@@ -23,6 +24,7 @@ const PUBLIC_DIR = join(import.meta.dir, "public");
 const waService = new WhatsAppService(db);
 const igService = new InstagramService(db);
 const aiService = new AIService();
+const emailService = new EmailService(db);
 
 // Create Elysia app
 const app = new Elysia()
@@ -67,7 +69,9 @@ const app = new Elysia()
     .get("/favicon.ico", () => Bun.file(join(PUBLIC_DIR, "assets/favicon.png")))
     .get("/.well-known/*", () => new Response(null, { status: 404 }))
     .use(cors({
-        origin: true, // Allow all origins in production (or specify your Netlify domain)
+        origin: '*', // Using '*' instead of true avoids Vary: Origin which can interfere with caching
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         credentials: true
     }))
 
@@ -77,7 +81,7 @@ const app = new Elysia()
         app.get("/test", () => "api ok")
             .use(customerRoutes(db))
             .use(authRoutes(db))
-            .use(publicRoutes(db))
+            .use(publicRoutes(db, emailService))
             .use(cmsRoutes(db, aiService))
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
@@ -91,7 +95,7 @@ const app = new Elysia()
     // Standard pages loop
     .group("", app => {
         [
-            "login", "order", "track", "cms", "dashboard", "orders", "customers",
+            "index", "login", "admin", "order", "track", "cms", "dashboard", "orders", "customers",
             "products", "production", "kitchen", "privacy", "tos", "profile", "docs"
         ].forEach(page => {
             app.get(`/${page}.html`, () => new Response(readFileSync(join(PUBLIC_DIR, `${page}.html`), "utf-8"), {

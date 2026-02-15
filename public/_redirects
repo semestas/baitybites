@@ -2,6 +2,24 @@
 # Forward all /api requests to Render Backend
 /api/*  https://baitybites-api.onrender.com/api/:splat  200
 
-# Handle SPA Routing (for frontend consistency)
-/kitchen   /kitchen.html   200
-/*  /index.html  200
+# Standard Pages
+/login       /login.html       200
+/admin       /admin.html       200
+/order       /order.html       200
+/track       /track.html       200
+/cms         /cms.html         200
+/dashboard   /dashboard.html   200
+/orders      /orders.html      200
+/customers   /customers.html   200
+/products    /products.html    200
+/production  /production.html  200
+/kitchen     /kitchen.html     200
+/privacy     /privacy.html     200
+/tos         /tos.html         200
+/profile     /profile.html     200
+/docs        /docs.html        200
+
+# Catch-all for assets (optional but good practice)
+/assets/*    /assets/:splat    200
+/css/*       /css/:splat       200
+/js/*        /js/:splat        200

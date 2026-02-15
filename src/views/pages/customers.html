@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Customers - Baitybites OMS</title>
+    {{> head_shared }}
+</head>
+
+<body class="page-customers">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="flex justify-between items-center mb-4 mt-4">
+                    <div>
+                        <h1 class="animate-fade-in">Customers</h1>
+                        <p class="text-muted">Data pelanggan setia Baitybites</p>
+                    </div>
+                    <button class="btn btn-primary"><i data-lucide="user-plus" size="18"></i> Add Customer</button>
+                </div>
+
+                <div class="card animate-fade-in shadow-sm">
+                    <div class="card-header border-none bg-transparent">
+                        <div class="search-box-wrapper">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="searchInput" class="form-input search-input"
+                                placeholder="Cari nama, email, atau alamat pelanggan...">
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div id="customersGrid" class="customers-grid">
+                            <div class="grid-span-all text-center py-8">
+                                <div class="spinner mx-auto mb-5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        {{> footer_admin }}
+    </div>
+
+    <!-- Customer Details Modal -->
+    <div id="customerModal" class="modal-overlay" style="display:none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Detail Pelanggan</h3>
+                <button class="modal-close" onclick="closeCustomerModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="customerModalBody">
+                <!-- Data will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeCustomerModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script>
+        (function () {
+            const { apiCall, formatDate, formatDateTime } = window.app;
+            let allCustomers = [];
+
+            async function loadCustomers() {
+                try {
+                    const response = await apiCall('/cms/customers');
+                    if (response.success) {
+                        allCustomers = response.data;
+                        renderCustomers(allCustomers);
+                    } else {
+                        document.getElementById('customersGrid').innerHTML = `
+                            <div class="text-center text-danger grid-span-all py-12">Gagal memuat data pelanggan.</div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error loading customers:', error);
+                    document.getElementById('customersGrid').innerHTML = `
+                        <div class="text-center text-danger grid-span-all py-12">Terjadi kesalahan sistem.</div>
+                    `;
+                }
+            }
+
+            // Search functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        const filtered = allCustomers.filter(c =>
+                            c.name.toLowerCase().includes(searchTerm) ||
+                            c.email.toLowerCase().includes(searchTerm) ||
+                            (c.phone && c.phone.includes(searchTerm)) ||
+                            (c.address && c.address.toLowerCase().includes(searchTerm))
+                        );
+                        renderCustomers(filtered);
+                    });
+                }
+            });
+
+            function renderCustomers(customers) {
+                const grid = document.getElementById('customersGrid');
+
+                if (customers.length === 0) {
+                    grid.innerHTML = `<div class="text-center text-muted grid-span-all py-12">Belum ada data pelanggan.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = customers.map(c => `
+                    <div class="customer-card" onclick="showCustomerDetails(${c.id})">
+                        <div class="customer-card-header">
+                            <div class="customer-avatar">
+                                <span>${getInitials(c.name)}</span>
+                            </div>
+                            <div class="customer-info">
+                                <h3 class="customer-name">${c.name}</h3>
+                                <p class="customer-email">${c.email}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-card-body">
+                            <div class="customer-detail-row">
+                                <i data-lucide="phone" class="detail-icon"></i>
+                                <span>${c.phone || 'No phone'}</span>
+                            </div>
+                            <div class="customer-detail-row">
+                                <i data-lucide="map-pin" class="detail-icon"></i>
+                                <span class="customer-address">${c.address || 'Alamat tidak tersedia'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-card-footer">
+                            <div class="customer-stat">
+                                <span class="stat-label">Total Orders</span>
+                                <span class="badge badge-primary">${c.total_orders}</span>
+                            </div>
+                            <div class="customer-stat">
+                                <span class="stat-label">Last Order</span>
+                                <span class="badge badge-info">${c.last_order ? formatDateTime(c.last_order).split(' ')[0] : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                lucide.createIcons();
+            }
+
+            function getInitials(name) {
+                return name
+                    .split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+            }
+
+            window.showCustomerDetails = async function (id) {
+                const modal = document.getElementById('customerModal');
+                const body = document.getElementById('customerModalBody');
+
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+                body.innerHTML = '<div class="text-center"><div class="spinner mx-auto mb-5"></div><p>Loading details...</p></div>';
+
+                try {
+                    const response = await apiCall(`/cms/customers/${id}`);
+                    if (response.success) {
+                        renderCustomerModal(response.data);
+                    } else {
+                        body.innerHTML = `<p class="text-danger">Gagal memuat data: ${response.message}</p>`;
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer details:', error);
+                    body.innerHTML = `<p class="text-danger">Terjadi kesalahan sistem.</p>`;
+                }
+            }
+
+            function renderCustomerModal(c) {
+                const body = document.getElementById('customerModalBody');
+                const { formatCurrency, formatDateTime, getStatusBadgeClass, getStatusLabel } = window.app;
+
+                body.innerHTML = `
+                    <div class="customer-modal-grid">
+                        <div class="customer-info-card">
+                            <div class="info-row info-row-header">
+                                <i data-lucide="user"></i>
+                                Informasi Profil
+                            </div>
+                            <div class="member-since">
+                                Member sejak ${formatDateTime(c.created_at)}
+                            </div>
+                            <div class="info-row">
+                                <strong>Nama:</strong> ${c.name}
+                            </div>
+                            <div class="info-row">
+                                <strong>Email:</strong> ${c.email}
+                            </div>
+                            <div class="info-row">
+                                <strong>Telepon:</strong> ${c.phone || '-'}
+                            </div>
+                            <div class="info-row">
+                                <strong>Alamat:</strong>
+                                <span class="customer-address-block">${c.address || 'Alamat tidak tersedia'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="customer-stats-card">
+                            <div class="stat-row stat-row-header">
+                                <i data-lucide="trending-up"></i>
+                                Statistik Belanja
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Pesanan</span>
+                                <span class="badge badge-primary">${c.total_orders} ORDERS</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Total Transaksi</span>
+                                <span class="stat-value highlight">${formatCurrency(c.total_spent)}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Pesanan Terakhir</span>
+                                <span class="stat-value">${c.last_order ? formatDateTime(c.last_order) : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-orders-section">
+                        <div class="orders-list orders-list-header"><i data-lucide="history"></i>Riwayat Pesanan</div>
+                        <div class="orders-list">
+                            ${c.orders && c.orders.length ? c.orders.map(o => {
+                    const isProductionStatus = ['confirmed', 'production', 'packaging', 'shipping'].includes(o.status);
+                    const clickHandler = isProductionStatus ? `onclick="window.location.href='/production.html?highlight=${encodeURIComponent(o.order_number)}'"` : '';
+
+                    return `
+                                    <div class="order-history-item ${isProductionStatus ? 'is-clickable' : ''}" ${clickHandler}>
+                                        <div class="order-main-info">
+                                            <span class="order-num">#${o.order_number}</span>
+                                            <span class="order-date"><i data-lucide="calendar" style="width: 12px; height: 12px; margin-right: 4px;"></i>${formatDateTime(o.created_at)}</span>
+                                        </div>
+                                        <div class="order-secondary-info">
+                                            <span class="badge ${getStatusBadgeClass(o.status)}">${getStatusLabel(o.status)}</span>
+                                            <span class="order-amount">${formatCurrency(o.total_amount)}</span>
+                                        </div>
+                                    </div>
+                                `;
+                }).join('') : `
+                                <div class="empty-orders">
+                                    <i data-lucide="package-open" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 1rem;"></i>
+                                    <p>Belum ada riwayat pesanan.</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+
+            window.closeCustomerModal = () => {
+                const modal = document.getElementById('customerModal');
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadCustomers);
+            } else {
+                loadCustomers();
+            }
+
+            // Auto-refresh every 10 seconds to keep 'Last Order' updated
+            let refreshInterval = setInterval(loadCustomers, 10000);
+
+            // Pause refresh when modal is open
+            const modal = document.getElementById('customerModal');
+            const observer = new MutationObserver(() => {
+                if (modal.classList.contains('active')) {
+                    if (refreshInterval) {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    }
+                } else {
+                    if (!refreshInterval) {
+                        refreshInterval = setInterval(loadCustomers, 10000);
+                    }
+                }
+            });
+            observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+        })();
+    </script>
+</body>
+
+</html>

@@ -37,6 +37,14 @@
     transform: translateY(0);
   }
 
+  &.modal-sm {
+    max-width: 450px;
+  }
+
+  &.modal-lg {
+    max-width: 800px;
+  }
+
   // Mobile: Full-screen UX slide side panel
   @media (max-width: 768px) {
     width: 100% !important;

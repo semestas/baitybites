@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Tracking Pesanan - Baitybites</title>
+    <meta name="description"
+        content="Lacak status pesanan Baitybites Anda secara real-time. Cukup masukkan nomor order atau invoice untuk melihat posisi pesanan Anda saat ini.">
+    {{> head_shared }}
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/" class="logo">
+                        <img src="/assets/logo.png" alt="Baitybites Logo" class="track-header-logo">
+                    </a>
+                    <nav class="nav" id="mainNav"></nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content main-content-track">
+            <div class="container">
+                <div class="track-page">
+                    <div class="track-card">
+                        <div class="text-center mb-4">
+                            <img src="/assets/logo.png" alt="Baitybites Logo" class="track-form-logo">
+                            <h1>Lacak Pesanan</h1>
+                            <p class="text-muted">Masukkan Nomor Order atau Nomor Invoice untuk melihat progress PO
+                                Anda.</p>
+                        </div>
+
+                        <form id="trackForm" class="flex flex-col gap-2 mb-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="trackNumber" class="form-input"
+                                    placeholder="Contoh: PO-2026... atau INV-2026..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="btnText">Lacak</span>
+                                    <div id="btnSpinner" class="spinner" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="customerOrdersArea" style="display: none;">
+                            <h4>Pesanan Terbaru Anda</h4>
+                            <div id="customerOrdersList" class="flex flex-col gap-2">
+                                <!-- Will be populated by JS -->
+                            </div>
+                        </div>
+
+                        <div id="errorArea" class="text-danger mt-3 text-center" style="display: none;"></div>
+
+                        <div id="resultArea" style="display: none;">
+                            <div class="order-details">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 id="resOrderNumber">PO-XXXX</h3>
+                                    <span id="resBadge" class="badge">Status</span>
+                                </div>
+                                <p class="text-muted res-date-details">
+                                    Pelanggan: <span id="resCustomerName" class="customer-name">-</span><br>
+                                    Tanggal Order: <span id="resDate">-</span><br>
+                                    Invoice: <span id="resInvoiceNumber" class="invoice-number">-</span>
+                                </p>
+                            </div>
+
+                            <div class="status-timeline">
+                                <div class="timeline-item pending" id="step-pending">
+                                    <div class="timeline-dot"><i data-lucide="clock"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pesanan Diterima</div>
+                                        <div class="timeline-date">Pencatatan PO Berhasil</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item paid" id="step-paid">
+                                    <div class="timeline-dot"><i data-lucide="credit-card"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pembayaran & Invoice</div>
+                                        <div class="timeline-date">Verifikasi Pembayaran</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item production" id="step-production">
+                                    <div class="timeline-dot"><i data-lucide="flame"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Proses Produksi</div>
+                                        <div class="timeline-date">Risol Mayo sedang dibuat</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item packaging" id="step-packaging">
+                                    <div class="timeline-dot"><i data-lucide="package"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pengemasan</div>
+                                        <div class="timeline-date">Pesanan sedang dikemas rapi</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item shipping" id="step-shipping">
+                                    <div class="timeline-dot"><i data-lucide="truck"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pengiriman</div>
+                                        <div class="timeline-date" id="resShippingText">Menunggu kurir</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed" id="step-completed">
+                                    <div class="timeline-dot"><i data-lucide="check-circle"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Selesai</div>
+                                        <div class="timeline-date">Pesanan telah sampai tujuan</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-center">
+                                <a href="/" class="btn btn-outline btn-sm">Kembali ke Beranda</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        {{> footer_public }}
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/track.js?v={{VERSION}}"></script>
+</body>
+
+</html>

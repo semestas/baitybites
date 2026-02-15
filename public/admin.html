@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Admin Login - Baitybites OMS</title>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Styles moved to src/scss/pages/_login.scss -->
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-logo">
+                    <img src="/assets/logo.png" alt="Baitybites Logo">
+                </div>
+                <div class="login-header">
+                    <h1>Portal Administrator</h1>
+                    <p>Silakan login untuk mengelola sistem</p>
+                </div>
+
+                <form id="adminLoginForm">
+                    <div class="form-group text-left">
+                        <label class="form-label" for="username">Username</label>
+                        <input type="text" id="username" class="form-input" placeholder="Masukkan username" required
+                            autocomplete="username">
+                    </div>
+                    <div class="form-group text-left">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" id="password" class="form-input" placeholder="Masukkan password" required
+                            autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-full-width mt-md">
+                        <span id="btnText">Sign In</span>
+                        <div id="btnSpinner" class="spinner spinner-inline"></div>
+                    </button>
+
+                    <div id="errorMessage" class="text-danger mt-2 error-message"></div>
+
+                    <a href="/" class="btn btn-link mt-4 link-back">
+                        Kembali ke Home
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js?v=1.6.4"></script>
+    <script>
+        // Check if admin is already logged in
+        window.addEventListener('load', () => {
+            const { isAdmin, getUser } = window.app;
+            const user = getUser();
+            if (user && isAdmin()) {
+                window.location.href = '/dashboard.html';
+            }
+        });
+
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+
+            errorMessage.style.display = 'none';
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data.user.role === 'admin') {
+                    localStorage.setItem('token', result.data.token);
+                    localStorage.setItem('user', JSON.stringify(result.data.user));
+                    window.location.href = '/dashboard.html';
+                } else if (result.success && result.data.user.role !== 'admin') {
+                    errorMessage.textContent = 'Akses ditolak. Gunakan akun Administrator.';
+                    errorMessage.style.display = 'block';
+                } else {
+                    errorMessage.textContent = result.message || 'Login gagal';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Terjadi kesalahan sistem';
+                errorMessage.style.display = 'block';
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+                if (window.lucide) lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

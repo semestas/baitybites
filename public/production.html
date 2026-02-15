@@ -2,15 +2,18 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production - Baitybites OMS</title>
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    
-    <meta name="theme-color" content="#f59638">
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- <link rel="stylesheet" href="style.css"> -->
-
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="page_production">
@@ -21,16 +24,7 @@
                     <a href="/" class="logo">
                         <img src="/assets/logo.png" alt="Baitybites Logo">
                     </a>
-                    <nav class="nav" id="mainNav">
-                        <a href="/dashboard" class="nav-link">Dashboard</a>
-                        <a href="/orders.html" class="nav-link">Orders</a>
-                        <a href="/customers.html" class="nav-link">Customers</a>
-                        <a href="/products.html" class="nav-link">Products</a>
-                        <a href="/production.html" class="nav-link active">Production</a>
-                        <a href="/kitchen.html" class="nav-link">Kitchen</a>
-                        <a href="/cms.html" class="nav-link">CMS</a>
-                        <button class="btn btn-primary btn-sm" onclick="logout()">Logout</button>
-                    </nav>
+                    <nav class="nav" id="mainNav"></nav>
                 </div>
             </div>
         </header>
@@ -90,16 +84,28 @@
             </div>
         </main>
 
-        <footer class="footer-simple">
-            <div class="container">
-                <p>&copy; 2026 Baitybites. All rights reserved.</p>
+        <footer class="footer mt-3xl">
+    <div class="container">
+        <div class="footer-layout">
+            <div class="footer-brand">
+                <img src="/assets/logo.png" alt="Logo" class="footer-logo">
+                <div class="brand-info">
+                    <h4 class="m-0 text-white">Baitybites OMS</h4>
+                    <p class="text-xs text-muted mb-0">Sistem Manajemen Produksi Risol Premium</p>
+                </div>
             </div>
-        </footer>
+
+            <div class="footer-meta">
+                <div id="footer-version" class="footer-text"></div>
+                <p class="copyright text-muted mt-xs">&copy; 2026 Baitybites. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
     </div>
 
-    <script src="/js/app.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/js/production.js"></script>
+    <script src="/js/app.js?v=1.6.4"></script>
+    <script src="/js/production.js?v=1.6.4"></script>
 </body>
 
 </html>

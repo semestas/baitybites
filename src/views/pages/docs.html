@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Documentation - Baitybites OMS</title>
+    {{> head_shared }}
+</head>
+
+
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container header-content">
+                <a href="/" class="logo">
+                    <img src="/assets/logo.png" alt="Baitybites">
+                </a>
+                <nav id="mainNav" class="nav">
+                    <!-- Populated by app.js -->
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="docs-layout">
+                <aside class="docs-sidebar border-r">
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-title">Memulai</div>
+                        <a href="#pengenalan" class="docs-nav-link active"><i data-lucide="info"></i> Pengenalan</a>
+                        <a href="#istilah" class="docs-nav-link"><i data-lucide="book-open"></i> Glosarium</a>
+                    </div>
+
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-title">Operasional</div>
+                        <a href="#pesanan" class="docs-nav-link"><i data-lucide="shopping-cart"></i> Kelola Pesanan</a>
+                        <a href="#pelanggan" class="docs-nav-link"><i data-lucide="users"></i> Basis Data Pelanggan</a>
+                        <a href="#produksi" class="docs-nav-link"><i data-lucide="chef-hat"></i> Alur Produksi</a>
+                    </div>
+
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-title">Inventaris</div>
+                        <a href="#produk" class="docs-nav-link"><i data-lucide="package"></i> Manajemen Produk</a>
+                        <a href="#stok" class="docs-nav-link"><i data-lucide="layers"></i> Kontrol Stok</a>
+                    </div>
+
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-title">Sistem</div>
+                        <a href="#laporan" class="docs-nav-link"><i data-lucide="bar-chart-3"></i> Analisis &
+                            Laporan</a>
+                        <a href="#pengaturan" class="docs-nav-link"><i data-lucide="settings"></i> Konfigurasi CMS</a>
+                    </div>
+                </aside>
+
+                <div class="docs-content">
+                    <section id="pengenalan" class="docs-section">
+                        <h2>Pengenalan Baitybites OMS</h2>
+                        <p>Selamat datang di Pusat Bantuan Baitybites Order Management System (OMS). Sistem ini
+                            dirancang khusus untuk membantu operasional produksi Risol Mayo Premium Baitybites, mulai
+                            dari pencatatan pesanan hingga pelaporan akhir.</p>
+                        <p>Tujuan utama dari sistem ini adalah memberikan visibilitas penuh terhadap alur kerja produksi
+                            dan memastikan setiap pesanan pelanggan diproses dengan standar kualitas tertinggi.</p>
+
+                        <div class="img-placeholder">
+                            <i data-lucide="image" size="48"></i>
+                            <span class="ml-2">Screenshot Dashboard Overview</span>
+                        </div>
+                    </section>
+
+                    <section id="pesanan" class="docs-section">
+                        <h2>Kelola Pesanan</h2>
+                        <p>Modul pesanan adalah jantung dari sistem ini. Anda dapat melakukan berbagai tindakan di sini:
+                        </p>
+                        <h3>Membuat Pesanan Baru</h3>
+                        <ul>
+                            <li>Klik tombol <strong>Order Baru</strong> di Dashboard atau halaman Pesanan.</li>
+                            <li>Pilih pelanggan yang sudah ada atau masukkan data pelanggan baru.</li>
+                            <li>Pilih produk (Risol Mayo, dll) dan tentukan jumlahnya.</li>
+                            <li>Pilih metode pembayaran (Transfer, Cash, dll).</li>
+                            <li>Konfirmasi pesanan untuk memulai alur produksi.</li>
+                        </ul>
+
+                        <h3>Status Pesanan</h3>
+                        <p>Setiap pesanan melewati beberapa tahapan yang dapat dipantau secara real-time:</p>
+                        <ul>
+                            <li><span class="badge-doc badge-pending">Pending</span> -
+                                Pesanan baru masuk namun belum dikonfirmasi.</li>
+                            <li><span class="badge-doc badge-confirmed">Confirmed</span> -
+                                Pesanan telah diverifikasi pembayarannya.</li>
+                            <li><span class="badge-doc badge-production">In Production</span>
+                                - Risol sedang dipersiapkan atau digoreng.</li>
+                            <li><span class="badge-doc badge-shipping">Shipping</span> -
+                                Pesanan dalam perjalanan ke pelanggan.</li>
+                            <li><span class="badge-doc badge-completed">Completed</span> -
+                                Pesanan telah sampai dan selesai.</li>
+                        </ul>
+                    </section>
+
+                    <section id="produk" class="docs-section">
+                        <h2>Manajemen Produk <span class="badge-doc badge-pro">Pro Tips</span></h2>
+                        <p>Mengelola inventaris risol Anda sangat mudah di halaman Produk. Anda dapat mengatur varian
+                            rasa, harga, dan ketersediaan.</p>
+                        <h3>Menambah Produk Baru</h3>
+                        <ol>
+                            <li>Buka menu <strong>Products</strong> di navigasi utama.</li>
+                            <li>Klik <strong>Add Product</strong>.</li>
+                            <li>Maukkan Nama Produk, Deskripsi, dan Harga.</li>
+                            <li>Gunakan fitur <strong>AI Magic</strong> untuk membantu membuat deskripsi produk yang
+                                menarik secara otomatis!</li>
+                            <li>Unggah foto produk terbaik Anda untuk tampilan di katalog.</li>
+                        </ol>
+
+                        <h3>Optimasi Stok</h3>
+                        <p>Pastikan stok selalu diperbarui setiap pagi sebelum pengiriman dimulai. Sistem akan
+                            memberikan peringatan jika stok produk tertentu menipis.</p>
+                    </section>
+
+                    <section id="laporan" class="docs-section">
+                        <h2>Analisis & Laporan</h2>
+                        <p>Baitybites OMS dilengkapi dengan fitur pelaporan canggih untuk membantu Anda mengambil
+                            keputusan bisnis.</p>
+                        <ul>
+                            <li><strong>Laporan Harian:</strong> Pantau performa penjualan hari ini dibanding hari
+                                kemarin.</li>
+                            <li><strong>Produk Terlaris:</strong> Lihat varian risol apa yang paling banyak diminati
+                                pelanggan.</li>
+                            <li><strong>Metode Pembayaran:</strong> Analisis tren pembayaran pelanggan (E-Wallet vs
+                                Cash).</li>
+                            <li><strong>Ekspor Data:</strong> Unduh semua laporan dalam format PDF atau Excel untuk
+                                keperluan pembukuan.</li>
+                        </ul>
+                    </section>
+
+                    <section id="pengaturan" class="docs-section">
+                        <h2>Konfigurasi CMS</h2>
+                        <p>Melalui menu CMS, Anda dapat mengontrol konten yang tampil di website utama pelanggan
+                            Baitybites.</p>
+                        <ul>
+                            <li><strong>Galeri:</strong> Unggah foto produksi terbaru untuk meningkatkan kepercayaan
+                                pelanggan.</li>
+                            <li><strong>Testimoni:</strong> Kelola ulasan positif dari pelanggan agar tampil di halaman
+                                depan.</li>
+                            <li><strong>Integrasi Instagram:</strong> Hubungkan sistem dengan feed Instagram Baitybites
+                                secara otomatis.</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        {{> footer_admin }}
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script>
+        // Simple scroll spy logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.docs-nav-link');
+            const sections = document.querySelectorAll('.docs-section');
+
+            function changeActiveLink() {
+                let index = sections.length;
+                while (--index && window.scrollY + 150 < sections[index].offsetTop) { }
+                links.forEach((link) => link.classList.remove('active'));
+                links[index].classList.add('active');
+            }
+
+            changeActiveLink();
+            window.addEventListener('scroll', changeActiveLink);
+
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>

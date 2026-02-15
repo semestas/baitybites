@@ -2,15 +2,18 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Pelanggan - Baitybites</title>
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="bg-neutral-50">
@@ -124,18 +127,68 @@
             </div>
         </main>
 
-        <footer class="footer-simple mt-3xl">
-            <div class="container">
-                <div class="footer-simple-content">
-                    <div id="footer-socials" class="footer-socials"></div>
-                    <span class="copyright">&copy; 2026 Baitybites. All rights reserved.</span>
+        <footer class="footer-main">
+    <div class="container">
+        <div class="footer-content-wrapper">
+            <!-- Left Section: CTA -->
+            <div class="footer-left">
+                <span class="footer-small-label">HUBUNGI KAMI</span>
+                <h2 class="footer-heading">Nikmati Kelezatan<br>Risol Mayo Premium.</h2>
+
+                <a href="https://wa.me/6285173270984" target="_blank" class="btn-footer-cta">
+                    Pesan Sekarang <i data-lucide="arrow-right"></i>
+                </a>
+
+                <div class="footer-email-section">
+                    <span class="footer-small-label">ATAU EMAIL KAMI</span>
+                    <div class="email-capsule">
+                        <span>id.baitybites@gmail.com</span>
+                        <button class="btn-copy-email"
+                            onclick="navigator.clipboard.writeText('id.baitybites@gmail.com')">
+                            <i data-lucide="copy"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </footer>
+
+            <!-- Right Section: Links -->
+            <div class="footer-right">
+                <div class="footer-nav-col">
+                    <h4>QUICK LINKS</h4>
+                    <nav>
+                        <a href="/">Home</a>
+                        <a href="/order.html">Menu Risol</a>
+                        <a href="/order.html">Kue Kering</a>
+                        <a href="/track.html">Lacak Pesanan</a>
+                    </nav>
+                </div>
+                <div class="footer-nav-col">
+                    <h4>INFORMATION</h4>
+                    <nav>
+                        <a href="/tos.html">Terms of Service</a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                        <a href="#">Cookies Settings</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p class="copyright">&copy; 2026 BAITYBITES. ALL RIGHTS RESERVED.</p>
+            <div class="footer-socials">
+                <a href="https://instagram.com/baitybites" target="_blank"><i data-lucide="instagram"></i></a>
+                <a href="#"><i data-lucide="facebook"></i></a>
+                <a href="#"><i data-lucide="twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
     </div>
 
-    <script src="/js/app.js"></script>
-    <script src="/js/profile.js"></script>
+    <script src="/js/app.js?v=1.6.4"></script>
+    <script src="/js/profile.js?v=1.6.4"></script>
 </body>
 
 </html>

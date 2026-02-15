@@ -13,7 +13,14 @@ if ('serviceWorker' in navigator) {
         // Clean up SW on public pages to hide the install icon
         navigator.serviceWorker.getRegistrations().then(registrations => {
             for (let registration of registrations) {
-                registration.unregister();
+                registration.unregister().then(() => {
+                    console.log('SW Unregistered');
+                    // Force refresh if SW was controlling page
+                    if (navigator.serviceWorker.controller) {
+                        // Optional: window.location.reload(); 
+                        // But reloading might be jarring. Just unregistering prevents future fetches from being intercepted by *this* SW effectively on next page load.
+                    }
+                });
             }
         });
     }
@@ -325,7 +332,7 @@ function getUser() {
 
 // Internal helper for public path detection
 function isPublicPath() {
-    const publicPages = ['/', '/index.html', '/login.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/order', '/track', '/profile', '/privacy', '/tos'];
+    const publicPages = ['/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -454,7 +461,7 @@ async function checkVersion() {
         const data = await response.json();
         const versionElement = document.getElementById('footer-version');
         if (versionElement) {
-            versionElement.innerHTML = `Build: v1.6.1 | API: ${data.version || 'unknown'}`;
+            versionElement.innerHTML = `Build: v1.6.4 | API: ${data.version || 'unknown'}`;
             versionElement.style.fontSize = '0.7rem';
             versionElement.style.opacity = '0.5';
             versionElement.style.marginTop = '0.5rem';
@@ -468,7 +475,7 @@ async function checkVersion() {
                     vTag.style.fontSize = '0.7rem';
                     vTag.style.opacity = '0.5';
                     vTag.style.marginTop = '1rem';
-                    vTag.innerHTML = `Build: v1.6.1 | API: ${data.version || 'unknown'}`;
+                    vTag.innerHTML = `Build: v1.6.4 | API: ${data.version || 'unknown'}`;
                     footer.appendChild(vTag);
                 }
             });
@@ -572,13 +579,12 @@ function initGlobalHeader() {
     if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
         const header = document.querySelector('.header');
         if (header) {
+            header.classList.add('is-transparent');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 50) {
-                    header.style.background = 'var(--gradient-dark)';
-                    header.style.boxShadow = 'var(--shadow-lg)';
+                    header.classList.remove('is-transparent');
                 } else {
-                    header.style.background = 'rgba(0,0,0,0.3)';
-                    header.style.boxShadow = 'none';
+                    header.classList.add('is-transparent');
                 }
             });
         }

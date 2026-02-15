@@ -1,4 +1,4 @@
-const CACHE_VERSION = '1.6.1';
+const CACHE_VERSION = '1.6.4';
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
@@ -12,18 +12,41 @@ const ASSETS_TO_CACHE = [
     '/production.html',
     '/kitchen.html',
     '/cms.html',
-    '/css/style.css',
-    '/css/main.css',
-    '/js/app.js',
-    '/js/order.js',
-    '/js/track.js',
-    '/js/dashboard.js',
-    '/js/kitchen.js',
-    '/js/production.js',
+    `/css/style.css?v=${CACHE_VERSION}`,
+    `/css/main.css?v=${CACHE_VERSION}`,
+    `/js/app.js?v=${CACHE_VERSION}`,
+    `/js/order.js?v=${CACHE_VERSION}`,
+    `/js/track.js?v=${CACHE_VERSION}`,
+    `/js/dashboard.js?v=${CACHE_VERSION}`,
+    `/js/kitchen.js?v=${CACHE_VERSION}`,
+    `/js/production.js?v=${CACHE_VERSION}`,
     '/assets/logo.png',
     '/assets/favicon.ico',
     '/assets/favicon.png'
 ];
+
+/**
+ * Sanitizes a response before caching it.
+ * The Cache API forbids caching responses with 'Vary: *'.
+ * We strip this header if present to ensure offline support.
+ */
+async function sanitizeResponse(response) {
+    const vary = response.headers.get('Vary');
+    if (vary && vary.includes('*')) {
+        const newHeaders = new Headers(response.headers);
+        newHeaders.delete('Vary');
+
+        // Return a new response with the body and modified headers
+        // We use blob() to handle the body correctly for all types
+        const body = await response.blob();
+        return new Response(body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders
+        });
+    }
+    return response;
+}
 
 // Install event - cache essential assets
 self.addEventListener('install', (event) => {
@@ -42,14 +65,8 @@ self.addEventListener('install', (event) => {
                         return;
                     }
 
-                    // Check for Vary: * header which forbids caching
-                    const vary = response.headers.get('Vary');
-                    if (vary && vary.includes('*')) {
-                        console.warn(`[SW] Skipping cache for ${url} due to Vary: * header`);
-                        return;
-                    }
-
-                    await cache.put(url, response);
+                    const responseToCache = await sanitizeResponse(response);
+                    await cache.put(url, responseToCache);
                 } catch (error) {
                     console.error(`[SW] Error caching ${url}:`, error);
                 }
@@ -88,16 +105,18 @@ self.addEventListener('fetch', (event) => {
     // Only handle GET requests
     if (event.request.method !== 'GET') return;
 
+    // Ignore chrome-extension or other non-http implementations
+    if (!event.request.url.startsWith('http')) return;
+
     const url = new URL(event.request.url);
 
     // Network-first for HTML pages and API calls
     if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.startsWith('/api/')) {
         event.respondWith(
             fetch(event.request)
-                .then((response) => {
-                    const vary = response.headers.get('Vary');
-                    if (response.ok && (!vary || !vary.includes('*'))) {
-                        const responseToCache = response.clone();
+                .then(async (response) => {
+                    if (response.ok) {
+                        const responseToCache = await sanitizeResponse(response.clone());
                         caches.open(CACHE_NAME).then((cache) => {
                             cache.put(event.request, responseToCache);
                         });
@@ -125,17 +144,16 @@ self.addEventListener('fetch', (event) => {
 
     // Cache-first for static assets (CSS, JS, images)
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
+        caches.match(event.request, { ignoreSearch: false }).then((cachedResponse) => {
             if (cachedResponse) {
                 // Return cached version 
                 // Only update cache in background for SAME-ORIGIN assets
-                // This prevents excessive requests to external APIs like Google (avoiding 429)
                 if (url.origin === self.location.origin) {
-                    fetch(event.request).then((response) => {
-                        const vary = response.headers.get('Vary');
-                        if (response.ok && (!vary || !vary.includes('*'))) {
+                    fetch(event.request).then(async (response) => {
+                        if (response.ok) {
+                            const sanitized = await sanitizeResponse(response);
                             caches.open(CACHE_NAME).then((cache) => {
-                                cache.put(event.request, response);
+                                cache.put(event.request, sanitized);
                             });
                         }
                     }).catch(() => { });
@@ -144,18 +162,15 @@ self.addEventListener('fetch', (event) => {
             }
 
             // Not in cache, fetch from network
-            return fetch(event.request).then((response) => {
-                const vary = response.headers.get('Vary');
-                // Cache successful responses
-                if (response.ok && (!vary || !vary.includes('*'))) {
-                    const responseToCache = response.clone();
+            return fetch(event.request).then(async (response) => {
+                if (response.ok) {
+                    const responseToCache = await sanitizeResponse(response.clone());
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseToCache);
                     });
                 }
                 return response;
             }).catch(() => {
-                // Return a generic error response instead of undefined
                 return new Response('Asset not found', { status: 404 });
             });
         })

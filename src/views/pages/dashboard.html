@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <title>Dashboard - Baitybites OMS</title>
+  <link rel="manifest" href="/manifest.json">
+  {{> head_shared }}
+</head>
+
+<body>
+  <div class="page-wrapper dashboard-page">
+    <header class="header">
+      <div class="container header-content">
+        <a href="/" class="logo">
+          <img src="/assets/logo.png" alt="Baitybites">
+        </a>
+        <nav id="mainNav" class="nav">
+          <!-- Populated by app.js -->
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="dashboard-header mb-lg mt-lg">
+          <h1 class="page-title">Ringkasan Sistem</h1>
+          <p class="text-muted">Selamat datang kembali! Berikut status operasional hari ini.</p>
+        </div>
+
+        <div class="dashboard-layout-sections">
+          <!-- Top Insights -->
+          <section class="insights-section mb-xl">
+            <div class="insight-grid">
+              <div class="insight-card">
+                <div class="insight-header">
+                  <i data-lucide="crown" class="text-warning"></i>
+                  <span>Highest Spend</span>
+                </div>
+                <div class="insight-body">
+                  <h4 id="topSpenderName">-</h4>
+                  <p id="topSpenderValue">Rp 0</p>
+                </div>
+              </div>
+
+              <div class="insight-card">
+                <div class="insight-header">
+                  <i data-lucide="trending-up" class="text-success"></i>
+                  <span>Most Orders</span>
+                </div>
+                <div class="insight-body">
+                  <h4 id="topOrderName">-</h4>
+                  <p id="topOrderValue">0 Orders</p>
+                </div>
+              </div>
+
+              <div class="insight-card">
+                <div class="insight-header">
+                  <i data-lucide="repeat" class="text-info"></i>
+                  <span>Most Re-purchases</span>
+                </div>
+                <div class="insight-body">
+                  <h4 id="topRepeatName">-</h4>
+                  <p id="topRepeatValue">0 Times</p>
+                </div>
+              </div>
+
+              <div class="insight-card">
+                <div class="insight-header">
+                  <i data-lucide="heart" class="text-danger"></i>
+                  <span>Favorite Product</span>
+                </div>
+                <div class="insight-body">
+                  <h4 id="topProductName">-</h4>
+                  <p id="topProductValue">0 Units</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 1: Crucial Stats -->
+          <section class="ops-overview mb-2xl">
+            <div class="kpi-grid">
+              <div class="kpi-cards">
+                <div class="stat-card brand">
+                  <div class="stat-icon"><i data-lucide="package"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Total Pesanan</span>
+                    <span class="stat-value" id="totalOrders">0</span>
+                  </div>
+                </div>
+                <div class="stat-card success">
+                  <div class="stat-icon"><i data-lucide="check-circle-2"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Terverifikasi</span>
+                    <span class="stat-value" id="completedOrders">0</span>
+                  </div>
+                </div>
+                <div class="stat-card info">
+                  <div class="stat-icon"><i data-lucide="refresh-cw"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-label">Sedang Jalan</span>
+                    <span class="stat-value" id="inProgressOrders">0</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="revenue-card-compact bg-card">
+                <div class="revenue-info">
+                  <span class="stat-label">Total Pendapatan</span>
+                  <span class="stat-value" id="totalRevenue">Rp 0</span>
+                </div>
+                <div class="revenue-icon">
+                  <i data-lucide="wallet"></i>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 2: Distribution -->
+          <section class="flow-section mb-2xl">
+            <div class="section-header mb-md">
+              <h2 class="section-title">Visualisasi Alur Pesanan</h2>
+            </div>
+            <div class="flow-container-outer">
+              <div class="order-flow-stepper" id="orderFlowStats">
+                <!-- Populated by JS -->
+                <div class="loading-state">
+                  <div class="spinner"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Records & Actions -->
+          <div class="dashboard-main-grid gap-2xl">
+            <div class="records-view">
+              <div class="card p-0 table-card">
+                <div class="card-header flex justify-between items-center px-lg py-md">
+                  <h2 class="card-title m-0">Antrean Pesanan</h2>
+                  <a href="/orders.html" class="btn btn-primary btn-sm">Buka Semua Data</a>
+                </div>
+                <div class="card-body px-lg py-lg">
+                  <div id="recentOrdersGrid" class="recent-orders-grid">
+                    <div class="text-center py-2xl w-full" style="grid-column: 1 / -1;">
+                      <div class="spinner m-auto"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="dashboard-sidebar">
+              <div class="card mb-md">
+                <div class="card-header py-md px-lg">
+                  <h3 class="card-title m-0">Akses Cepat</h3>
+                </div>
+                <div class="card-body p-md">
+                  <div class="action-grid-minimal">
+                    <a href="/orders.html?action=new" class="action-link brand">
+                      <div class="link-icon"><i data-lucide="plus"></i></div>
+                      <span>Order Baru</span>
+                    </a>
+                    <a href="/customers.html" class="action-link success">
+                      <div class="link-icon"><i data-lucide="users"></i></div>
+                      <span>Pelanggan</span>
+                    </a>
+                    <a href="/production.html" class="action-link info">
+                      <div class="link-icon"><i data-lucide="chef-hat"></i></div>
+                      <span>Produksi</span>
+                    </a>
+                    <a href="/kitchen.html" class="action-link orange">
+                      <div class="link-icon"><i data-lucide="monitor"></i></div>
+                      <span>Kitchen TV</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-box">
+                <div class="help-header">
+                  <i data-lucide="help-circle"></i>
+                  <h4>Pusat Bantuan</h4>
+                </div>
+                <p>Pelajari cara mengelola inventaris melalui dokumentasi.</p>
+                <a href="/docs" class="btn btn-primary">BUKA PANDUAN</a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    {{> footer_admin }}
+  </div>
+
+  <script src="/js/app.js?v={{VERSION}}"></script>
+  <script src="/js/dashboard.js?v={{VERSION}}"></script>
+</body>
+
+</html>

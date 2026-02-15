@@ -2,152 +2,64 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Baitybites Order Management</title>
     <meta name="description"
         content="Masuk ke akun Baitybites Anda untuk menikmati kemudahan pemesanan, gratis ongkir, dan kumpulkan poin reward setiap hari!">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    
-    <meta name="theme-color" content="#f59638">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .login-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--gradient-dark);
-            padding: var(--spacing-md);
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 550px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .login-card {
-            background: white;
-            padding: var(--spacing-xl);
-            border-radius: var(--radius-2xl);
-            box-shadow: var(--shadow-2xl);
-            text-align: center;
-        }
-
-        .login-logo {
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .login-logo img {
-            height: 48px;
-            width: auto;
-        }
-
-        .login-header {
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .login-header h1 {
-            font-size: 1.75rem;
-        }
-
-        .login-header p {
-            color: var(--neutral-600);
-            font-size: 0.95rem;
-        }
-    </style>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Styles moved to src/scss/pages/_login.scss -->
 </head>
 
 <body>
     <div class="login-page">
-        <div class="login-container">
+        <div class="login-container customer-login">
             <div class="login-card">
                 <div class="login-logo">
                     <img src="/assets/logo.png" alt="Baitybites Logo">
                 </div>
                 <div class="login-header">
-                    <h1>Selamat Datang</h1>
-                    <p>Silakan login untuk mengakses sistem</p>
+                    <h1>Portal Pelanggan</h1>
+                    <p>Masuk untuk mendapatkan promo khusus & kemudahan lacak pesanan</p>
                 </div>
 
-                <form id="loginForm">
-                    <div class="form-group text-left" style="text-align: left;">
-                        <label class="form-label" for="username">Username</label>
-                        <input type="text" id="username" class="form-input" placeholder="Masukkan username" required
-                            autocomplete="username">
-                    </div>
-                    <div class="form-group text-left" style="text-align: left;">
-                        <label class="form-label" for="password">Password</label>
-                        <input type="password" id="password" class="form-input" placeholder="Masukkan password" required
-                            autocomplete="current-password">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg"
-                        style="width: 100%; margin-top: var(--spacing-md);">
-                        <span id="btnText">Sign In</span>
-                        <div id="btnSpinner" class="spinner"
-                            style="width: 20px; height: 20px; border-width: 2px; display: none;"></div>
-                    </button>
-
-                    <div class="divider"
-                        style="margin: 1.5rem 0; display: flex; align-items: center; color: var(--neutral-400);">
-                        <span style="flex: 1; height: 1px; background: var(--neutral-200);"></span>
-                        <span style="padding: 0 1rem; font-size: 0.85rem;">ATAU</span>
-                        <span style="flex: 1; height: 1px; background: var(--neutral-200);"></span>
-                    </div>
-
-                    <button type="button" onclick="loginWithGoogle()" class="btn btn-outline btn-lg"
-                        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; border-color: var(--neutral-300);">
+                <div class="google-login-area">
+                    <button type="button" onclick="loginWithGoogle()" class="btn btn-outline btn-lg btn-google-login">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                            style="width: 20px;">
-                        <span>Masuk dengan Google</span>
+                            style="width: 24px;">
+                        <span>Lanjutkan dengan Google</span>
                     </button>
 
-                    <button type="button" onclick="loginAsGuest()" class="btn btn-link mt-3"
-                        style="width: 100%; font-size: 0.9rem;">
-                        Lanjutkan sebagai Tamu
-                    </button>
-
-                    <div id="errorMessage" class="text-danger mt-2" style="display: none; font-size: 0.875rem;"></div>
-
-                    <div class="benefit-box mt-4"
-                        style="text-align: left; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: var(--radius-lg); padding: var(--spacing-lg); border: 1px solid #bbf7d0; font-size: 0.9rem;">
-                        <p
-                            style="margin: 0 0 0.75rem 0; color: #166534; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="star" style="width: 18px; height: 18px;"></i> Keuntungan Menjadi Pelanggan
-                            Setia:
+                    <div class="benefit-box">
+                        <p>
+                            <i data-lucide="star"></i> Keuntungan Akun Google:
                         </p>
-                        <ul style="margin: 0; padding-left: 1.2rem; color: #166534; display: grid; gap: 0.4rem;">
-                            <li><i data-lucide="truck"
-                                    style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
-                                <strong>Gratis Ongkir</strong> hingga Rp20.000,- tiap belanja.
+                        <ul>
+                            <li><i data-lucide="truck"></i>
+                                <strong>Gratis Ongkir</strong> harian otomatis.
                             </li>
-                            <li><i data-lucide="zap"
-                                    style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
-                                <strong>Pemesanan Kilat:</strong> Data diri terisi otomatis.
+                            <li><i data-lucide="line-chart"></i>
+                                <strong>Riwayat Pesanan</strong> tersimpan permanen.
                             </li>
-                            <li><i data-lucide="line-chart"
-                                    style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
-                                <strong>Dashboard Lacak:</strong> Pantau status pesanan kapan saja.
-                            </li>
-                            <li><i data-lucide="gem"
-                                    style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
-                                <strong>Poin Reward:</strong> Kumpulkan poin untuk diskon menarik.
+                            <li><i data-lucide="gem"></i>
+                                <strong>Poin Reward</strong> per transaksi.
                             </li>
                         </ul>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/js/app.js"></script>
+    <script src="/js/app.js?v=1.6.4"></script>
     <script>
         // const { showNotification } = window.app;
 
@@ -186,7 +98,16 @@
                     .then(result => {
                         if (result.success) {
                             localStorage.setItem('user', JSON.stringify(result.data));
-                            // Redirect using global logic
+
+                            // Check for saved redirect path (e.g. from order page)
+                            const redirectPath = localStorage.getItem('login_redirect');
+                            if (redirectPath) {
+                                localStorage.removeItem('login_redirect');
+                                window.location.href = redirectPath;
+                                return;
+                            }
+
+                            // Default redirect using global logic
                             if (result.data.role === 'admin') {
                                 window.location.href = '/dashboard.html';
                             } else {
@@ -204,69 +125,6 @@
             // Redirect to backend to initiate Google flow
             window.location.href = '/api/auth/google/login';
         }
-
-        async function loginAsGuest() {
-            try {
-                const response = await fetch('/api/auth/guest', { method: 'POST' });
-                const result = await response.json();
-                if (result.success) {
-                    localStorage.setItem('token', result.data.token);
-                    localStorage.setItem('user', JSON.stringify(result.data.user));
-                    showNotification('Melanjutkan sebagai tamu', 'success');
-                    setTimeout(() => window.location.href = '/', 800);
-                }
-            } catch (error) {
-                showNotification('Gagal login sebagai tamu', 'error');
-            }
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const btnText = document.getElementById('btnText');
-            const btnSpinner = document.getElementById('btnSpinner');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // UI States
-            errorMessage.style.display = 'none';
-            btnText.style.display = 'none';
-            btnSpinner.style.display = 'inline-block';
-
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    localStorage.setItem('token', result.data.token);
-                    localStorage.setItem('user', JSON.stringify(result.data.user));
-
-                    // Redirect based on role
-                    if (result.data.user.role === 'admin') {
-                        window.location.href = '/dashboard.html';
-                    } else {
-                        window.location.href = '/';
-                    }
-                } else {
-                    errorMessage.textContent = result.message || 'Login gagal';
-                    errorMessage.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                errorMessage.textContent = 'Terjadi kesalahan sistem';
-                errorMessage.style.display = 'block';
-                if (window.lucide) lucide.createIcons();
-            } finally {
-                btnText.style.display = 'inline-block';
-                btnSpinner.style.display = 'none';
-            }
-        });
 
     </script>
 </body>

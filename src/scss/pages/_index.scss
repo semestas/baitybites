@@ -142,7 +142,7 @@
             animation: float 4s ease-in-out infinite;
 
             img {
-                height: 80px; // Shrunk slightly to make title look even bigger
+                height: 50px; // Standardized with header logo height
                 filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
             }
         }
@@ -197,6 +197,14 @@
                 color: rgba($white, 0.8);
                 font-style: italic;
             }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1.2s ease-out 0.3s both;
         }
     }
 

@@ -2,22 +2,18 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation - Baitybites OMS</title>
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    
-    <meta name="theme-color" content="#f59638">
-
-    <!-- Design System Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 
@@ -161,13 +157,26 @@
         </main>
 
         <footer class="footer mt-3xl">
-            <div class="container text-center">
-                <p class="text-muted">&copy; 2026 Baitybites. Dokumentasi Sistem Internal.</p>
+    <div class="container">
+        <div class="footer-layout">
+            <div class="footer-brand">
+                <img src="/assets/logo.png" alt="Logo" class="footer-logo">
+                <div class="brand-info">
+                    <h4 class="m-0 text-white">Baitybites OMS</h4>
+                    <p class="text-xs text-muted mb-0">Sistem Manajemen Produksi Risol Premium</p>
+                </div>
             </div>
-        </footer>
+
+            <div class="footer-meta">
+                <div id="footer-version" class="footer-text"></div>
+                <p class="copyright text-muted mt-xs">&copy; 2026 Baitybites. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
     </div>
 
-    <script src="/js/app.js"></script>
+    <script src="/js/app.js?v=1.6.4"></script>
     <script>
         // Simple scroll spy logic
         document.addEventListener('DOMContentLoaded', () => {

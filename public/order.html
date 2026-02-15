@@ -2,20 +2,20 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesan Risol Mayo - Baitybites</title>
     <meta name="description"
         content="Pilih varian Risol Mayo favorit Anda dan pesan secara online dengan mudah. Nikmati promo gratis ongkir dan layanan pengiriman cepat dari Baitybites!">
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    
-    <meta name="theme-color" content="#f59638">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<meta name="theme-color" content="#f59638">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=1.6.4">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="bg-neutral-50">
@@ -36,14 +36,19 @@
                 <!-- Loyalty Benefits Notice -->
                 <div id="loyalty-notice" class="info-box mb-4 animate-fade-in hidden">
                     <div class="notice-content">
-                        <div class="notice-icon"><i data-lucide="gift"></i></div>
-                        <div>
-                            <p class="notice-title">Dapatkan Keuntungan Lebih sebagai Pelanggan Setia!</p>
-                            <p class="notice-text">Yuk, <strong>login</strong> untuk menikmati berbagai kemudahan
-                                dan promo eksklusif:</p>
-                            <div class="login-btn-wrapper">
-                                <a href="/login.html" class="btn btn-primary btn-sm block-inline">Login / Daftar
-                                    Sekarang</a>
+                        <div class="notice-icon"><i data-lucide="sparkles"></i></div>
+                        <div class="flex-1">
+                            <p class="notice-title">Mau Checkout Lebih Cepat?</p>
+                            <p class="notice-text">Login dengan Google untuk auto-fill data pengiriman dan nikmati promo
+                                Gratis Ongkir!</p>
+                            <div class="mt-3">
+                                <button type="button" onclick="loginWithGoogle()"
+                                    class="btn btn-primary btn-sm flex items-center gap-2"
+                                    style="background: white; color: var(--neutral-800); border: 1px solid var(--neutral-200);">
+                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                        alt="Google" style="width: 16px;">
+                                    <span>Lanjut dengan Google</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -134,6 +139,22 @@
                                     </div>
 
                                     <form id="orderForm">
+                                        <!-- Quick Login for Faster Info -->
+                                        <div id="quick-login-prompt"
+                                            class="card p-3 mb-4 flex items-center justify-between gap-3 hidden"
+                                            style="background: #f8fafc; border: 1px dashed var(--neutral-300);">
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="info" style="width: 16px; color: var(--primary);"></i>
+                                                <span class="text-sm font-medium">Malas isi manual?</span>
+                                            </div>
+                                            <button type="button" onclick="loginWithGoogle()" class="btn btn-sm"
+                                                style="background: white; border: 1px solid var(--neutral-200); font-size: 0.75rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                                    alt="Google" style="width: 14px;">
+                                                <span>Google Login</span>
+                                            </button>
+                                        </div>
+
                                         <div id="customer-form-fields">
                                             <div class="card p-4 mb-4">
                                                 <div class="grid grid-2">
@@ -303,67 +324,67 @@
         </main>
 
         <footer class="footer-main">
-            <div class="container">
-                <div class="footer-content-wrapper">
-                    <!-- Left Section: CTA -->
-                    <div class="footer-left">
-                        <span class="footer-small-label">HUBUNGI KAMI</span>
-                        <h2 class="footer-heading">Nikmati Kelezatan<br>Risol Mayo Premium.</h2>
+    <div class="container">
+        <div class="footer-content-wrapper">
+            <!-- Left Section: CTA -->
+            <div class="footer-left">
+                <span class="footer-small-label">HUBUNGI KAMI</span>
+                <h2 class="footer-heading">Nikmati Kelezatan<br>Risol Mayo Premium.</h2>
 
-                        <a href="https://wa.me/6285173270984" target="_blank" class="btn-footer-cta">
-                            Pesan Sekarang <i data-lucide="arrow-right"></i>
-                        </a>
+                <a href="https://wa.me/6285173270984" target="_blank" class="btn-footer-cta">
+                    Pesan Sekarang <i data-lucide="arrow-right"></i>
+                </a>
 
-                        <div class="footer-email-section">
-                            <span class="footer-small-label">ATAU EMAIL KAMI</span>
-                            <div class="email-capsule">
-                                <span>id.baitybites@gmail.com</span>
-                                <button class="btn-copy-email"
-                                    onclick="navigator.clipboard.writeText('id.baitybites@gmail.com')">
-                                    <i data-lucide="copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Section: Links -->
-                    <div class="footer-right">
-                        <div class="footer-nav-col">
-                            <h4>QUICK LINKS</h4>
-                            <nav>
-                                <a href="/">Home</a>
-                                <a href="#" onclick="filterProducts('Risol'); return false;">Menu Risol</a>
-                                <a href="#" onclick="filterProducts('Kue Kering'); return false;">Kue Kering</a>
-                                <a href="/track.html">Lacak Pesanan</a>
-                            </nav>
-                        </div>
-                        <div class="footer-nav-col">
-                            <h4>INFORMATION</h4>
-                            <nav>
-                                <a href="/tos.html">Terms of Service</a>
-                                <a href="/privacy.html">Privacy Policy</a>
-                                <a href="#">Cookies Settings</a>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer-divider"></div>
-
-                <div class="footer-bottom">
-                    <p class="copyright">&copy; 2026 BAITYBITES. ALL RIGHTS RESERVED.</p>
-                    <div class="footer-socials">
-                        <a href="https://instagram.com/baitybites" target="_blank"><i data-lucide="instagram"></i></a>
-                        <a href="#"><i data-lucide="facebook"></i></a>
-                        <a href="#"><i data-lucide="twitter"></i></a>
+                <div class="footer-email-section">
+                    <span class="footer-small-label">ATAU EMAIL KAMI</span>
+                    <div class="email-capsule">
+                        <span>id.baitybites@gmail.com</span>
+                        <button class="btn-copy-email"
+                            onclick="navigator.clipboard.writeText('id.baitybites@gmail.com')">
+                            <i data-lucide="copy"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-        </footer>
+
+            <!-- Right Section: Links -->
+            <div class="footer-right">
+                <div class="footer-nav-col">
+                    <h4>QUICK LINKS</h4>
+                    <nav>
+                        <a href="/">Home</a>
+                        <a href="/order.html">Menu Risol</a>
+                        <a href="/order.html">Kue Kering</a>
+                        <a href="/track.html">Lacak Pesanan</a>
+                    </nav>
+                </div>
+                <div class="footer-nav-col">
+                    <h4>INFORMATION</h4>
+                    <nav>
+                        <a href="/tos.html">Terms of Service</a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                        <a href="#">Cookies Settings</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p class="copyright">&copy; 2026 BAITYBITES. ALL RIGHTS RESERVED.</p>
+            <div class="footer-socials">
+                <a href="https://instagram.com/baitybites" target="_blank"><i data-lucide="instagram"></i></a>
+                <a href="#"><i data-lucide="facebook"></i></a>
+                <a href="#"><i data-lucide="twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
     </div>
 
-    <script src="/js/app.js"></script>
-    <script src="/js/order.js"></script>
+    <script src="/js/app.js?v=1.6.4"></script>
+    <script src="/js/order.js?v=1.6.4"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();

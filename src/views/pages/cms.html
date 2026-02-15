@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>CMS - Kelola Konten Baitybites</title>
+    {{> head_shared }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+    <div class="cms-grid">
+        <aside class="sidebar">
+            <div class="mb-4 text-center">
+                <img src="/assets/logo.png" alt="Logo" class="sidebar-logo">
+                <h3 class="mt-2 text-white">Admin CMS</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#orders" class="active" onclick="switchSection('orders')"><i data-lucide="package"
+                        class="sidebar-icon"></i> Kelola Pesanan</a>
+                <a href="#gallery" onclick="switchSection('gallery')"><i data-lucide="image" class="sidebar-icon"></i>
+                    Galeri Foto</a>
+                <a href="#instagram" onclick="switchSection('instagram')"><i data-lucide="instagram"
+                        class="sidebar-icon"></i> Instagram Settings</a>
+                <a href="#homepage" onclick="switchSection('homepage')"><i data-lucide="home" class="sidebar-icon"></i>
+                    Home Page Custom</a>
+                <a href="#settings" onclick="switchSection('settings')"><i data-lucide="settings"
+                        class="sidebar-icon"></i> Setting Kontak</a>
+                <a href="#testimonials" onclick="switchSection('testimonials')"><i data-lucide="message-square"
+                        class="sidebar-icon"></i> Moderasi Testimoni</a>
+                <a href="#reports" onclick="switchSection('reports')"><i data-lucide="bar-chart-2"
+                        class="sidebar-icon"></i> Laporan</a>
+                <a href="/kitchen.html"><i data-lucide="tv" class="sidebar-icon"></i> Kitchen View</a>
+                <a href="/dashboard" class="nav-back mt-4"><i data-lucide="arrow-left" class="sidebar-icon"></i>
+                    Dashboard Utama</a>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <!-- Pesanan Section -->
+            <section id="orders-section" class="section-card">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="mb-1">Manajemen Pesanan & Progress</h2>
+                        <p class="text-sm text-muted">Pantau dan update status pesanan pelanggan.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm flex items-center justify-center p-2"
+                        onclick="loadOrders(this)" title="Refresh Data">
+                        <i data-lucide="refresh-cw" size="16"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <div class="flex flex-wrap gap-2" id="order-filters">
+                        <button class="filter-chip active" onclick="filterByStatus('all')">Semua</button>
+                        <button class="filter-chip" onclick="filterByStatus('confirmed')">Konfirmasi</button>
+                        <button class="filter-chip" onclick="filterByStatus('production')">Produksi</button>
+                        <button class="filter-chip" onclick="filterByStatus('packaging')">Pengemasan</button>
+                        <button class="filter-chip" onclick="filterByStatus('shipping')">Pengiriman</button>
+                        <button class="filter-chip" onclick="filterByStatus('completed')">Selesai</button>
+                    </div>
+                </div>
+
+                <div id="orders-container">
+                    <!-- Ongoing Orders -->
+                    <div id="ongoing-orders-wrapper">
+                        <h4 class="mb-3 flex items-center gap-2 text-primary">
+                            <i data-lucide="clock" size="18"></i> Pesanan Berjalan
+                        </h4>
+                        <div class="table-wrapper mb-8">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-list-ongoing"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Completed Orders -->
+                    <div id="completed-orders-wrapper">
+                        <h4 class="mb-3 flex items-center gap-2 text-success">
+                            <i data-lucide="check-circle" size="18"></i> Pesanan Selesai
+                        </h4>
+                        <div class="table-wrapper">
+                            <table class="table table-completed">
+                                <thead>
+                                    <tr>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-list-completed"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section id="testimonials-section" class="section-card" style="display:none;">
+                <h2>Moderasi Testimoni</h2>
+                <div id="testimonials-list"></div>
+            </section>
+
+            <!-- Gallery Section -->
+            <section id="gallery-section" class="section-card" style="display:none;">
+                <div class="flex justify-between items-center mb-4 mt-4">
+                    <h2>Manajemen Galeri</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="showGalleryModal()">Tambah Foto</button>
+                </div>
+                <div class="gallery-preview" id="gallery-list"></div>
+            </section>
+
+            <!-- Instagram Settings Section -->
+            <section id="instagram-section" class="section-card" style="display:none;">
+                <div class="mb-4">
+                    <h2><i data-lucide="instagram" class="v-middle-gap"></i> Instagram
+                        Integration</h2>
+                    <p class="text-muted">Pilih salah satu metode integrasi Instagram di bawah ini</p>
+                </div>
+
+                <!-- Option 1: Elfsight Widget (Recommended) -->
+                <div class="ig-integration-card">
+                    <h4><i data-lucide="sparkles" size="18" class="v-middle"></i> Opsi 1: Elfsight Widget
+                        (Direkomendasikan - Paling Mudah)</h4>
+                    <p>
+                        Cara tercepat dan termudah tanpa perlu API token. Cukup copy-paste widget code dari Elfsight.
+                    </p>
+                    <ol>
+                        <li>Buka <a href="https://elfsight.com/instagram-feed-instashow/" target="_blank">Elfsight
+                                Instagram Feed</a></li>
+                        <li>Buat widget Instagram Feed gratis atau berbayar</li>
+                        <li>Salin kode widget yang diberikan</li>
+                        <li>Paste di kolom bawah ini</li>
+                    </ol>
+
+                    <div class="editable-field" id="field-elfsightWidget">
+                        <label class="field-label">Elfsight Widget Code</label>
+                        <div class="field-display">
+                            <div class="field-value-text" id="text-elfsightWidget">Loading...</div>
+                            <button type="button" class="btn-edit-inline" onclick="startInlineEdit('elfsightWidget')"><i
+                                    data-lucide="edit-3"></i></button>
+                        </div>
+                        <div class="field-edit-box">
+                            <textarea id="elfsightWidget" class="form-input" rows="5"></textarea>
+                            <div class="edit-controls">
+                                <button type="button" class="btn btn-outline btn-xs"
+                                    onclick="cancelInlineEdit('elfsightWidget')">Batal</button>
+                                <button type="button" class="btn btn-primary btn-xs"
+                                    onclick="saveElfsightWidget()">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="elfsightStatus" class="mt-2"></div>
+                </div>
+
+                <!-- Option 2: API Integration (Advanced) -->
+                <div class="ig-integration-card api">
+                    <h4><i data-lucide="settings" size="18" class="v-middle-gap"></i> Opsi 2: API Integration
+                        (Advanced)</h4>
+                    <p>
+                        Sinkronisasi otomatis galeri dari Instagram: 3 post terbaru + 3 post terpopuler
+                    </p>
+                    <details>
+                        <summary class="detail-summary"><i data-lucide="file-text" size="16"></i> Cara Mendapatkan
+                            Access Token</summary>
+                        <ol class="mt-10">
+                            <li>Buka <a href="https://developers.facebook.com/apps/" target="_blank">Facebook for
+                                    Developers</a></li>
+                            <li>Buat atau pilih App yang terhubung dengan akun Instagram Business</li>
+                            <li>Di Graph API Explorer, generate token dengan permissions: <code>instagram_basic</code>,
+                                <code>pages_read_engagement</code>
+                            </li>
+                            <li>Salin Long-Lived Access Token dan paste di bawah</li>
+                        </ol>
+                    </details>
+
+                    <form id="igTokenForm" onsubmit="event.preventDefault(); saveInstagramToken();">
+                        <div class="form-group mt-3">
+                            <label class="form-label">Instagram Access Token</label>
+                            <!-- Hidden username field for accessibility/password managers -->
+                            <input type="text" name="username" value="admin" style="display:none;"
+                                autocomplete="username">
+                            <input type="password" id="igToken" class="form-input"
+                                placeholder="Paste your Instagram Graph API token here" autocomplete="current-password">
+                            <small class="text-muted" id="tokenStatus"></small>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Simpan
+                                Token</button>
+                            <button type="button" class="btn btn-secondary flex items-center gap-2"
+                                onclick="syncInstagram(this)">
+                                <i data-lucide="refresh-cw" size="16"></i> Sinkronkan Sekarang</button>
+                        </div>
+                    </form>
+
+                    <div id="syncStatus" class="mt-4"></div>
+                </div>
+            </section>
+
+            <!-- Home Page Settings Section -->
+            <section id="homepage-section" class="section-card" style="display:none;">
+                <div class="mb-5">
+                    <h2 class="flex items-center gap-3">
+                        <div class="p-2 bg-gray-100 rounded-lg"><i data-lucide="sparkles" size="24"
+                                class="text-primary"></i></div>
+                        Custom Hero Section
+                    </h2>
+                    <p class="text-muted mt-2 ml-14">Atur tampilan utama (banner) di halaman depan website.</p>
+                </div>
+
+                <div class="grid grid-2 gap-8">
+                    <div class="settings-column">
+                        <h4 class="mb-4 flex items-center gap-2">
+                            <i data-lucide="type" size="20" class="text-secondary"></i>
+                            Teks & Konten
+                        </h4>
+
+                        <!-- Hero Greeting -->
+                        <div class="editable-field" id="field-hero_greeting">
+                            <label class="field-label">Greeting (Teks Kecil di Atas)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_greeting')">
+                                <div class="field-value-text" id="text-hero_greeting">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_greeting" class="form-input"
+                                    placeholder="Contoh: 👋 Selamat Datang di BaityBites">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_greeting')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_greeting')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Title -->
+                        <div class="editable-field" id="field-hero_title">
+                            <label class="field-label">Judul Utama (H1)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_title')">
+                                <div class="field-value-text field-value-pre" id="text-hero_title">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <textarea id="hero_title" class="form-input" rows="2"
+                                    placeholder="Contoh: Fresh & Homemade Risol Mayo"></textarea>
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_title')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_title')">Simpan</button>
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-hero_title"
+                                        onclick="window.app.enhanceWithAI('hero_title', 'Hero Title (H1)')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Description -->
+                        <div class="editable-field" id="field-hero_description">
+                            <label class="field-label">Deskripsi Singkat</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_description')">
+                                <div class="field-value-text field-value-pre" id="text-hero_description">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <textarea id="hero_description" class="form-input" rows="3"
+                                    placeholder="Masukkan deskripsi singkat hero section..."></textarea>
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_description')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_description')">Simpan</button>
+                                    <button type="button" class="btn-ai-magic" id="btn-ai-hero_description"
+                                        onclick="window.app.enhanceWithAI('hero_description', 'Hero Description')">
+                                        <i data-lucide="sparkles" size="14"></i> AI Magic
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-column">
+                        <h4 class="mb-4 flex items-center gap-2">
+                            <i data-lucide="mouse-pointer" size="20" class="text-secondary"></i>
+                            Tombol & Navigasi
+                        </h4>
+
+                        <!-- Hero Button Text -->
+                        <div class="editable-field" id="field-hero_button_text">
+                            <label class="field-label">Label Tombol</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_button_text')">
+                                <div class="field-value-text" id="text-hero_button_text">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_button_text" class="form-input"
+                                    placeholder="Contoh: Pesan Sekarang">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_button_text')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_button_text')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Button Link -->
+                        <div class="editable-field" id="field-hero_button_link">
+                            <label class="field-label">Link Tombol (URL)</label>
+                            <div class="field-display" onclick="startInlineEdit('hero_button_link')">
+                                <div class="field-value-text" id="text-hero_button_link">---</div>
+                                <button type="button" class="btn-edit-inline">
+                                    <i data-lucide="edit-3" size="18"></i>
+                                </button>
+                            </div>
+                            <div class="field-edit-box">
+                                <input type="text" id="hero_button_link" class="form-input"
+                                    placeholder="Contoh: #order">
+                                <div class="edit-controls">
+                                    <button type="button" class="btn btn-outline"
+                                        onclick="cancelInlineEdit('hero_button_link')">Batal</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="saveIndividualSetting('hero_button_link')">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h4 class="mb-4 flex items-center gap-2">
+                        <i data-lucide="image" size="20" class="text-secondary"></i>
+                        Background
+                    </h4>
+
+                    <div class="editable-field" id="field-hero_background_url">
+                        <label class="field-label">Background Image URL</label>
+                        <div class="field-display" onclick="startInlineEdit('hero_background_url')">
+                            <div class="field-value-text" id="text-hero_background_url">---</div>
+                            <button type="button" class="btn-edit-inline">
+                                <i data-lucide="edit-3" size="18"></i>
+                            </button>
+                        </div>
+                        <div class="field-edit-box">
+                            <input type="text" id="hero_background_url" class="form-input"
+                                placeholder="Paste URL gambar background di sini">
+                            <div class="edit-controls">
+                                <button type="button" class="btn btn-outline"
+                                    onclick="cancelInlineEdit('hero_background_url')">Batal</button>
+                                <button type="button" class="btn btn-primary"
+                                    onclick="saveIndividualSetting('hero_background_url')">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- General Settings Section -->
+            <section id="settings-section" class="section-card" style="display:none;">
+                <div class="mb-5">
+                    <h2 class="flex items-center gap-3">
+                        <div class="p-2 bg-gray-100 rounded-lg"><i data-lucide="settings" size="24"
+                                class="text-primary"></i></div>
+                        Pengaturan Kontak & Sosial Media
+                    </h2>
+                    <p class="text-muted mt-2 ml-14">Informasi ini akan ditampilkan di footer website.</p>
+                </div>
+
+                <form id="settingsForm" onsubmit="event.preventDefault();">
+                    <div class="grid grid-2 gap-8">
+                        <div class="settings-column">
+                            <h4 class="mb-4 flex items-center gap-2">
+                                <i data-lucide="phone" size="20" class="text-secondary"></i>
+                                Info Kontak
+                            </h4>
+
+                            <div class="editable-field" id="field-contact_email">
+                                <label class="field-label">Email Support</label>
+                                <div class="field-display" onclick="startInlineEdit('contact_email')">
+                                    <div class="field-value-text" id="text-contact_email">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="email" id="contact_email" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('contact_email')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('contact_email')">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-contact_phone">
+                                <label class="field-label">Nomor Telepon Kantor</label>
+                                <div class="field-display" onclick="startInlineEdit('contact_phone')">
+                                    <div class="field-value-text" id="text-contact_phone">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="contact_phone" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('contact_phone')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('contact_phone', true)">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-contact_whatsapp">
+                                <label class="field-label">Nomor WhatsApp Bisnis</label>
+                                <div class="field-display" onclick="startInlineEdit('contact_whatsapp')">
+                                    <div class="field-value-text" id="text-contact_whatsapp">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="contact_whatsapp" class="form-input"
+                                        placeholder="628123456789">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('contact_whatsapp')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('contact_whatsapp', true)">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-contact_address">
+                                <label class="field-label">Alamat Fisik</label>
+                                <div class="field-display" onclick="startInlineEdit('contact_address')">
+                                    <div class="field-value-text field-value-pre" id="text-contact_address">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <textarea id="contact_address" class="form-input" rows="3"></textarea>
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('contact_address')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('contact_address')">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-column">
+                            <h4 class="mb-4 flex items-center gap-2">
+                                <i data-lucide="globe" size="20" class="text-secondary"></i>
+                                Info Sosial Media
+                            </h4>
+
+                            <div class="editable-field" id="field-social_instagram">
+                                <label class="field-label">Instagram URL</label>
+                                <div class="field-display" onclick="startInlineEdit('social_instagram')">
+                                    <div class="field-value-text" id="text-social_instagram">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_instagram" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('social_instagram')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('social_instagram')">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-social_facebook">
+                                <label class="field-label">Facebook URL</label>
+                                <div class="field-display" onclick="startInlineEdit('social_facebook')">
+                                    <div class="field-value-text" id="text-social_facebook">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_facebook" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('social_facebook')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('social_facebook')">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="editable-field" id="field-social_tiktok">
+                                <label class="field-label">TikTok URL</label>
+                                <div class="field-display" onclick="startInlineEdit('social_tiktok')">
+                                    <div class="field-value-text" id="text-social_tiktok">---</div>
+                                    <button type="button" class="btn-edit-inline">
+                                        <i data-lucide="edit-3" size="18"></i>
+                                    </button>
+                                </div>
+                                <div class="field-edit-box">
+                                    <input type="text" id="social_tiktok" class="form-input">
+                                    <div class="edit-controls">
+                                        <button type="button" class="btn btn-outline"
+                                            onclick="cancelInlineEdit('social_tiktok')">Batal</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="saveIndividualSetting('social_tiktok')">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <button type="button" class="btn-add-social">
+                                    <i data-lucide="plus" size="20"></i> Tambah Media Sosial
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Reports Section (POS Reference Style) -->
+            <section id="reports-section" class="section-card" style="display: none;">
+                <div class="reports-wrapper">
+                    <!-- Reports Sidebar -->
+                    <aside class="reports-sidebar">
+                        <nav id="reports-nav">
+                            <a href="#" class="report-nav-item active" onclick="switchReportTab('summary', this)">
+                                <i data-lucide="bar-chart"></i> Sales Summary
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('payments', this)">
+                                <i data-lucide="credit-card"></i> Payment Method
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('items', this)">
+                                <i data-lucide="package"></i> Item Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('categories', this)">
+                                <i data-lucide="layout-grid"></i> Category Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('modifiers', this)">
+                                <i data-lucide="edit"></i> Modifier Sales
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('discounts', this)">
+                                <i data-lucide="percent"></i> Discounts
+                            </a>
+                            <a href="#" class="report-nav-item" onclick="switchReportTab('taxes', this)">
+                                <i data-lucide="file-text"></i> Taxes
+                            </a>
+                        </nav>
+                    </aside>
+
+                    <!-- Reports Main Content -->
+                    <div class="reports-content">
+                        <!-- Summary View (Default) -->
+                        <div id="report-view-summary">
+                            <!-- Top Bar Filters -->
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex gap-2">
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2"
+                                            onclick="toggleDropdown('date-dropdown')">
+                                            <i data-lucide="calendar" size="16"></i> <span id="current-range-label">Last
+                                                7 days</span> <i data-lucide="chevron-down" size="14"></i>
+                                        </button>
+                                        <div id="date-dropdown" class="dropdown-menu-custom">
+                                            <a href="#" onclick="updateDateRange(7, 'Last 7 days')">Last 7 days</a>
+                                            <a href="#" onclick="updateDateRange(30, 'Last 30 days')">Last 30 days</a>
+                                            <a href="#" onclick="updateDateRange(90, 'Last 90 days')">Last 90 days</a>
+                                            <a href="#" onclick="updateDateRange(365, 'Last 1 year')">Last 1 year</a>
+                                        </div>
+                                    </div>
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2"
+                                            onclick="toggleDropdown('export-dropdown')">
+                                            <i data-lucide="external-link" size="16"></i> Export <i
+                                                data-lucide="chevron-down" size="14"></i>
+                                        </button>
+                                        <div id="export-dropdown" class="dropdown-menu-custom text-left">
+                                            <a href="#" onclick="exportReport('pdf')"><i data-lucide="file-text"
+                                                    size="14"></i> PDF Report</a>
+                                            <a href="#" onclick="exportReport('csv')"><i data-lucide="file"
+                                                    size="14"></i> CSV Data</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary btn-sm flex items-center justify-center p-2"
+                                    onclick="reloadCurrentReportTab(this)" title="Refresh Report">
+                                    <i data-lucide="refresh-cw" size="16"></i>
+                                </button>
+                            </div>
+
+                            <!-- Metrics Grid -->
+                            <div class="pos-metrics-grid">
+                                <!-- Revenue Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Revenue</span>
+                                        <div class="trend-pill down" id="report-revenue-trend">
+                                            <i data-lucide="arrow-down" size="12"></i> 10%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle revenue">
+                                            <i data-lucide="trending-up" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-revenue-v2">Rp 0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Orders Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Orders</span>
+                                        <div class="trend-pill up" id="report-orders-trend">
+                                            <i data-lucide="arrow-up" size="12"></i> 20%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle orders">
+                                            <i data-lucide="shopping-cart" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-orders-v2">0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Average Card -->
+                                <div class="pos-metric-card">
+                                    <div class="card-header">
+                                        <span>Average</span>
+                                        <div class="trend-pill down" id="report-avg-trend">
+                                            <i data-lucide="arrow-down" size="12"></i> 10%
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="icon-circle average">
+                                            <i data-lucide="repeat" size="24"></i>
+                                        </div>
+                                        <div class="metric-value" id="report-avg-v2">Rp 0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sales Chart Box -->
+                            <div class="pos-chart-box">
+                                <div class="chart-header">
+                                    <h3>Sales chart</h3>
+                                    <div class="relative dropdown-container">
+                                        <button class="btn btn-sm btn-ghost"
+                                            onclick="toggleDropdown('chart-more-dropdown')">
+                                            <i data-lucide="more-horizontal"></i>
+                                        </button>
+                                        <div id="chart-more-dropdown" class="dropdown-menu-custom">
+                                            <a href="#"
+                                                onclick="loadPOSReport(this); toggleDropdown('chart-more-dropdown'); return false;"><i
+                                                    data-lucide="refresh-cw" size="14"></i> Refresh Chart</a>
+                                            <a href="#report-summary-rows"><i data-lucide="table" size="14"></i> View
+                                                Data Table</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-area" id="pos-chart-area">
+                                    <div class="chart-grid">
+                                        <div class="grid-line"><span>1200</span></div>
+                                        <div class="grid-line"><span>900</span></div>
+                                        <div class="grid-line"><span>600</span></div>
+                                        <div class="grid-line"><span>300</span></div>
+                                        <div class="grid-line"><span>0</span></div>
+                                    </div>
+                                    <div class="chart-svg-container">
+                                        <svg width="100%" height="100%" viewBox="0 0 800 200"
+                                            preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stop-color="#f59638" stop-opacity="0.3" />
+                                                    <stop offset="100%" stop-color="#f59638" stop-opacity="0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path
+                                                d="M0,180 Q100,160 200,120 T400,80 T600,140 T800,160 L800,200 L0,200 Z"
+                                                fill="url(#chartGradient)" />
+                                            <path d="M0,180 Q100,160 200,120 T400,80 T600,140 T800,160" fill="none"
+                                                stroke="#f59638" stroke-width="3" />
+                                            <!-- Peak Tooltip Bubble -->
+                                            <g transform="translate(400, 75)">
+                                                <rect x="-20" y="-30" width="40" height="25" rx="12" fill="#1e293b" />
+                                                <text x="0" y="-13" fill="white" font-size="12" text-anchor="middle"
+                                                    font-weight="bold">956</text>
+                                                <circle cx="0" cy="5" r="4" fill="white" stroke="#f59638"
+                                                    stroke-width="2" />
+                                            </g>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="chart-labels">
+                                    <span>11:00am</span>
+                                    <span>12:00am</span>
+                                    <span>1:00pm</span>
+                                    <span>2:00pm</span>
+                                    <span>3:00pm</span>
+                                    <span>4:00pm</span>
+                                    <span>5:00pm</span>
+                                    <span>6:00pm</span>
+                                    <span>7:00pm</span>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Table -->
+                            <div class="pos-report-table-card">
+                                <div class="table-header">
+                                    <h3>Detailed Report</h3>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th class="text-right">Sales</th>
+                                                <th class="text-right">Refunds</th>
+                                                <th class="text-right">Net</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="report-summary-rows">
+                                            <tr>
+                                                <td class="font-bold">Gross Sales</td>
+                                                <td class="text-right" id="row-gross-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-gross-net">Rp 0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bold">Net Sales</td>
+                                                <td class="text-right" id="row-net-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-net-net">Rp 0</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bold">Total Collected</td>
+                                                <td class="text-right" id="row-total-sales">Rp 0</td>
+                                                <td class="text-right">Rp 0</td>
+                                                <td class="text-right" id="row-total-net">Rp 0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generic Detailed View (Shared for Payments, Items, Categories) -->
+                        <div id="report-view-detail" style="display: none;">
+                            <div class="pos-report-table-card">
+                                <div class="table-header">
+                                    <h3 id="detail-report-title">Report Title</h3>
+                                    <div class="flex gap-4">
+                                        <button class="btn btn-outline btn-sm flex items-center gap-2">
+                                            <i data-lucide="external-link" size="16"></i> Export
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm" onclick="reloadCurrentReportTab()">
+                                            <i data-lucide="refresh-cw" size="16"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead id="detail-report-head"></thead>
+                                        <tbody id="detail-report-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="galleryModal" class="modal-fixed" style="display:none;">
+        <div class="modal-inner">
+            <h3>Tambah Foto Galeri</h3>
+            <form id="galleryForm" class="mt-4">
+                <div class="form-group mb-3">
+                    <label class="form-label">Pilih Foto</label>
+                    <input type="file" id="galImage" class="form-input" accept="image/*" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Judul (Opsional)</label>
+                    <input type="text" id="galTitle" class="form-input" placeholder="Contoh: Risol Mayo Crispy">
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Urutan Tampilan</label>
+                    <input type="number" id="galOrder" class="form-input" value="0">
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button type="button" class="btn btn-outline flex-1" onclick="closeGalleryModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary flex-2">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script>
+        // apiCall is already globally available from app.js
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section-card').forEach(s => s.style.display = 'none');
+            document.getElementById(`${sectionId}-section`).style.display = 'block';
+
+            document.querySelectorAll('.sidebar-nav a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('onclick')?.includes(sectionId)) a.classList.add('active');
+            });
+
+            if (sectionId === 'orders') loadOrders();
+            if (sectionId === 'testimonials') loadTestimonials();
+            if (sectionId === 'gallery') loadGallery();
+            // if (sectionId === 'customers') loadCustomers(); // Assuming this function exists if 'customers' is added
+            if (sectionId === 'reports') loadPOSReport();
+            if (sectionId === 'instagram') loadInstagramSettings();
+            if (sectionId === 'homepage') loadSettings();
+            if (sectionId === 'settings') loadSettings();
+        }
+
+        const statusLabels = {
+            'confirmed': 'Konfirmasi',
+            'production': 'Mulai Produksi',
+            'packaging': 'Pengemasan',
+            'shipping': 'Pengiriman',
+            'completed': 'Selesai'
+        };
+
+        let currentFilter = 'all';
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === (status === 'all' ? 'semua' : statusLabels[status]?.toLowerCase() || status));
+            });
+            // Specific fix for "Selesai" vs "completed"
+            if (status === 'completed') {
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    if (btn.textContent === 'Selesai') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            } else if (status === 'all') {
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    if (btn.textContent === 'Semua') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+
+            loadOrders();
+        }
+
+        let currentReportTab = 'summary';
+
+        function switchReportTab(tab, element) {
+            currentReportTab = tab;
+            document.querySelectorAll('.report-nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            const summaryView = document.getElementById('report-view-summary');
+            const detailView = document.getElementById('report-view-detail');
+
+            if (tab === 'summary') {
+                summaryView.style.display = 'block';
+                detailView.style.display = 'none';
+                loadPOSReport();
+            } else {
+                summaryView.style.display = 'none';
+                detailView.style.display = 'block';
+                loadTabContent(tab);
+            }
+        }
+
+        function reloadCurrentReportTab(btn = null) {
+            if (currentReportTab === 'summary') loadPOSReport(btn);
+            else loadTabContent(currentReportTab, btn);
+        }
+
+        async function loadTabContent(tab, btn = null) {
+            const tableHead = document.getElementById('detail-report-head');
+            const tableBody = document.getElementById('detail-report-body');
+            const title = document.getElementById('detail-report-title');
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
+            try {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i data-lucide="refresh-cw" class="animate-spin mb-4 block mx-auto"></i> Memuat data...</td></tr>';
+                if (window.lucide) lucide.createIcons();
+                let endpoint = '';
+                let headHTML = '';
+                let renderRow = (item) => '';
+
+                switch (tab) {
+                    case 'payments':
+                        title.innerText = 'Payment Method Report';
+                        endpoint = `/cms/reports/payments?days=${currentDays}`;
+                        headHTML = '<tr><th>Payment Method</th><th class="text-center">Transactions</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.payment_method}</td>
+                                <td class="text-center">${item.count}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    case 'items':
+                        title.innerText = 'Item Sales Report';
+                        endpoint = `/cms/reports/items?days=${currentDays}`;
+                        headHTML = '<tr><th>Product Name</th><th>Category</th><th class="text-center">Qty Sold</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.name}</td>
+                                <td>${item.category}</td>
+                                <td class="text-center">${item.total_qty}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    case 'categories':
+                        title.innerText = 'Category Sales Report';
+                        endpoint = `/cms/reports/categories?days=${currentDays}`;
+                        headHTML = '<tr><th>Category Name</th><th class="text-center">Items Sold</th><th class="text-right">Total Sales</th></tr>';
+                        renderRow = (item) => `
+                            <tr>
+                                <td class="font-bold">${item.category}</td>
+                                <td class="text-center">${item.total_qty}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(item.total_sales)}</td>
+                            </tr>`;
+                        break;
+                    default:
+                        title.innerText = tab.charAt(0).toUpperCase() + tab.slice(1) + ' Report';
+                        tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-muted">Data untuk modul ini akan segera tersedia.</td></tr>';
+                        return;
+                }
+
+                const res = await apiCall(endpoint);
+                if (res.success) {
+                    tableHead.innerHTML = headHTML;
+                    if (res.data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-muted">Belum ada data penjualan tersedia.</td></tr>';
+                    } else {
+                        tableBody.innerHTML = res.data.map(renderRow).join('');
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            } catch (error) {
+                console.error('Report Tab Error:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-error">Gagal memuat data laporan.</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        let currentDays = 7;
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isShow = dropdown.classList.contains('show');
+            document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            if (!isShow) dropdown.classList.add('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        async function updateDateRange(days, label) {
+            currentDays = days;
+            document.getElementById('current-range-label').innerText = label;
+            document.getElementById('date-dropdown').classList.remove('show');
+            reloadCurrentReportTab();
+        }
+
+        async function loadPOSReport(btn = null) {
+            const chartArea = document.getElementById('pos-chart-area');
+            const summaryView = document.getElementById('report-view-summary');
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
+            try {
+                const res = await apiCall(`/cms/reports/pos?days=${currentDays}`);
+                if (res.success) {
+                    const data = res.data;
+                    const summary = data.summary;
+
+                    // Metrics V2
+                    const avgValue = summary.range_orders > 0 ? (summary.range_revenue / summary.range_orders) : 0;
+
+                    document.getElementById('report-revenue-v2').textContent = window.app.formatCurrency(summary.range_revenue);
+                    document.getElementById('report-orders-v2').textContent = summary.range_orders.toLocaleString();
+                    document.getElementById('report-avg-v2').textContent = window.app.formatCurrency(avgValue);
+
+                    // Table Rows
+                    const gross = summary.range_revenue;
+                    document.getElementById('row-gross-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-gross-net').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-net-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-net-net').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-total-sales').textContent = window.app.formatCurrency(gross);
+                    document.getElementById('row-total-net').textContent = window.app.formatCurrency(gross);
+
+                    // Draw Chart
+                    drawSalesChart(data.trend);
+
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('POS Report Error:', error);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function drawSalesChart(trend) {
+            const container = document.querySelector('.chart-svg-container');
+            const labelsContainer = document.querySelector('.chart-labels');
+            const gridContainer = document.querySelector('.chart-grid');
+
+            if (trend.length === 0) {
+                container.innerHTML = '<div class="flex items-center justify-center h-full text-muted">No data for this period</div>';
+                return;
+            }
+
+            const maxRevenue = Math.max(...trend.map(t => t.revenue), 1000);
+            const chartHeight = 200;
+            const chartWidth = 800;
+            const padding = 20;
+
+            // Generate grid
+            const gridCount = 4;
+            let gridHTML = '';
+            for (let i = 0; i <= gridCount; i++) {
+                const val = Math.round((maxRevenue / gridCount) * (gridCount - i));
+                gridHTML += `<div class="grid-line"><span>${val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : val.toLocaleString()}</span></div>`;
+            }
+            gridContainer.innerHTML = gridHTML;
+
+            // Generate path
+            const points = trend.map((t, i) => {
+                const x = (i / (trend.length - 1)) * chartWidth;
+                const y = chartHeight - ((t.revenue / maxRevenue) * (chartHeight - padding * 2) + padding);
+                return { x, y, data: t };
+            });
+
+            let pathD = `M ${points[0].x},${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                const prev = points[i - 1];
+                const curr = points[i];
+                const cp1x = prev.x + (curr.x - prev.x) / 2;
+                pathD += ` C ${cp1x},${prev.y} ${cp1x},${curr.y} ${curr.x},${curr.y}`;
+            }
+
+            const areaD = pathD + ` L ${chartWidth},${chartHeight} L 0,${chartHeight} Z`;
+
+            container.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 ${chartWidth} ${chartHeight}" preserveAspectRatio="none" id="sales-svg">
+                    <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#f59638" stop-opacity="0.3" />
+                            <stop offset="100%" stop-color="#f59638" stop-opacity="0" />
+                        </linearGradient>
+                    </defs>
+                    <path d="${areaD}" fill="url(#chartGradient)" />
+                    <path d="${pathD}" fill="none" stroke="#f59638" stroke-width="3" />
+                    ${points.map((p, i) => `
+                        <circle class="chart-point" cx="${p.x}" cy="${p.y}" r="4" fill="white" stroke="#f59638" stroke-width="2" 
+                                onmouseover="showChartTooltip(event, '${p.data.day}', ${p.data.revenue})"
+                                onmouseout="hideChartTooltip()">
+                        </circle>
+                    `).join('')}
+                </svg>
+                <div id="chart-tooltip" class="chart-tooltip-v2"></div>
+            `;
+
+            // Labels
+            labelsContainer.innerHTML = trend.map(t => `<span>${t.day}</span>`).join('');
+        }
+
+        function showChartTooltip(e, day, value) {
+            const tooltip = document.getElementById('chart-tooltip');
+            const svg = document.getElementById('sales-svg');
+            const rect = svg.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            tooltip.innerHTML = `
+                <span class="tooltip-date">${day}</span>
+                <span class="tooltip-value">${window.app.formatCurrency(value)}</span>
+            `;
+
+            tooltip.style.left = `${(x / rect.width) * 100}%`;
+            tooltip.style.top = `${(y / rect.height) * 100}%`;
+            tooltip.classList.add('show');
+        }
+
+        function hideChartTooltip() {
+            document.getElementById('chart-tooltip').classList.remove('show');
+        }
+
+        async function exportReport(type) {
+            if (type === 'pdf') {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4'); // Portrait mode for better readability
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    let yPos = 20;
+
+                    // ========== HEADER SECTION ==========
+                    // Company Logo & Branding
+                    doc.setFillColor(245, 150, 56); // Primary orange
+                    doc.rect(0, 0, pageWidth, 35, 'F');
+
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFontSize(24);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('BAITYBITES', 14, 15);
+
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('Risol Mayo Premium - Order Management System', 14, 22);
+
+                    // Report Title
+                    doc.setFontSize(16);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('SALES PERFORMANCE REPORT', 14, 30);
+
+                    yPos = 45;
+
+                    // ========== REPORT METADATA ==========
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'normal');
+
+                    const periodLabel = document.getElementById('current-range-label').innerText;
+                    const generatedDate = new Date().toLocaleString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    doc.setFillColor(240, 240, 240);
+                    doc.roundedRect(14, yPos, pageWidth - 28, 20, 2, 2, 'F');
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Report Period:', 18, yPos + 7);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(periodLabel, 50, yPos + 7);
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Generated:', 18, yPos + 14);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(generatedDate, 50, yPos + 14);
+
+                    yPos += 30;
+
+                    if (currentReportTab === 'summary') {
+                        // ========== EXECUTIVE SUMMARY ==========
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('EXECUTIVE SUMMARY', 14, yPos);
+                        yPos += 8;
+
+                        // Key Metrics Cards
+                        const metrics = [
+                            {
+                                label: 'Total Revenue',
+                                value: document.getElementById('report-revenue-v2').textContent,
+                                icon: 'Rp',
+                                color: [16, 185, 129] // Green
+                            },
+                            {
+                                label: 'Total Orders',
+                                value: document.getElementById('report-orders-v2').textContent,
+                                icon: '#',
+                                color: [59, 130, 246] // Blue
+                            },
+                            {
+                                label: 'Average Order Value',
+                                value: document.getElementById('report-avg-v2').textContent,
+                                icon: 'AVG',
+                                color: [245, 150, 56] // Orange
+                            }
+                        ];
+
+                        metrics.forEach((metric, index) => {
+                            const xOffset = 14 + (index * 62);
+
+                            // Card background
+                            doc.setFillColor(...metric.color);
+                            doc.roundedRect(xOffset, yPos, 58, 28, 3, 3, 'F');
+
+                            // Icon
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(metric.icon, xOffset + 4, yPos + 10);
+
+                            // Label
+                            doc.setFontSize(8);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(metric.label, xOffset + 4, yPos + 17);
+
+                            // Value
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'bold');
+                            const valueText = metric.value.length > 15 ? metric.value.substring(0, 12) + '...' : metric.value;
+                            doc.text(valueText, xOffset + 4, yPos + 24);
+                        });
+
+                        yPos += 38;
+
+                        // ========== DETAILED BREAKDOWN ==========
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('DETAILED BREAKDOWN', 14, yPos);
+                        yPos += 5;
+
+                        // Comprehensive metrics table
+                        doc.autoTable({
+                            startY: yPos,
+                            head: [['Performance Indicator', 'Current Period', 'Status']],
+                            body: [
+                                [
+                                    'Revenue Performance',
+                                    document.getElementById('report-revenue-v2').textContent,
+                                    'Active'
+                                ],
+                                [
+                                    'Order Volume',
+                                    document.getElementById('report-orders-v2').textContent,
+                                    'Tracked'
+                                ],
+                                [
+                                    'Average Transaction Value',
+                                    document.getElementById('report-avg-v2').textContent,
+                                    'Calculated'
+                                ],
+                                [
+                                    'Gross Sales',
+                                    document.getElementById('row-gross-sales')?.textContent || 'N/A',
+                                    'Verified'
+                                ],
+                                [
+                                    'Net Sales',
+                                    document.getElementById('row-net-sales')?.textContent || 'N/A',
+                                    'Verified'
+                                ]
+                            ],
+                            theme: 'striped',
+                            headStyles: {
+                                fillColor: [245, 150, 56],
+                                textColor: [255, 255, 255],
+                                fontStyle: 'bold',
+                                fontSize: 10
+                            },
+                            bodyStyles: {
+                                fontSize: 9
+                            },
+                            alternateRowStyles: {
+                                fillColor: [250, 250, 250]
+                            },
+                            columnStyles: {
+                                0: { cellWidth: 80, fontStyle: 'bold' },
+                                1: { cellWidth: 60, halign: 'right' },
+                                2: { cellWidth: 40, halign: 'center', textColor: [16, 185, 129] }
+                            }
+                        });
+
+                        yPos = doc.lastAutoTable.finalY + 10;
+
+                        // ========== TOP PRODUCTS SECTION ==========
+                        if (yPos > pageHeight - 80) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('TOP PERFORMING PRODUCTS', 14, yPos);
+                        yPos += 5;
+
+                        // Get top products data
+                        const topProductsRows = document.querySelectorAll('#top-products-table tbody tr');
+                        const topProductsData = [];
+                        topProductsRows.forEach((row, index) => {
+                            if (index < 5) { // Top 5 products
+                                const cells = row.querySelectorAll('td');
+                                if (cells.length >= 3) {
+                                    topProductsData.push([
+                                        `${index + 1}. ${cells[0].textContent.trim()}`,
+                                        cells[1].textContent.trim(),
+                                        cells[2].textContent.trim()
+                                    ]);
+                                }
+                            }
+                        });
+
+                        if (topProductsData.length > 0) {
+                            doc.autoTable({
+                                startY: yPos,
+                                head: [['Product Name', 'Units Sold', 'Revenue']],
+                                body: topProductsData,
+                                theme: 'grid',
+                                headStyles: {
+                                    fillColor: [59, 130, 246],
+                                    textColor: [255, 255, 255],
+                                    fontStyle: 'bold',
+                                    fontSize: 10
+                                },
+                                bodyStyles: {
+                                    fontSize: 9
+                                },
+                                columnStyles: {
+                                    0: { cellWidth: 100 },
+                                    1: { cellWidth: 40, halign: 'center' },
+                                    2: { cellWidth: 50, halign: 'right', fontStyle: 'bold' }
+                                }
+                            });
+                            yPos = doc.lastAutoTable.finalY + 10;
+                        }
+
+                        // ========== SALES TREND ANALYSIS ==========
+                        if (yPos > pageHeight - 60) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        doc.text('SALES TREND ANALYSIS', 14, yPos);
+                        yPos += 5;
+
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'italic');
+                        doc.setTextColor(100, 100, 100);
+                        doc.text('Daily sales performance breakdown for the selected period', 14, yPos);
+                        yPos += 8;
+
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('For detailed trend visualization, please refer to the dashboard chart.', 14, yPos);
+                        yPos += 10;
+
+                    } else {
+                        // ========== DETAILED REPORT (Payments/Items/Categories) ==========
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(245, 150, 56);
+                        const reportTitle = document.getElementById('detail-report-title').textContent;
+                        doc.text(reportTitle.toUpperCase(), 14, yPos);
+                        yPos += 5;
+
+                        // Export the visible table
+                        const visibleTable = document.querySelector('.table:visible');
+                        if (visibleTable) {
+                            doc.autoTable({
+                                startY: yPos,
+                                html: visibleTable,
+                                theme: 'grid',
+                                headStyles: {
+                                    fillColor: [245, 150, 56],
+                                    textColor: [255, 255, 255],
+                                    fontStyle: 'bold',
+                                    fontSize: 10
+                                },
+                                bodyStyles: {
+                                    fontSize: 9
+                                },
+                                alternateRowStyles: {
+                                    fillColor: [250, 250, 250]
+                                }
+                            });
+                        }
+                    }
+
+                    // ========== FOOTER ON EVERY PAGE ==========
+                    const totalPages = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= totalPages; i++) {
+                        doc.setPage(i);
+
+                        // Footer line
+                        doc.setDrawColor(245, 150, 56);
+                        doc.setLineWidth(0.5);
+                        doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15);
+
+                        // Footer text
+                        doc.setFontSize(8);
+                        doc.setTextColor(100, 100, 100);
+                        doc.setFont(undefined, 'normal');
+                        doc.text('Baitybites OMS - Confidential Business Report', 14, pageHeight - 10);
+                        doc.text(`Page ${i} of ${totalPages}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+                        doc.text(`Generated: ${new Date().toLocaleDateString('id-ID')}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    }
+
+                    // Save the PDF
+                    const filename = `Baitybites_Sales_Report_${periodLabel.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    doc.save(filename);
+
+                    window.app.showNotification('PDF report generated successfully!', 'success');
+                    toggleDropdown('export-dropdown');
+
+                } catch (error) {
+                    console.error('PDF Export Error:', error);
+                    window.app.showNotification('Failed to generate PDF report', 'error');
+                }
+            } else if (type === 'csv') {
+                // ========== CSV EXPORT ==========
+                try {
+                    let csv = '';
+                    const periodLabel = document.getElementById('current-range-label').innerText;
+
+                    // CSV Header
+                    csv += `Baitybites Sales Report\n`;
+                    csv += `Period: ${periodLabel}\n`;
+                    csv += `Generated: ${new Date().toLocaleString('id-ID')}\n\n`;
+
+                    if (currentReportTab === 'summary') {
+                        csv += 'Metric,Value\n';
+                        csv += `Total Revenue,${document.getElementById('report-revenue-v2').textContent}\n`;
+                        csv += `Total Orders,${document.getElementById('report-orders-v2').textContent}\n`;
+                        csv += `Average Order Value,${document.getElementById('report-avg-v2').textContent}\n`;
+                        csv += `Gross Sales,${document.getElementById('row-gross-sales')?.textContent || 'N/A'}\n`;
+                        csv += `Net Sales,${document.getElementById('row-net-sales')?.textContent || 'N/A'}\n`;
+                    } else {
+                        const table = document.querySelector('.table:visible');
+                        if (table) {
+                            const rows = table.querySelectorAll('tr');
+                            rows.forEach(row => {
+                                const cols = row.querySelectorAll('th, td');
+                                const rowData = Array.from(cols).map(col => {
+                                    let text = col.textContent.trim();
+                                    // Escape commas and quotes
+                                    if (text.includes(',') || text.includes('"')) {
+                                        text = `"${text.replace(/"/g, '""')}"`;
+                                    }
+                                    return text;
+                                }).join(',');
+                                csv += rowData + '\n';
+                            });
+                        }
+                    }
+
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Baitybites_Report_${periodLabel.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    window.app.showNotification('CSV data exported successfully!', 'success');
+                    toggleDropdown('export-dropdown');
+
+                } catch (error) {
+                    console.error('CSV Export Error:', error);
+                    window.app.showNotification('Failed to export CSV data', 'error');
+                }
+            }
+        }
+
+        async function loadOrders(btn = null) {
+            const ongoingList = document.getElementById('orders-list-ongoing');
+            const completedList = document.getElementById('orders-list-completed');
+            const ongoingWrapper = document.getElementById('ongoing-orders-wrapper');
+            const completedWrapper = document.getElementById('completed-orders-wrapper');
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
+            try {
+                const json = await apiCall('/cms/orders');
+
+                if (json.success) {
+                    let orders = json.data;
+
+                    // Support manual PO numbers like PO-221-72
+                    const getOrderSortValue = (num) => {
+                        const match = num.match(/PO-(\d+)-(\d+)/);
+                        if (match) return parseInt(match[2]);
+                        return 0;
+                    };
+                    orders.sort((a, b) => getOrderSortValue(b.order_number) - getOrderSortValue(a.order_number));
+
+                    // Filter logic
+                    const filteredOrders = currentFilter === 'all'
+                        ? orders
+                        : orders.filter(o => o.status === currentFilter);
+
+                    const renderOrderRow = (o) => {
+                        const steps = ['confirmed', 'production', 'packaging', 'shipping', 'completed'];
+                        const currentStepIndex = steps.indexOf(o.status);
+                        const isCompleted = o.status === 'completed';
+
+                        return `
+                        <tr>
+                            <td><strong>${o.order_number}</strong></td>
+                            <td>${o.customer_name}</td>
+                            <td class="text-center overflow-visible">
+                                <div class="status-popover-container" id="popover-${o.id}">
+                                    <button class="status-trigger-badge ${o.status} ${isCompleted ? 'is-completed' : ''}" 
+                                            ${isCompleted ? '' : `onclick="toggleStatusPopover(event, ${o.id})"`}>
+                                        ${o.status.toUpperCase()}
+                                    </button>
+                                    
+                                    ${isCompleted ? '' : `
+                                    <div class="status-popover ${o.status}">
+                                        <div class="timeline-steps">
+                                            ${steps.map((step, index) => {
+                            let stateClass = '';
+                            if (index < currentStepIndex) stateClass = 'completed';
+                            else if (index === currentStepIndex) stateClass = 'current active';
+
+                            return `
+                                                <div class="timeline-step ${stateClass}" onclick="selectStatusFromTimeline(${o.id}, '${step}')">
+                                                    <div class="step-circle" title="${statusLabels[step]}"></div>
+                                                    <div class="step-label">${statusLabels[step]}</div>
+                                                </div>
+                                                `;
+                        }).join('')}
+                                        </div>
+                                    </div>
+                                    `}
+                                </div>
+                            </td>
+                        </tr>`;
+                    };
+
+                    const ongoingOrders = filteredOrders.filter(o => o.status !== 'completed');
+                    const completedOrders = filteredOrders.filter(o => o.status === 'completed');
+
+                    ongoingList.innerHTML = ongoingOrders.map(renderOrderRow).join('');
+                    completedList.innerHTML = completedOrders.map(renderOrderRow).join('');
+
+                    // Show/Hide sections based on content and filters
+                    ongoingWrapper.style.display = ongoingOrders.length > 0 ? 'block' : 'none';
+                    completedWrapper.style.display = completedOrders.length > 0 ? 'block' : 'none';
+
+                    if (ongoingOrders.length === 0 && completedOrders.length === 0) {
+                        ongoingWrapper.style.display = 'block';
+                        ongoingList.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-muted">Tidak ada pesanan ditemukan.</td></tr>';
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                if (ongoingList) ongoingList.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-danger">Gagal memuat data.</td></tr>';
+                if (ongoingWrapper) ongoingWrapper.style.display = 'block';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function toggleStatusPopover(e, id) {
+            e.stopPropagation();
+            // Close all others
+            document.querySelectorAll('.status-popover').forEach(el => {
+                const parent = el.closest('.status-popover-container');
+                if (parent && parent.id !== `popover-${id}`) {
+                    el.classList.remove('show');
+                }
+            });
+
+            const container = document.getElementById(`popover-${id}`);
+            const popover = container.querySelector('.status-popover');
+            popover.classList.toggle('show');
+        }
+
+        function selectStatusFromTimeline(id, status) {
+            updateStatus(id, status);
+
+            // Close popover
+            const container = document.getElementById(`popover-${id}`);
+            const popover = container.querySelector('.status-popover');
+            popover.classList.remove('show');
+        }
+
+        async function updateStatus(id, status) {
+            if (!status) return;
+            try {
+                const res = await apiCall('/cms/orders/' + id + '/status', {
+                    method: 'PUT',
+                    body: JSON.stringify({ status })
+                });
+                if (res.success) {
+                    // alert('Status diperbarui!'); // Removed for smoother UX
+                    loadOrders();
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadTestimonials() {
+            try {
+                const json = await apiCall('/cms/testimonials');
+                const container = document.getElementById('testimonials-list');
+                if (json.success) {
+                    container.innerHTML = json.data.map(t => `
+                        <div class="testimonial-item">
+                            <div class="testimonial-content">
+                                <div class="testimonial-header">
+                                    <strong>${t.name}</strong>
+                                    <span class="role-badge">${t.role}</span>
+                                </div>
+                                <p class="testimonial-text">"${t.content}"</p>
+                            </div>
+                            <div class="testimonial-actions">
+                                <button class="btn ${t.is_approved ? 'btn-outline' : 'btn-primary'} btn-sm" 
+                                        onclick="toggleApprove(${t.id}, ${!t.is_approved})">
+                                    ${t.is_approved ? 'Batalkan' : 'Setujui'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function toggleApprove(id, is_approved) {
+            try {
+                const res = await apiCall('/cms/testimonials/' + id + '/approve', {
+                    method: 'PUT',
+                    body: JSON.stringify({ is_approved })
+                });
+                if (res.success) loadTestimonials();
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadGallery() {
+            try {
+                const json = await apiCall('/cms/gallery');
+                const container = document.getElementById('gallery-list');
+                if (json.success) {
+                    container.innerHTML = json.data.map(g => `
+                        <div class="gallery-item">
+                            <img src="${g.image_url}" alt="${g.title}">
+                            <div class="actions">
+                                <div>
+                                    <div class="badge ${g.source === 'instagram' ? 'badge-approved' : 'badge-pending'} text-xs mb-1">
+                                        ${g.source === 'instagram' ? 'INSTAGRAM' : 'MANUAL'}
+                                    </div>
+                                    <div class="text-sm">Order: ${g.display_order}</div>
+                                </div>
+                                <button class="btn btn-danger btn-xs" onclick="deleteGallery(${g.id})">Hapus</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteGallery(id) {
+            if (!confirm('Hapus foto ini?')) return;
+            try {
+                const res = await apiCall('/cms/gallery/' + id, { method: 'DELETE' });
+                if (res.success) loadGallery();
+            } catch (e) { console.error(e); }
+        }
+
+        // Gallery Modal Logic
+        function showGalleryModal() {
+            document.getElementById('galleryModal').style.display = 'flex';
+        }
+
+        function closeGalleryModal() {
+            document.getElementById('galleryModal').style.display = 'none';
+            document.getElementById('galleryForm').reset();
+        }
+
+        document.getElementById('galleryForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('galImage').files[0]);
+            formData.append('title', document.getElementById('galTitle').value);
+            formData.append('display_order', document.getElementById('galOrder').value);
+
+            try {
+                const res = await apiCall('/cms/gallery', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.success) {
+                    window.app.showNotification('Foto berhasil ditambahkan!', 'success');
+                    closeGalleryModal();
+                    loadGallery();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        // --- Elfsight Widget Functions ---
+        function startInlineEdit(fieldId) {
+            document.getElementById(`field-${fieldId}`).classList.add('is-editing');
+            const input = document.getElementById(fieldId);
+            input.focus();
+            if (input.tagName === 'TEXTAREA') {
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        }
+
+        function cancelInlineEdit(fieldId) {
+            document.getElementById(`field-${fieldId}`).classList.remove('is-editing');
+            // If it was a settings field, reload to undo local changes
+            if (['hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'].includes(fieldId)) {
+                loadSettings();
+            } else if (fieldId !== 'elfsightWidget') {
+                loadSettings();
+            } else {
+                loadInstagramSettings();
+            }
+        }
+
+        async function saveElfsightWidget() {
+            const widget = document.getElementById('elfsightWidget').value.trim();
+            if (!widget) {
+                window.app.showNotification('Mohon masukkan kode widget Elfsight', 'info');
+                return;
+            }
+            try {
+                const res = await apiCall('/cms/instagram/widget', {
+                    method: 'PUT',
+                    body: JSON.stringify({ widget })
+                });
+                if (res.success) {
+                    document.getElementById('text-elfsightWidget').textContent = widget;
+                    cancelInlineEdit('elfsightWidget');
+                    document.getElementById('elfsightStatus').innerHTML =
+                        '<div class="badge badge-approved"><i data-lucide="check" size="12"></i> Tersimpan!</div>';
+                    if (window.lucide) lucide.createIcons();
+                    setTimeout(() => {
+                        document.getElementById('elfsightStatus').innerHTML = '';
+                    }, 3000);
+                }
+            } catch (e) {
+                console.error(e);
+                window.app.showNotification('Gagal menyimpan widget', 'error');
+            }
+        }
+
+        // --- Instagram API Functions ---
+        async function loadInstagramSettings() {
+            try {
+                const res = await apiCall('/cms/instagram/settings');
+                if (res.success && res.data.has_token) {
+                    document.getElementById('tokenStatus').innerHTML = '<span class="text-success"><i data-lucide="check-circle" size="14"></i> Token tersimpan</span>';
+                    if (window.lucide) lucide.createIcons();
+                }
+                // Load widget if exists
+                const widgetRes = await apiCall('/cms/instagram/widget');
+                if (widgetRes.success && widgetRes.data) {
+                    document.getElementById('elfsightWidget').value = widgetRes.data;
+                    document.getElementById('text-elfsightWidget').textContent = widgetRes.data.substring(0, 50) + '...';
+                } else {
+                    document.getElementById('text-elfsightWidget').textContent = 'Belum ada widget';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function saveInstagramToken() {
+            const token = document.getElementById('igToken').value.trim();
+            if (!token) {
+                window.app.showNotification('Mohon masukkan access token', 'info');
+                return;
+            }
+            try {
+                const res = await apiCall('/cms/instagram/token', {
+                    method: 'PUT',
+                    body: JSON.stringify({ token })
+                });
+                if (res.success) {
+                    document.getElementById('tokenStatus').textContent = '✅ Token berhasil disimpan';
+                    document.getElementById('igToken').value = '';
+                }
+            } catch (e) {
+                console.error(e);
+                window.app.showNotification('Gagal menyimpan token', 'error');
+            }
+        }
+
+        async function syncInstagram(btn = null) {
+            const statusEl = document.getElementById('syncStatus');
+            statusEl.innerHTML = '<div class="badge badge-pending">⏳ Sedang sinkronisasi...</div>';
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
+            try {
+                const res = await apiCall('/cms/instagram/sync', { method: 'POST' });
+                if (res.success) {
+                    statusEl.innerHTML = '<div class="badge badge-approved">✅ ' + res.message + '</div>';
+                    loadGallery(); // Refresh gallery
+                } else {
+                    statusEl.innerHTML = '<div class="badge badge-pending">❌ ' + res.message + '</div>';
+                }
+            } catch (e) {
+                console.error(e);
+                statusEl.innerHTML = '<div class="badge badge-pending">❌ Gagal sinkronisasi</div>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const res = await apiCall('/cms/settings');
+                if (res.success) {
+                    const data = res.data;
+                    const fields = [
+                        'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address',
+                        'social_instagram', 'social_facebook', 'social_tiktok',
+                        'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
+                    ];
+
+                    fields.forEach(f => {
+                        const val = data[f] || (f.includes('url') ? 'Belum ada URL' : '---');
+                        const input = document.getElementById(f);
+                        if (input) input.value = data[f] || '';
+                        const textDisplay = document.getElementById(`text-${f}`);
+                        if (textDisplay) {
+                            if (f.startsWith('hero_') || f.startsWith('contact_') || f.startsWith('social_')) {
+                                textDisplay.innerHTML = window.app.formatText(val);
+                            } else {
+                                textDisplay.textContent = val;
+                            }
+                        }
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // AI Enhancement is now handled globally in app.js
+
+        async function saveIndividualSetting(fieldId) {
+            const value = document.getElementById(fieldId).value;
+            const payload = {
+                contact_email: document.getElementById('contact_email')?.value,
+                contact_phone: document.getElementById('contact_phone')?.value,
+                contact_whatsapp: document.getElementById('contact_whatsapp')?.value,
+                contact_address: document.getElementById('contact_address')?.value,
+                social_instagram: document.getElementById('social_instagram')?.value,
+                social_facebook: document.getElementById('social_facebook')?.value,
+                social_tiktok: document.getElementById('social_tiktok')?.value,
+                hero_greeting: document.getElementById('hero_greeting')?.value,
+                hero_title: document.getElementById('hero_title')?.value,
+                hero_description: document.getElementById('hero_description')?.value,
+                hero_background_url: document.getElementById('hero_background_url')?.value,
+                hero_button_text: document.getElementById('hero_button_text')?.value,
+                hero_button_link: document.getElementById('hero_button_link')?.value
+            };
+
+            try {
+                const res = await apiCall('/cms/settings', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                if (res.success) {
+                    const textDisplay = document.getElementById(`text-${fieldId}`);
+                    if (textDisplay) {
+                        textDisplay.innerHTML = window.app.formatText(value) || '---';
+                    }
+                    cancelInlineEdit(fieldId);
+                }
+            } catch (error) {
+                console.error(error);
+                window.app.showNotification('Gagal menyimpan perubahan', 'error');
+            }
+        }
+
+        // Initial Load
+        const initialSection = window.location.hash.replace('#', '') || 'orders';
+        switchSection(initialSection);
+        loadInstagramSettings();
+
+        // Close popovers when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.status-popover-container')) {
+                document.querySelectorAll('.status-popover').forEach(el => el.classList.remove('show'));
+            }
+        });
+
+        // Ensure icons are rendered
+        if (window.lucide) lucide.createIcons();
+    </script>
+</body>
+
+</html>
