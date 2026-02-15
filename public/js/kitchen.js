@@ -423,7 +423,8 @@
 
             loadData(); // Refresh immediately
         } catch (e) {
-            alert('Gagal update status');
+            console.error('Update status error:', e);
+            window.app.showNotification('Gagal memperbarui status pesanan', 'error');
         }
     };
 

@@ -1,15 +1,15 @@
 @use "sass:math";
 
 // Typography Constants
-$ratio: 0.9;
+$ratio: 0.85; // Slightly faster scaling for lower header levels
 
 // MAX (desktop)
-$h1-max: 32px;
-$h1-space-max: 16px;
+$h1-max: 28px; // Reduced from 32px
+$h1-space-max: 12px; // Reduced from 16px
 
 // MIN (mobile)
-$h1-min: 26px;
-$h1-space-min: 12px;
+$h1-min: 22px; // Reduced from 26px
+$h1-space-min: 8px; // Reduced from 12px
 
 // body & small
 $p-max: 14px;
@@ -19,11 +19,11 @@ $small-max: 10px;
 $small-min: 10px;
 
 // Display (metrics, large numbers)
-$display-max: 28px;
-$display-min: 22px;
+$display-max: 24px; // Reduced from 28px
+$display-min: 20px; // Reduced from 22px
 
 @function fluid($min, $max) {
-    @return clamp($min, 4vw, $max);
+    @return clamp($min, 3vw, $max); // Reduced 4vw to 3vw for slower scaling
 }
 
 @function scale($value, $level) {

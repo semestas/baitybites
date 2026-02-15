@@ -50,7 +50,11 @@ function showTestimonyForm() {
         testNameInput.setAttribute('required', 'true');
     }
 
-    document.getElementById('testimonyModal').style.display = 'flex';
+    const modal = document.getElementById('testimonyModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+    }
 }
 
 function enableAliasMode() {
@@ -64,7 +68,11 @@ function enableAliasMode() {
 }
 
 function hideTestimonyForm() {
-    document.getElementById('testimonyModal').style.display = 'none';
+    const modal = document.getElementById('testimonyModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
 }
 
 async function loadContent() {

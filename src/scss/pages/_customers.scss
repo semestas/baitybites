@@ -50,10 +50,6 @@
     gap: 1.5rem;
     padding: 0;
 
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
 }
 
 // Customer Card Styles
@@ -200,10 +196,6 @@
     gap: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
 
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-lg);
-    }
 }
 
 .customer-info-card {

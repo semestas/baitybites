@@ -188,6 +188,7 @@
                 const modal = document.getElementById('customerModal');
                 const body = document.getElementById('customerModalBody');
 
+                modal.classList.add('active');
                 modal.style.display = 'flex';
                 body.innerHTML = '<div class="text-center"><div class="spinner mx-auto mb-5"></div><p>Loading details...</p></div>';
 
@@ -285,7 +286,9 @@
             }
 
             window.closeCustomerModal = () => {
-                document.getElementById('customerModal').style.display = 'none';
+                const modal = document.getElementById('customerModal');
+                modal.classList.remove('active');
+                modal.style.display = 'none';
             };
 
             if (document.readyState === 'loading') {
@@ -300,7 +303,7 @@
             // Pause refresh when modal is open
             const modal = document.getElementById('customerModal');
             const observer = new MutationObserver(() => {
-                if (modal.style.display === 'flex') {
+                if (modal.classList.contains('active')) {
                     if (refreshInterval) {
                         clearInterval(refreshInterval);
                         refreshInterval = null;

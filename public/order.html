@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesan Risol Mayo - Baitybites</title>
+    <meta name="description"
+        content="Pilih varian Risol Mayo favorit Anda dan pesan secara online dengan mudah. Nikmati promo gratis ongkir dan layanan pengiriman cepat dari Baitybites!">
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59638">
@@ -225,19 +227,21 @@
                 </div>
 
                 <!-- Recent Orders for Logged-in Users -->
-                <div id="recentOrdersSection" class="mt-6 animate-fade-in hidden">
-                    <div class="card">
-                        <div class="card-header flex justify-between items-center cursor-pointer"
+                <div id="recentOrdersSection" class="recent-orders-section animate-fade-in hidden">
+                    <div class="recent-orders-list">
+                        <div class="flex recent-orders-header gap-2 items-center cursor-pointer"
                             onclick="toggleRecentOrders()">
                             <div class="flex items-center gap-2">
                                 <i id="recentOrdersChevron" data-lucide="chevron-up" class="transition-transform"></i>
-                                <h4 class="card-title no-margin">Pesanan Terbaru Anda</h4>
+                                <div class="recent-orders-title no-margin">Pesanan Terbaru Anda</div>
                             </div>
-                            <button onclick="event.stopPropagation(); loadRecentOrders()"
-                                class="btn btn-outline btn-sm">Refresh</button>
+                            <button onclick="event.stopPropagation(); loadRecentOrders(this)"
+                                class="btn btn-outline btn-sm" title="Refresh Data">
+                                <i data-lucide="refresh-cw"></i>
+                            </button>
                         </div>
-                        <div id="recentOrdersBody" class="card-body transition-all">
-                            <div id="recentOrdersList" class="flex flex-col gap-2">
+                        <div id="recentOrdersBody" class="recent-orders-body transition-all">
+                            <div id="recentOrdersList" class="flex flex-wrap gap-2">
                                 <p class="text-center text-muted">Memuat pesanan...</p>
                             </div>
                         </div>

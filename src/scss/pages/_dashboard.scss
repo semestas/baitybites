@@ -27,9 +27,7 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
-    @include mobile {
-      grid-template-columns: 1fr;
-    }
+
   }
 
   .insight-card {
@@ -133,9 +131,7 @@
     grid-template-columns: repeat(3, 1fr);
   }
 
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
+
 }
 
 .stat-card {
@@ -353,9 +349,7 @@
     max-width: 100%;
   }
 
-  @include mobile {
-    grid-template-columns: repeat(2, 1fr);
-  }
+
 
   .action-link {
     text-decoration: none;
@@ -581,9 +575,7 @@
     align-items: center;
     gap: 2rem;
 
-    @include mobile {
-      flex-direction: column;
-    }
+
   }
 
   .footer-logo {
@@ -623,11 +615,6 @@
       margin-top: 0.5rem;
     }
 
-    @include mobile {
-      text-align: center;
-      width: 100%;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 3rem;
-    }
+
   }
 }

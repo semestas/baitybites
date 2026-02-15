@@ -329,12 +329,16 @@
                 ${trackerHtml}
             `;
 
-            document.getElementById('orderModal').style.display = 'flex';
+            const modal = document.getElementById('orderModal');
+            modal.classList.add('active');
+            modal.style.display = 'flex';
             lucide.createIcons();
         }
 
         function closeOrderModal() {
-            document.getElementById('orderModal').style.display = 'none';
+            const modal = document.getElementById('orderModal');
+            modal.classList.remove('active');
+            modal.style.display = 'none';
         }
 
         async function updateStatus(orderId, newStatus) {

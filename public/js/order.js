@@ -374,6 +374,7 @@ function proceedToConfirmation() {
 
     if (confirmSection) {
         confirmSection.classList.remove('hidden');
+        confirmSection.classList.add('active');
         confirmSection.style.display = 'flex'; // Modal overlay uses flex
         document.body.style.overflow = 'hidden'; // Lock scroll
     }
@@ -382,6 +383,7 @@ function proceedToConfirmation() {
 function backToProductList() {
     const confirmSection = document.getElementById('order-confirmation-section');
     if (confirmSection) {
+        confirmSection.classList.remove('active');
         confirmSection.classList.add('hidden');
         confirmSection.style.display = 'none';
         document.body.style.overflow = ''; // Unlock scroll
@@ -390,7 +392,7 @@ function backToProductList() {
     checkResumeCart();
 }
 
-async function loadRecentOrders() {
+async function loadRecentOrders(btn = null) {
     const { apiCall, formatCurrency, getStatusBadgeClass, getStatusLabel } = window.app;
     const userStr = localStorage.getItem('user');
     const token = localStorage.getItem('token');
@@ -410,6 +412,10 @@ async function loadRecentOrders() {
 
     section.classList.remove('hidden');
     section.style.display = 'block';
+
+    const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+    if (icon) icon.classList.add('animate-spin');
+    if (btn) btn.disabled = true;
 
     try {
         const result = await apiCall('/customer/orders');
@@ -440,6 +446,10 @@ async function loadRecentOrders() {
         }
     } catch (e) {
         console.error('Failed to load recent orders:', e);
+    } finally {
+        if (icon) icon.classList.remove('animate-spin');
+        if (btn) btn.disabled = false;
+        if (window.lucide) lucide.createIcons();
     }
 }
 
@@ -536,6 +546,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (result.success) {
                     const confirmSection = document.getElementById('order-confirmation-section');
                     if (confirmSection) {
+                        confirmSection.classList.remove('active');
                         confirmSection.classList.add('hidden');
                         confirmSection.style.display = 'none';
                     }
@@ -582,6 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
 
                     document.getElementById('successModal').classList.remove('hidden');
+                    document.getElementById('successModal').classList.add('active');
                     document.getElementById('successModal').style.display = 'flex';
 
                     // Reset all cart states

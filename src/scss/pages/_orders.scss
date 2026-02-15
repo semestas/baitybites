@@ -105,11 +105,7 @@
   gap: var(--spacing-xl);
 }
 
-@media (max-width: 768px) {
-  .order-detail-grid {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 .status-actions {
   display: flex;
@@ -257,19 +253,4 @@
   font-weight: 600;
   color: var(--primary-600);
   font-family: var(--font-display);
-}
-
-@media (max-width: 640px) {
-  .modal-new-body {
-    flex-direction: column;
-    gap: var(--spacing-lg);
-  }
-
-  .items-section {
-    text-align: left;
-  }
-
-  .order-item-row {
-    justify-content: space-between;
-  }
 }

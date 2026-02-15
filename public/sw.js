@@ -1,4 +1,4 @@
-const CACHE_VERSION = '1.8.2';
+const CACHE_VERSION = '1.6.1';
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',

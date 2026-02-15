@@ -148,7 +148,7 @@
         }
 
         .hero-greeting {
-            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-size: clamp(0.9rem, 1.5vw, 1.25rem); // Reduced from 1.5rem max
             font-weight: 700;
             color: $primary;
             margin-bottom: 1rem;
@@ -158,7 +158,7 @@
         }
 
         .hero-title {
-            font-size: clamp(3rem, 4vw, 7.5rem); // This results in roughly 48px to 120px
+            font-size: clamp(2.25rem, 6vw, 4.5rem); // Reduced from 7.5rem max
             font-weight: 900;
             margin-bottom: 2rem;
             text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.25);

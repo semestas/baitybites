@@ -176,12 +176,13 @@
 
             if (result && result.success) {
                 loadProductionData();
+                window.app.showNotification('Status berhasil diperbarui', 'success');
             } else {
-                alert('Gagal update status');
+                window.app.showNotification('Gagal update status', 'error');
             }
         } catch (error) {
             console.error('Update status error:', error);
-            alert('Terjadi kesalahan');
+            window.app.showNotification('Terjadi kesalahan saat memperbarui status', 'error');
         }
     };
 

@@ -1,10 +1,11 @@
 [build]
-  # Build static styles before publishing
-  command = "npm install && npm run style:build"
+  # Build static styles before publishing using bun for consistency
+  command = "bun install && bun run style:build"
   publish = "public"
   
 [build.environment]
   NODE_VERSION = "20"
+  BUN_VERSION = "latest"
 
 [[redirects]]
   # Redirect all API calls to backend server

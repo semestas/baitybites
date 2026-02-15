@@ -13,5 +13,6 @@
 
 .main-content {
   flex: 1;
-  padding: calc(2.5 * var(--spacing-2xl)) 0;
+  padding-top: 5rem !important; // Increased to prevent header overlap
+  // padding: calc(2.5 * var(--spacing-2xl)) 0;
 }

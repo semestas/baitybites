@@ -1,11 +1,11 @@
 .track-page {
-    min-height: calc(100vh - 82px);
+    min-height: calc(100vh - 6rem);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--neutral-50);
-    padding: var(--spacing-md);
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    // background: var(--neutral-50);
+    // padding: var(--spacing-md);
+    // background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
 .track-container {
@@ -14,12 +14,12 @@
     animation: fadeIn 0.8s ease-out;
 }
 
-.track-card {
-    background: white;
-    padding: var(--spacing-2xl);
-    border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-2xl);
-}
+// .track-card {
+//     background: white;
+//     padding: var(--spacing-xl);
+//     border-radius: var(--radius-xl);
+//     box-shadow: var(--shadow-xl);
+// }
 
 .status-timeline {
     margin-top: var(--spacing-2xl);
@@ -211,9 +211,9 @@
     }
 }
 
-.main-content-track {
-    padding: 0;
-}
+// .main-content-track {
+//     padding-top: 6rem;
+// }
 
 #trackNumber {
     flex: 1;

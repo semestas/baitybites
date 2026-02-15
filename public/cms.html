@@ -50,8 +50,9 @@
                         <h2 class="mb-1">Manajemen Pesanan & Progress</h2>
                         <p class="text-sm text-muted">Pantau dan update status pesanan pelanggan.</p>
                     </div>
-                    <button class="btn btn-secondary btn-sm flex items-center gap-2" onclick="loadOrders()">
-                        <i data-lucide="refresh-cw" size="16"></i> Refresh Data
+                    <button class="btn btn-secondary btn-sm flex items-center justify-center p-2"
+                        onclick="loadOrders(this)" title="Refresh Data">
+                        <i data-lucide="refresh-cw" size="16"></i>
                     </button>
                 </div>
 
@@ -201,8 +202,9 @@
                         <div class="flex gap-2">
                             <button type="submit" class="btn btn-primary"><i data-lucide="save" size="16"></i> Simpan
                                 Token</button>
-                            <button type="button" class="btn btn-secondary" onclick="syncInstagram()"><i
-                                    data-lucide="refresh-cw" size="16"></i> Sinkronkan Sekarang</button>
+                            <button type="button" class="btn btn-secondary flex items-center gap-2"
+                                onclick="syncInstagram(this)">
+                                <i data-lucide="refresh-cw" size="16"></i> Sinkronkan Sekarang</button>
                         </div>
                     </form>
 
@@ -612,9 +614,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-secondary btn-sm flex items-center gap-2"
-                                    onclick="reloadCurrentReportTab()">
-                                    <i data-lucide="refresh-cw" size="16"></i> Refresh
+                                <button class="btn btn-secondary btn-sm flex items-center justify-center p-2"
+                                    onclick="reloadCurrentReportTab(this)" title="Refresh Report">
+                                    <i data-lucide="refresh-cw" size="16"></i>
                                 </button>
                             </div>
 
@@ -680,7 +682,7 @@
                                         </button>
                                         <div id="chart-more-dropdown" class="dropdown-menu-custom">
                                             <a href="#"
-                                                onclick="loadPOSReport(); toggleDropdown('chart-more-dropdown')"><i
+                                                onclick="loadPOSReport(this); toggleDropdown('chart-more-dropdown'); return false;"><i
                                                     data-lucide="refresh-cw" size="14"></i> Refresh Chart</a>
                                             <a href="#report-summary-rows"><i data-lucide="table" size="14"></i> View
                                                 Data Table</a>
@@ -900,20 +902,23 @@
             }
         }
 
-        function reloadCurrentReportTab() {
-            if (currentReportTab === 'summary') loadPOSReport();
-            else loadTabContent(currentReportTab);
+        function reloadCurrentReportTab(btn = null) {
+            if (currentReportTab === 'summary') loadPOSReport(btn);
+            else loadTabContent(currentReportTab, btn);
         }
 
-        async function loadTabContent(tab) {
+        async function loadTabContent(tab, btn = null) {
             const tableHead = document.getElementById('detail-report-head');
             const tableBody = document.getElementById('detail-report-body');
             const title = document.getElementById('detail-report-title');
 
-            tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i data-lucide="refresh-cw" class="animate-spin mb-4 block mx-auto"></i> Memuat data...</td></tr>';
-            if (window.lucide) lucide.createIcons();
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
 
             try {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8"><i data-lucide="refresh-cw" class="animate-spin mb-4 block mx-auto"></i> Memuat data...</td></tr>';
+                if (window.lucide) lucide.createIcons();
                 let endpoint = '';
                 let headHTML = '';
                 let renderRow = (item) => '';
@@ -972,6 +977,10 @@
             } catch (error) {
                 console.error('Report Tab Error:', error);
                 tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-20 text-error">Gagal memuat data laporan.</td></tr>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
             }
         }
 
@@ -998,9 +1007,13 @@
             reloadCurrentReportTab();
         }
 
-        async function loadPOSReport() {
+        async function loadPOSReport(btn = null) {
             const chartArea = document.getElementById('pos-chart-area');
             const summaryView = document.getElementById('report-view-summary');
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
 
             try {
                 const res = await apiCall(`/cms/reports/pos?days=${currentDays}`);
@@ -1031,6 +1044,10 @@
                 }
             } catch (error) {
                 console.error('POS Report Error:', error);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
             }
         }
 
@@ -1492,13 +1509,18 @@
             }
         }
 
-        async function loadOrders() {
+        async function loadOrders(btn = null) {
+            const ongoingList = document.getElementById('orders-list-ongoing');
+            const completedList = document.getElementById('orders-list-completed');
+            const ongoingWrapper = document.getElementById('ongoing-orders-wrapper');
+            const completedWrapper = document.getElementById('completed-orders-wrapper');
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
             try {
                 const json = await apiCall('/cms/orders');
-                const ongoingList = document.getElementById('orders-list-ongoing');
-                const completedList = document.getElementById('orders-list-completed');
-                const ongoingWrapper = document.getElementById('ongoing-orders-wrapper');
-                const completedWrapper = document.getElementById('completed-orders-wrapper');
 
                 if (json.success) {
                     let orders = json.data;
@@ -1569,10 +1591,16 @@
                         ongoingWrapper.style.display = 'block';
                         ongoingList.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-muted">Tidak ada pesanan ditemukan.</td></tr>';
                     }
-
-                    if (window.lucide) lucide.createIcons();
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                if (ongoingList) ongoingList.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-danger">Gagal memuat data.</td></tr>';
+                if (ongoingWrapper) ongoingWrapper.style.display = 'block';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
+            }
         }
 
         function toggleStatusPopover(e, id) {
@@ -1703,7 +1731,7 @@
                     body: formData
                 });
                 if (res.success) {
-                    alert('Foto berhasil ditambahkan!');
+                    window.app.showNotification('Foto berhasil ditambahkan!', 'success');
                     closeGalleryModal();
                     loadGallery();
                 }
@@ -1737,7 +1765,7 @@
         async function saveElfsightWidget() {
             const widget = document.getElementById('elfsightWidget').value.trim();
             if (!widget) {
-                alert('Mohon masukkan kode widget Elfsight');
+                window.app.showNotification('Mohon masukkan kode widget Elfsight', 'info');
                 return;
             }
             try {
@@ -1757,7 +1785,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert('Gagal menyimpan widget');
+                window.app.showNotification('Gagal menyimpan widget', 'error');
             }
         }
 
@@ -1785,7 +1813,7 @@
         async function saveInstagramToken() {
             const token = document.getElementById('igToken').value.trim();
             if (!token) {
-                alert('Mohon masukkan access token');
+                window.app.showNotification('Mohon masukkan access token', 'info');
                 return;
             }
             try {
@@ -1799,13 +1827,18 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert('Gagal menyimpan token');
+                window.app.showNotification('Gagal menyimpan token', 'error');
             }
         }
 
-        async function syncInstagram() {
+        async function syncInstagram(btn = null) {
             const statusEl = document.getElementById('syncStatus');
             statusEl.innerHTML = '<div class="badge badge-pending">⏳ Sedang sinkronisasi...</div>';
+
+            const icon = btn ? btn.querySelector('i[data-lucide="refresh-cw"]') : null;
+            if (icon) icon.classList.add('animate-spin');
+            if (btn) btn.disabled = true;
+
             try {
                 const res = await apiCall('/cms/instagram/sync', { method: 'POST' });
                 if (res.success) {
@@ -1817,6 +1850,10 @@
             } catch (e) {
                 console.error(e);
                 statusEl.innerHTML = '<div class="badge badge-pending">❌ Gagal sinkronisasi</div>';
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (btn) btn.disabled = false;
+                if (window.lucide) lucide.createIcons();
             }
         }
 
@@ -1882,7 +1919,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert('Gagal menyimpan perubahan');
+                window.app.showNotification('Gagal menyimpan perubahan', 'error');
             }
         }
 

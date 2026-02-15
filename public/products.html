@@ -284,6 +284,7 @@
         const btnSaveText = document.getElementById('saveText');
 
         function openModal() {
+            modal.classList.add('active');
             modal.style.display = 'flex';
             handleCategoryChange(document.getElementById('categorySelect').value);
             // Initialize Lucide icons in the modal
@@ -293,6 +294,7 @@
         }
 
         function closeModal() {
+            modal.classList.remove('active');
             modal.style.display = 'none';
             document.getElementById('addProductForm').reset();
             document.getElementById('productId').value = '';
