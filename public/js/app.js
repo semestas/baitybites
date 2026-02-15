@@ -1,12 +1,22 @@
 // Global API configuration
 const API_BASE = '/api';
 
-// Register Service Worker for PWA - Only for Kitchen Production Keeper
-if ('serviceWorker' in navigator && window.location.pathname.includes('kitchen')) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .catch(err => console.error('SW failed', err));
-    });
+// Register/Unregister Service Worker for PWA - Only for Management Tools (Kitchen & Dashboard)
+if ('serviceWorker' in navigator) {
+    const isStation = window.location.pathname.includes('kitchen') || window.location.pathname.includes('dashboard');
+    if (isStation) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .catch(err => console.error('SW failed', err));
+        });
+    } else {
+        // Clean up SW on public pages to hide the install icon
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        });
+    }
 }
 
 // Utility functions
