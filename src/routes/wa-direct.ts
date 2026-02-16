@@ -123,4 +123,65 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     price: t.Number()
                 }))
             })
+        })
+        .get('/invoice/:invoiceNumber/pdf', async ({ params, set }) => {
+            const { invoiceNumber } = params;
+
+            try {
+                // Fetch Invoice & Order Data
+                const [order] = await db`
+                    SELECT 
+                        o.*, 
+                        c.name as customer_name,
+                        c.email as customer_email,
+                        i.invoice_number,
+                        i.total_amount
+                    FROM invoices i
+                    JOIN orders o ON i.order_id = o.id
+                    JOIN customers c ON o.customer_id = c.id
+                    WHERE i.invoice_number = ${invoiceNumber}
+                    LIMIT 1
+                `;
+
+                if (!order) {
+                    set.status = 404;
+                    return { success: false, message: 'Invoice not found' };
+                }
+
+                // Get items
+                const items = await db`
+                    SELECT oi.*, p.name as product_name, p.category
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = ${order.id}
+                `;
+
+                // Generate HTML & PDF
+                const orderData = {
+                    order_number: order.order_number,
+                    invoice_number: order.invoice_number,
+                    total_amount: order.total_amount,
+                    name: order.customer_name,
+                    email: order.customer_email,
+                    address: order.address || '-',
+                    items: items
+                };
+
+                const html = await emailService.generateInvoiceHtml(orderData);
+                const pdfBuffer = await emailService.generatePdfBuffer(html);
+
+                if (!pdfBuffer) {
+                    set.status = 500;
+                    return { success: false, message: 'Failed to generate PDF' };
+                }
+
+                set.headers['Content-Type'] = 'application/pdf';
+                set.headers['Content-Disposition'] = `attachment; filename="Invoice-${invoiceNumber}.pdf"`;
+
+                return pdfBuffer;
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                set.status = 500;
+                return { success: false, message: 'Internal server error during PDF generation' };
+            }
         });

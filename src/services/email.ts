@@ -4,11 +4,11 @@ import type { Sql } from "../db/schema";
 
 export class EmailService {
     private transporter: nodemailer.Transporter;
+    private static cachedStyles: string | null = null;
     private db: Sql;
 
     constructor(db: Sql) {
         this.db = db;
-        // Host, Port, User, Pass should be in .env
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST || "smtp.gmail.com",
             port: Number(process.env.SMTP_PORT) || 587,
@@ -30,23 +30,60 @@ export class EmailService {
 
         console.log(`[EmailService] START: Processing invoice for ${email} (Order: ${order_number})`);
 
+        try {
+            const html = await this.generateInvoiceHtml(orderData);
+            const pdfBuffer = await this.generatePdfBuffer(html);
+
+            const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
+            const skipBcc = email.toLowerCase() === adminUser.toLowerCase();
+
+            console.log(`[EmailService] SMTP: Sending mail to ${email}...`);
+            await this.transporter.sendMail({
+                from: `"Baitybites" <${adminUser}>`,
+                to: email,
+                bcc: skipBcc ? undefined : adminUser,
+                subject: `Invoice Pesanan Baitybites - ${order_number}`,
+                html: html,
+                attachments: pdfBuffer ? [
+                    {
+                        filename: `Invoice-${invoice_number}.pdf`,
+                        content: pdfBuffer,
+                        contentType: 'application/pdf'
+                    }
+                ] : []
+            });
+            console.log(`[EmailService] DONE: Email sent successfully for order ${order_number}`);
+            return true;
+        } catch (error: any) {
+            console.error("[EmailService] Global Email Task Error:", error);
+            return false;
+        }
+    }
+
+    async generateInvoiceHtml(orderData: any) {
+        const { invoice_number, total_amount, name, email, items, address } = orderData;
+
         const formattedTotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0
         }).format(total_amount);
 
-        // Load CSS styles
+        // Load CSS styles (Cached)
         let styles = '';
-        try {
-            const cssPath = "public/css/email.css";
-            styles = await Bun.file(cssPath).text();
-        } catch (e) {
-            console.warn("[EmailService] Could not load email.css, falling back to basic styles.");
+        if (EmailService.cachedStyles) {
+            styles = EmailService.cachedStyles;
+        } else {
+            try {
+                const cssPath = "public/css/email.css";
+                styles = await Bun.file(cssPath).text();
+                EmailService.cachedStyles = styles;
+            } catch (e) {
+                console.warn("[EmailService] Could not load email.css, falling back to basic styles.");
+            }
         }
 
-        const itemsHtml = items.map((item: any) => {
-            return `
+        const itemsHtml = items.map((item: any) => `
             <tr>
                 <td>
                     <div class="product-name">${item.product_name || 'Produk'}</div>
@@ -59,9 +96,9 @@ export class EmailService {
                     ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price * item.quantity)}
                 </td>
             </tr>
-        `}).join('');
+        `).join('');
 
-        const html = `
+        return `
         <!DOCTYPE html>
         <html>
         <head>
@@ -128,60 +165,38 @@ export class EmailService {
         </body>
         </html>
         `;
+    }
 
-        // Generate PDF
-        let pdfBuffer: Buffer | null = null;
+    async generatePdfBuffer(html: string) {
+        let browser: any = null;
         try {
-            console.log(`[EmailService] PDF: Launching browser...`);
-            const browser = await puppeteer.launch({
+            console.log(`[EmailService] PDF: Launching fresh browser...`);
+            browser = await puppeteer.launch({
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
                 args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-                protocolTimeout: 60000,
                 timeout: 30000
             });
             const page = await browser.newPage();
-            // Faster wait for background processing
-            await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 20000 });
+
+            // Wait until network is idle to ensure images/fonts are loaded for the PDF
+            await page.setContent(html, { waitUntil: 'networkidle0', timeout: 20000 });
 
             console.log(`[EmailService] PDF: Rendering...`);
             const pdfUint8Array = await page.pdf({
                 format: 'A4',
                 printBackground: true,
-                margin: { top: '10px', right: '10px', bottom: '10px', left: '10px' }
+                margin: { top: '15px', right: '15px', bottom: '15px', left: '15px' }
             });
-            pdfBuffer = Buffer.from(pdfUint8Array);
+
+            const buffer = Buffer.from(pdfUint8Array);
             await browser.close();
             console.log(`[EmailService] PDF: Success.`);
+            return buffer;
         } catch (error) {
-            console.error("[EmailService] PDF: Failed (will send HTML only):", error);
-        }
-
-        try {
-            const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
-            const skipBcc = email.toLowerCase() === adminUser.toLowerCase();
-
-            console.log(`[EmailService] SMTP: Sending mail to ${email}...`);
-            await this.transporter.sendMail({
-                from: `"Baitybites" <${adminUser}>`,
-                to: email,
-                bcc: skipBcc ? undefined : adminUser,
-                subject: `Invoice Pesanan Baitybites - ${order_number}`,
-                html: html,
-                attachments: pdfBuffer ? [
-                    {
-                        filename: `Invoice-${invoice_number}.pdf`,
-                        content: pdfBuffer,
-                        contentType: 'application/pdf'
-                    }
-                ] : []
-            });
-            console.log(`[EmailService] DONE: Email sent successfully for order ${order_number}`);
-            return true;
-        } catch (error: any) {
-            console.error("[EmailService] SMTP: Failed to send email:", error);
-            return false;
+            console.error("[EmailService] PDF: Failed:", error);
+            if (browser) await browser.close().catch(() => { });
+            return null;
         }
     }
-
 }

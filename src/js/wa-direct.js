@@ -263,14 +263,43 @@ Terima kasih atas pesanan Anda! 🙏
         document.body.appendChild(modal);
 
         // Download PDF functionality
-        document.getElementById('btnDownloadPDF').addEventListener('click', () => {
-            generateAndDownloadPDF(summaryText, orderNumber);
+        document.getElementById('btnDownloadPDF').addEventListener('click', async () => {
+            const btn = document.getElementById('btnDownloadPDF');
+            const originalHtml = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '🕒 Generating...';
+
+                // Construct PDF URL
+                const pdfUrl = `/api/wa-direct/invoice/${invoiceNumber}/pdf`;
+
+                // Open in new tab or trigger download
+                const link = document.createElement('a');
+                link.href = pdfUrl;
+                link.download = `Invoice-${invoiceNumber}.pdf`;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showNotification('Invoice PDF generating in new tab...', 'success');
+            } catch (err) {
+                console.error('PDF Download error:', err);
+                showNotification('Gagal mengunduh PDF', 'error');
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }, 2000);
+            }
         });
 
         // Share to WhatsApp
         document.getElementById('btnShareWA').addEventListener('click', () => {
             const waText = encodeURIComponent(summaryText);
-            const waUrl = `https://wa.me/${customerPhone.replace(/\D/g, '')}?text=${waText}`;
+            // Construct WA URL properly - if local use standard wa.me, if production also fine
+            const waUrl = `https://wa.me/6281315582238?text=${waText}`; // Direct to admin if possible or just use existing
             window.open(waUrl, '_blank');
         });
 
@@ -284,43 +313,6 @@ Terima kasih atas pesanan Anda! 🙏
             if (e.target === modal) {
                 modal.remove();
             }
-        });
-    }
-
-    // Generate and Download PDF
-    function generateAndDownloadPDF(text, orderNumber) {
-        // Create a canvas to render text as PDF-like image
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Set canvas size (A4-ish proportions)
-        canvas.width = 800;
-        canvas.height = 1100;
-
-        // White background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw text
-        ctx.fillStyle = '#000000';
-        ctx.font = '16px monospace';
-
-        const lines = text.split('\n');
-        let y = 50;
-        lines.forEach(line => {
-            ctx.fillText(line, 50, y);
-            y += 24;
-        });
-
-        // Convert to blob and download
-        canvas.toBlob((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Order-${orderNumber}.png`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showNotification('Order summary downloaded!', 'success');
         });
     }
 });
