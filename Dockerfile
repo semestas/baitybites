@@ -3,10 +3,7 @@ FROM oven/bun:1
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json bun.lock* ./
-
-# Install dependencies and Chromium for Puppeteer
+# 1. Install system dependencies (High cache priority - doesn't change often)
 RUN apt-get update && apt-get install -y \
   libnss3 \
   libdbus-1-3 \
@@ -30,12 +27,14 @@ RUN apt-get update && apt-get install -y \
 # Set Puppeteer to use the installed Chromium
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+# 2. Copy package files and install dependencies (Medium cache priority)
+COPY package.json bun.lock* ./
 RUN bun install
 
-# Copy source code
+# 3. Copy source code (Low cache priority - changes every commit)
 COPY . .
 
-# Build styles (SCSS -> CSS)
+# 4. Build styles
 RUN bun run style:build
 
 # Expose port

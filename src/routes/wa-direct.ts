@@ -67,8 +67,8 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
 
                 // --- Tasks ---
 
-                // 5. Send PDF Invoice to Admin Email
-                await emailService.sendPOInvoice({
+                // 5. Send PDF Invoice to Admin Email (Background task to avoid 504 Timeout)
+                emailService.sendPOInvoice({
                     order_number: result.orderNumber,
                     invoice_number: result.invoiceNumber,
                     total_amount: result.totalAmount,
