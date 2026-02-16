@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
 import { AIService } from '../services/ai';
-import { InstagramService } from '../services/instagram';
+// import { InstagramService } from '../services/instagram';
 import { uploadToCloudinary } from '../services/cloudinary';
 
 export const cmsRoutes = (db: Sql, aiService: AIService) =>
@@ -613,52 +613,12 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
             })
         })
 
-        // Instagram Integration Routes
-        .post('/instagram/sync', async () => {
-            const igService = new InstagramService(db);
-            return await igService.syncGallery();
-        })
-        .get('/instagram/settings', async () => {
-            const [token] = await db`SELECT value FROM settings WHERE key = 'instagram_access_token' LIMIT 1`;
-            return {
-                success: true,
-                data: {
-                    has_token: !!token,
-                    token: token ? '••••••••' + token.value.slice(-4) : null
-                }
-            };
-        })
-        .put('/instagram/token', async ({ body }) => {
-            await db`
-                INSERT INTO settings (key, value) 
-                VALUES ('instagram_access_token', ${body.token})
-                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
-            `;
-            return { success: true, message: 'Token Instagram berhasil disimpan' };
-        }, {
-            body: t.Object({
-                token: t.String()
-            })
-        })
-        .get('/instagram/widget', async () => {
-            const [widget] = await db`SELECT value FROM settings WHERE key = 'elfsight_widget' LIMIT 1`;
-            return {
-                success: true,
-                data: widget ? widget.value : null
-            };
-        })
-        .put('/instagram/widget', async ({ body }) => {
-            await db`
-                INSERT INTO settings (key, value) 
-                VALUES ('elfsight_widget', ${body.widget})
-                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
-            `;
-            return { success: true, message: 'Widget Elfsight berhasil disimpan' };
-        }, {
-            body: t.Object({
-                widget: t.String()
-            })
-        })
+        // Instagram Integration Routes - SUSPENDED
+        .post('/instagram/sync', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
+        .get('/instagram/settings', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
+        .put('/instagram/token', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
+        .get('/instagram/widget', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
+        .put('/instagram/widget', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
         // --- General Settings (Contact & Social) ---
         .get('/settings', async () => {
             const settingsList = await db`

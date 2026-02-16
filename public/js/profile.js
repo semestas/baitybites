@@ -126,12 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                console.log('Sending profile update request...');
                 const result = await apiCall('/customer/profile', {
                     method: 'PUT',
                     body: formData
                 });
-                console.log('Profile update result:', result);
 
                 if (result.success) {
                     showNotification('Profil berhasil diperbarui!', 'success');
@@ -141,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const user = JSON.parse(userStr);
                         const updatedUser = { ...user, ...result.data };
                         localStorage.setItem('user', JSON.stringify(updatedUser));
+                        // console.log('User data updated in localStorage');
 
                         // Reload to reflect changes (especially avatar)
                         loadProfile();

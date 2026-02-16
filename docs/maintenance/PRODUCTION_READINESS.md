@@ -385,10 +385,10 @@ NOUN_PROJECT_SECRET=564e924e7cfb4c6c84dd271505c11208
 ## 📞 Support & Resources
 
 ### Documentation
-- [Deployment Guide](./DEPLOYMENT.md)
+- [Deployment Guide](../deployment/DEPLOYMENT.md)
 - [Project Structure](./STRUCTURE.md)
-- [Instagram Integration](./INSTAGRAM_INTEGRATION.md)
-- [Production System](./PRODUCTION_SYSTEM.md)
+- [Instagram Integration](../integrations/INSTAGRAM_INTEGRATION.md)
+- [Production System](../archive/PRODUCTION_SYSTEM.md)
 
 ### External Resources
 - [Render.com Docs](https://docs.render.com)

@@ -1,6 +1,24 @@
 // Global API configuration
 const API_BASE = '/api';
 
+// --- Production Protection: Silence console.log in non-local environments ---
+(function silenceLogs() {
+    const isLocal = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+    if (!isLocal) {
+        const noop = () => { };
+        // Keep error and warn for troubleshooting, but silence log and debug
+        console.log = noop;
+        console.debug = noop;
+        console.info = noop;
+        // console.warn = noop; // Keep warnings for now
+
+        // Optional: Protect sensitive objects
+        window.console.clear();
+        console.log("%cBaitybites Production Mode Active", "color: #f59638; font-size: 20px; font-weight: bold;");
+        console.log("Logs are silenced for security.");
+    }
+})();
+
 // Register/Unregister Service Worker for PWA - Only for Management Tools (Kitchen & Dashboard)
 if ('serviceWorker' in navigator) {
     const isStation = window.location.pathname.includes('kitchen') || window.location.pathname.includes('dashboard');

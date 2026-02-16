@@ -1,4 +1,12 @@
 const CACHE_VERSION = '1.6.4';
+
+// --- Production Protection: Silence console.log in non-local environments ---
+if (!['localhost', '127.0.0.1', '0.0.0.0'].includes(self.location.hostname)) {
+    const noop = () => { };
+    console.log = noop;
+    console.debug = noop;
+    console.info = noop;
+}
 const CACHE_NAME = `baitybites-oms-v${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',

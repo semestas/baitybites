@@ -29,7 +29,6 @@ function saveCart() {
 }
 
 function clearCart() {
-    console.log('Cart successfully cleared');
     quantities = {};
     localQuantities = {};
     saveCart();

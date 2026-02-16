@@ -10,7 +10,7 @@ import { cmsRoutes } from "./src/routes/cms";
 import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
 import { googleAuthRoutes } from "./src/routes/google-auth";
-import { InstagramService } from "./src/services/instagram";
+// import { InstagramService } from "./src/services/instagram";
 import { WhatsAppService } from "./src/services/whatsapp";
 import { webhookRoutes } from "./src/routes/webhooks";
 import { AIService } from "./src/services/ai";
@@ -22,7 +22,7 @@ const PUBLIC_DIR = join(import.meta.dir, "public");
 
 // Initialize services
 const waService = new WhatsAppService(db);
-const igService = new InstagramService(db);
+// const igService = new InstagramService(db);
 const aiService = new AIService();
 const emailService = new EmailService(db);
 
@@ -132,12 +132,14 @@ const app = new Elysia()
     // BaityBites v1.1.2 - All reports registered
     .listen(process.env.PORT || 9876);
 
-// --- Background Job: Instagram Sync (Every 1 Hour) ---
+// --- Background Job: Instagram Sync (Every 1 Hour) - SUSPENDED ---
+/*
 setInterval(async () => {
     console.log("[Job] Starting automatic Instagram sync...");
     const res = await igService.syncGallery();
     console.log("[Job] Instagram sync result:", res.message);
 }, 1000 * 60 * 60); // 1 hour
+*/
 
 const port = app.server?.port || process.env.PORT || 9876;
 
