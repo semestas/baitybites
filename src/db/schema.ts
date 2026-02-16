@@ -5,8 +5,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 const sql = postgres(connectionString, {
+  ssl: 'require',      // Explicitly require SSL for Neon/Serverless DBs
   onnotice: () => { }, // Suppress NOTICE logs to keep production logs clean
-  max: 10,             // Max number of connections
+  max: 5,              // Reduced max connections for stability on free/shared tiers
   idle_timeout: 20,    // Idle connection timeout in seconds
   connect_timeout: 30, // Connection timeout in seconds
   prepare: false       // Disable prepared statements for better compatibility with poolers/shards

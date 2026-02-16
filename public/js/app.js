@@ -350,7 +350,7 @@ function getUser() {
 
 // Internal helper for public path detection
 function isPublicPath() {
-    const publicPages = ['/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos'];
+    const publicPages = ['/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/wa-direct.html', '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos', '/wa-direct'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 

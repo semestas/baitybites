@@ -10,7 +10,7 @@ import { cmsRoutes } from "./src/routes/cms";
 import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
 import { googleAuthRoutes } from "./src/routes/google-auth";
-// import { InstagramService } from "./src/services/instagram";
+import { waDirectRoutes } from "./src/routes/wa-direct";
 import { WhatsAppService } from "./src/services/whatsapp";
 import { webhookRoutes } from "./src/routes/webhooks";
 import { AIService } from "./src/services/ai";
@@ -85,6 +85,7 @@ const app = new Elysia()
             .use(cmsRoutes(db, aiService))
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
+            .use(waDirectRoutes(db, emailService, waService))
             .use(webhookRoutes(db, waService))
     )
     // Serve HTML files with proper headers
@@ -96,7 +97,7 @@ const app = new Elysia()
     .group("", app => {
         [
             "index", "login", "admin", "order", "track", "cms", "dashboard", "orders", "customers",
-            "products", "production", "kitchen", "privacy", "tos", "profile", "docs"
+            "products", "production", "kitchen", "privacy", "tos", "profile", "docs", "wa-direct"
         ].forEach(page => {
             app.get(`/${page}.html`, () => new Response(readFileSync(join(PUBLIC_DIR, `${page}.html`), "utf-8"), {
                 headers: { "Content-Type": "text/html; charset=utf-8" }

@@ -26,6 +26,7 @@ const ASSETS_TO_CACHE = [
     '/privacy.html',
     '/tos.html',
     '/docs.html',
+    '/wa-direct.html',
     `/css/style.css?v=${CACHE_VERSION}`,
     `/css/main.css?v=${CACHE_VERSION}`,
     `/js/app.js?v=${CACHE_VERSION}`,
@@ -37,6 +38,7 @@ const ASSETS_TO_CACHE = [
     `/js/kitchen.js?v=${CACHE_VERSION}`,
     `/js/production.js?v=${CACHE_VERSION}`,
     `/js/profile.js?v=${CACHE_VERSION}`,
+    `/js/wa-direct.js?v=${CACHE_VERSION}`,
     '/assets/logo.png',
     '/assets/favicon.ico',
     '/assets/favicon.png'
