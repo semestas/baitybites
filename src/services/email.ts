@@ -29,6 +29,8 @@ export class EmailService {
             return;
         }
 
+        console.log(`[EmailService] Preparing invoice email for ${email} (Order: ${order_number})...`);
+
         // Enrich items with product names
         const productIds = items.map((i: any) => i.product_id);
 
@@ -54,7 +56,7 @@ export class EmailService {
             const cssPath = "public/css/email.css";
             styles = await Bun.file(cssPath).text();
         } catch (e) {
-            console.warn("[EmailService] Could not load email.css, falling back to basic styles or inline styles may be missing.");
+            console.warn("[EmailService] Could not load email.css, falling back to basic styles.");
         }
 
         const itemsHtml = items.map((item: any) => {
@@ -150,14 +152,18 @@ export class EmailService {
         // Generate PDF
         let pdfBuffer: Buffer | null = null;
         try {
+            console.log(`[EmailService] Launching browser for PDF generation...`);
             const browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+                timeout: 30000 // 30s timeout
             });
             const page = await browser.newPage();
-            // Set content and wait for network/styles to settle slightly, though static HTML is fast
-            await page.setContent(html, { waitUntil: 'networkidle0' });
 
+            // Set content and wait for network/styles to settle slightly
+            await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
+
+            console.log(`[EmailService] Generating PDF...`);
             const pdfUint8Array = await page.pdf({
                 format: 'A4',
                 printBackground: true,
@@ -166,16 +172,19 @@ export class EmailService {
             pdfBuffer = Buffer.from(pdfUint8Array);
 
             await browser.close();
+            console.log(`[EmailService] PDF generated successfully.`);
         } catch (error) {
-            console.error("[EmailService] Failed to generate PDF:", error);
-            // Non-critical, proceed without PDF or handle as error? We'll proceed but log it.
+            console.error("[EmailService] Failed to generate PDF (will send HTML only):", error);
         }
 
         try {
+            const adminUser = process.env.SMTP_USER;
+            const skipBcc = email.toLowerCase() === adminUser?.toLowerCase();
+
             await this.transporter.sendMail({
-                from: `"Baitybites" <${process.env.SMTP_USER}>`,
+                from: `"Baitybites" <${adminUser}>`,
                 to: email,
-                bcc: process.env.SMTP_USER, // Send copy to admin
+                bcc: skipBcc ? undefined : adminUser, // Avoid redundant BCC if sent to admin
                 subject: `Invoice Pesanan Baitybites - ${order_number}`,
                 html: html,
                 attachments: pdfBuffer ? [
@@ -186,9 +195,12 @@ export class EmailService {
                     }
                 ] : []
             });
-            console.log(`[EmailService] Invoice sent to ${email} (BCC to admin) for order ${order_number}`);
+            console.log(`[EmailService] Invoice sent to ${email} ${skipBcc ? "(no BCC to admin needed)" : "(BCC to admin included)"} for order ${order_number}`);
+            return true;
         } catch (error: any) {
             console.error("[EmailService] Failed to send email:", error);
+            return false;
         }
     }
+
 }

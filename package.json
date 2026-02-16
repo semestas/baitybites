@@ -1,6 +1,6 @@
 {
   "name": "baitybites",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Order Management System for Baitybites",
   "module": "index.ts",
   "type": "module",
@@ -12,8 +12,8 @@
     "dev:server": "bun --watch index.ts",
     "start": "bun run build:html && bun index.ts",
     "build": "bun run build:html && bun run style:build && bun build index.ts --outdir ./dist --target bun",
-    "style:watch": "sass --watch src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css",
-    "style:build": "sass src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css --style compressed"
+    "style:watch": "sass --watch src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css src/scss/wa-direct.scss:public/css/wa-direct.css",
+    "style:build": "sass src/scss/main.scss:public/css/main.css src/scss/style.scss:public/css/style.css src/scss/email.scss:public/css/email.css src/scss/wa-direct.scss:public/css/wa-direct.css --style compressed"
   },
   "devDependencies": {
     "@types/bun": "latest",

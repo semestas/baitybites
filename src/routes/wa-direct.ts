@@ -65,18 +65,18 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     };
                 });
 
-                // --- Background Tasks (Non-blocking) ---
+                // --- Tasks ---
 
                 // 5. Send PDF Invoice to Admin Email
-                emailService.sendPOInvoice({
+                await emailService.sendPOInvoice({
                     order_number: result.orderNumber,
                     invoice_number: result.invoiceNumber,
                     total_amount: result.totalAmount,
                     name,
-                    email: adminEmail,
+                    email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
                     address: '-',
                     items: items.map((i: any) => ({ ...i, subtotal: i.price * i.quantity }))
-                }).catch(e => console.error("[WADirect] Background Admin Email failed:", e));
+                }).catch(e => console.error("[WADirect] Admin Email failed:", e));
 
                 // 6. Notify Staff via WhatsApp
                 waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW HIGH-PRIORITY WA ORDER!\n\nOrder: ${result.orderNumber}\nCustomer: ${name}\nTotal: Rp ${result.totalAmount.toLocaleString('id-ID')}\n\nPlease check the system.`)

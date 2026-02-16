@@ -6,7 +6,28 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lock* ./
 
-# Install dependencies
+# Install dependencies and Chromium for Puppeteer
+RUN apt-get update && apt-get install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon0 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxfixes3 \
+  libcups2 \
+  libgbm1 \
+  libpango-1-0-0 \
+  libcairo2 \
+  chromium \
+  --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
+
+# Set Puppeteer to use the installed Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 RUN bun install
 
 # Copy source code

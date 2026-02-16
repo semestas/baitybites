@@ -33,11 +33,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <img src="${p.image_url || '/assets/logo.png'}" class="product-thumb" alt="${p.name}">
                     <div class="product-info">
                         <div class="product-name">${p.name}</div>
-                        <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
                         <div class="counter">
-                            <button class="btn-qty" onclick="window.updateQty(${p.id}, -1)">-</button>
-                            <span class="qty-val">${qty}</span>
-                            <button class="btn-qty" onclick="window.updateQty(${p.id}, 1)">+</button>
+                            <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
+                            <div class="counter-btns">
+                                <button class="btn-qty" onclick="window.updateQty(${p.id}, -1)">-</button>
+                                <span class="qty-val">${qty}</span>
+                                <button class="btn-qty" onclick="window.updateQty(${p.id}, 1)">+</button>
+                            </div>
                         </div>
                         <div class="subtotal-preview">Subtotal: Rp ${sub.toLocaleString('id-ID')}</div>
                     </div>
@@ -226,124 +228,37 @@ GRAND TOTAL: Rp ${totalAmount.toLocaleString('id-ID')}
 Terima kasih atas pesanan Anda! 🙏
 - BaityBites Team`;
 
-        // Create modal
+        // Create modal using classes defined in wa-direct.scss
         const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        `;
+        modal.className = 'wa-modal-backdrop';
 
         modal.innerHTML = `
-            <div style="
-                background: white;
-                border-radius: 16px;
-                max-width: 500px;
-                width: 100%;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                animation: slideUp 0.3s ease;
-            ">
-                <div style="
-                    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-                    color: white;
-                    padding: 20px;
-                    border-radius: 16px 16px 0 0;
-                    text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
-                    <h2 style="margin: 0; font-size: 1.5rem;">Pesanan Berhasil!</h2>
-                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 0.9rem;">Order #${orderNumber}</p>
+            <div class="wa-modal-content">
+                <div class="wa-modal-header">
+                    <div class="wa-success-icon">✅</div>
+                    <h2>Pesanan Berhasil!</h2>
+                    <p>Order #${orderNumber}</p>
                 </div>
 
-                <div style="padding: 20px;">
-                    <div style="
-                        background: #f8f9fa;
-                        border-radius: 12px;
-                        padding: 15px;
-                        margin-bottom: 20px;
-                        font-family: monospace;
-                        font-size: 0.85rem;
-                        white-space: pre-wrap;
-                        line-height: 1.6;
-                        border: 1px solid #e0e0e0;
-                    ">${summaryText}</div>
+                <div class="wa-modal-body">
+                    <div class="wa-summary-box">${summaryText}</div>
 
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button id="btnDownloadPDF" style="
-                            background: #3498db;
-                            color: white;
-                            border: none;
-                            padding: 15px;
-                            border-radius: 10px;
-                            font-weight: bold;
-                            font-size: 1rem;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
-                        ">
+                    <div class="wa-btn-group">
+                        <button id="btnDownloadPDF" class="wa-btn btn-pdf">
                             <span>📄</span> Download PDF
                         </button>
 
-                        <button id="btnShareWA" style="
-                            background: #25D366;
-                            color: white;
-                            border: none;
-                            padding: 15px;
-                            border-radius: 10px;
-                            font-weight: bold;
-                            font-size: 1rem;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 10px;
-                        ">
+                        <button id="btnShareWA" class="wa-btn btn-whatsapp">
                             <span>📱</span> Share ke WhatsApp
                         </button>
 
-                        <button id="btnCloseModal" style="
-                            background: #95a5a6;
-                            color: white;
-                            border: none;
-                            padding: 12px;
-                            border-radius: 10px;
-                            font-weight: 600;
-                            font-size: 0.9rem;
-                            cursor: pointer;
-                        ">
+                        <button id="btnCloseModal" class="wa-btn btn-close">
                             Tutup
                         </button>
                     </div>
                 </div>
             </div>
         `;
-
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            @keyframes slideUp {
-                from { transform: translateY(50px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
 
         document.body.appendChild(modal);
 
