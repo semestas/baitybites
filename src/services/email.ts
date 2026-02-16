@@ -20,28 +20,15 @@ export class EmailService {
         });
     }
 
-    async sendPOInvoice(orderData: any, tx?: any) {
+    async sendPOInvoice(orderData: any) {
         const { order_number, invoice_number, total_amount, name, email, items, address } = orderData;
-        const sql = tx || this.db;
 
         if (!email) {
             console.error("[EmailService] No email provided for order", order_number);
-            return;
+            return false;
         }
 
-        console.log(`[EmailService] Preparing invoice email for ${email} (Order: ${order_number})...`);
-
-        // Enrich items with product names
-        const productIds = items.map((i: any) => i.product_id);
-
-        let products: any[] = [];
-        if (productIds.length > 0) {
-            products = await sql`SELECT id, name, category FROM products WHERE id = ANY(${productIds})`;
-        }
-        const productMap = products.reduce((acc: any, p: any) => {
-            acc[p.id] = p;
-            return acc;
-        }, {});
+        console.log(`[EmailService] START: Processing invoice for ${email} (Order: ${order_number})`);
 
         const formattedTotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -52,7 +39,6 @@ export class EmailService {
         // Load CSS styles
         let styles = '';
         try {
-            // Read the compiled CSS file. Ensure this file exists and is accessible.
             const cssPath = "public/css/email.css";
             styles = await Bun.file(cssPath).text();
         } catch (e) {
@@ -60,12 +46,11 @@ export class EmailService {
         }
 
         const itemsHtml = items.map((item: any) => {
-            const product = productMap[item.product_id] || { name: 'Produk', category: '' };
             return `
             <tr>
                 <td>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-category">${product.category || ''}</div>
+                    <div class="product-name">${item.product_name || 'Produk'}</div>
+                    <div class="product-category">${item.category || ''}</div>
                 </td>
                 <td class="center">
                     ${item.quantity}
@@ -81,9 +66,7 @@ export class EmailService {
         <html>
         <head>
             <meta charset="utf-8">
-            <style>
-                ${styles}
-            </style>
+            <style>${styles}</style>
         </head>
         <body>
             <div class="container">
@@ -120,9 +103,7 @@ export class EmailService {
                             <th class="right">Subtotal</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${itemsHtml}
-                    </tbody>
+                    <tbody>${itemsHtml}</tbody>
                     <tfoot>
                         <tr class="total-row">
                             <td colspan="2">Grand Total</td>
@@ -138,7 +119,6 @@ export class EmailService {
 
                 <div class="footer">
                     <p>Baitybites Order Management System</p>
-                    <p>Bite the Best - Risol Mayo Premium & Cookies</p>
                     <div class="social-links">
                         <a href="https://instagram.com/baitybites">Instagram</a>
                         <a href="https://baitybites.netlify.app">Website</a>
@@ -152,39 +132,40 @@ export class EmailService {
         // Generate PDF
         let pdfBuffer: Buffer | null = null;
         try {
-            console.log(`[EmailService] Launching browser for PDF generation...`);
+            console.log(`[EmailService] PDF: Launching browser...`);
             const browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-                timeout: 30000 // 30s timeout
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+                protocolTimeout: 60000,
+                timeout: 30000
             });
             const page = await browser.newPage();
+            // Faster wait for background processing
+            await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
-            // Set content and wait for network/styles to settle slightly
-            await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
-
-            console.log(`[EmailService] Generating PDF...`);
+            console.log(`[EmailService] PDF: Rendering...`);
             const pdfUint8Array = await page.pdf({
                 format: 'A4',
                 printBackground: true,
-                margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
+                margin: { top: '10px', right: '10px', bottom: '10px', left: '10px' }
             });
             pdfBuffer = Buffer.from(pdfUint8Array);
-
             await browser.close();
-            console.log(`[EmailService] PDF generated successfully.`);
+            console.log(`[EmailService] PDF: Success.`);
         } catch (error) {
-            console.error("[EmailService] Failed to generate PDF (will send HTML only):", error);
+            console.error("[EmailService] PDF: Failed (will send HTML only):", error);
         }
 
         try {
-            const adminUser = process.env.SMTP_USER;
-            const skipBcc = email.toLowerCase() === adminUser?.toLowerCase();
+            const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
+            const skipBcc = email.toLowerCase() === adminUser.toLowerCase();
 
+            console.log(`[EmailService] SMTP: Sending mail to ${email}...`);
             await this.transporter.sendMail({
                 from: `"Baitybites" <${adminUser}>`,
                 to: email,
-                bcc: skipBcc ? undefined : adminUser, // Avoid redundant BCC if sent to admin
+                bcc: skipBcc ? undefined : adminUser,
                 subject: `Invoice Pesanan Baitybites - ${order_number}`,
                 html: html,
                 attachments: pdfBuffer ? [
@@ -195,10 +176,10 @@ export class EmailService {
                     }
                 ] : []
             });
-            console.log(`[EmailService] Invoice sent to ${email} ${skipBcc ? "(no BCC to admin needed)" : "(BCC to admin included)"} for order ${order_number}`);
+            console.log(`[EmailService] DONE: Email sent successfully for order ${order_number}`);
             return true;
         } catch (error: any) {
-            console.error("[EmailService] Failed to send email:", error);
+            console.error("[EmailService] SMTP: Failed to send email:", error);
             return false;
         }
     }

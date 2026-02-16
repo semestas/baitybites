@@ -64,20 +64,23 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', ${totalAmount}, 'unpaid')
                     `;
 
-                    // 5. Send Email
-                    try {
-                        await emailService.sendPOInvoice({
-                            order_number: orderNumber,
-                            invoice_number: invoiceNumber,
-                            total_amount: totalAmount,
-                            name,
-                            email,
-                            address,
-                            items
-                        }, sql); // Pass transaction
-                    } catch (e) {
-                        console.error("[OrderRoute] Email sending failed, but order created:", e);
-                    }
+                    // 5. Send Email in Background (Enrich with names first)
+                    const productIds = items.map((i: any) => i.product_id);
+                    const productsList = await sql`SELECT id, name FROM products WHERE id = ANY(${productIds})`;
+                    const enrichedItems = items.map((item: any) => ({
+                        ...item,
+                        product_name: productsList.find((p: any) => p.id === item.product_id)?.name || 'Produk'
+                    }));
+
+                    emailService.sendPOInvoice({
+                        order_number: orderNumber,
+                        invoice_number: invoiceNumber,
+                        total_amount: totalAmount,
+                        name,
+                        email,
+                        address,
+                        items: enrichedItems
+                    }).catch(e => console.error("[OrderRoute] Background email failed:", e));
 
                     return {
                         success: true,
