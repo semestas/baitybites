@@ -19,8 +19,10 @@ RUN apt-get update && apt-get install -y \
   libxfixes3 \
   libcups2 \
   libgbm1 \
-  libpango-1-0-0 \
+  libpango-1.0-0 \
+  libpangocairo-1.0-0 \
   libcairo2 \
+  libatk-bridge2.0-0 \
   chromium \
   --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
