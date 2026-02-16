@@ -66,7 +66,13 @@ export const googleAuthRoutes = (db: Sql) => {
                 }
             })
         )
-        .get('/google/debug', async ({ oauth2 }) => {
+        .get('/google/debug', async ({ oauth2, set }) => {
+            // Disable in production
+            if (process.env.NODE_ENV === 'production') {
+                set.status = 404;
+                return { success: false, message: 'Not found' };
+            }
+
             const url = await oauth2.createURL('Google', ['email', 'profile']);
             const currentPort = process.env.PORT || 3000;
             return {

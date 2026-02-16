@@ -8,7 +8,7 @@ const sql = postgres(connectionString, {
   onnotice: () => { }, // Suppress NOTICE logs to keep production logs clean
   max: 10,             // Max number of connections
   idle_timeout: 20,    // Idle connection timeout in seconds
-  connect_timeout: 10, // Connection timeout in seconds
+  connect_timeout: 30, // Connection timeout in seconds
   prepare: false       // Disable prepared statements for better compatibility with poolers/shards
 });
 
