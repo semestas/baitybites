@@ -337,27 +337,11 @@ export async function initDatabase() {
     `;
   }
 
-  // Seed products (Risol Mayo & Cookies)
-  const seedProducts: { name: string; description: string; category: string; price: number; unit: string; stock: number }[] = [
-    { name: 'Risol Mayo Original', description: 'Risol mayo dengan isian smoked beef, telur, dan mayonaise spesial', category: 'Risol', price: 35000, unit: 'box (5 pcs)', stock: 50 },
-    { name: 'Risol Mayo Spicy', description: 'Risol mayo pedas dengan saus sambal racikan khusus', category: 'Risol', price: 38000, unit: 'box (5 pcs)', stock: 45 },
-    { name: 'Risol Mayo Cheese', description: 'Risol mayo dengan extra keju mozzarella yang lumer', category: 'Risol', price: 40000, unit: 'box (5 pcs)', stock: 40 },
-    { name: 'Nastar Special', description: 'Nastar dengan selai nanas pilihan', category: 'Kue Kering', price: 120000, unit: 'toples', stock: 30 },
-    { name: 'Kastengel Original', description: 'Kastengel keju premium', category: 'Kue Kering', price: 140000, unit: 'toples', stock: 40 },
-    { name: 'Putri Salju', description: 'Kue putri salju lembut', category: 'Kue Kering', price: 130000, unit: 'toples', stock: 35 },
-    { name: 'Lidah Kucing', description: 'Lidah kucing renyah', category: 'Kue Kering', price: 110000, unit: 'toples', stock: 45 }
-  ];
-
-  for (const p of seedProducts) {
-    const exists = await sql`SELECT id FROM products WHERE name = ${p.name} LIMIT 1`;
-    if (exists.length === 0) {
-      await sql`
-        INSERT INTO products (name, description, category, price, unit, stock)
-        VALUES (${p.name}, ${p.description}, ${p.category}, ${p.price}, ${p.unit}, ${p.stock})
-      `;
-      console.log(`Created product: ${p.name}`);
-    }
-  }
+  /* 
+  // Seed products (Risol Mayo & Cookies) - Disabled for Production Release
+  const seedProducts = [ ... ];
+  for (const p of seedProducts) { ... }
+  */
 
   console.log("✅ PostgreSQL Database initialized successfully");
   return sql;

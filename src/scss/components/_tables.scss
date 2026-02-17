@@ -1,6 +1,5 @@
 .table-wrapper {
   overflow-x: auto;
-  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
 
@@ -108,4 +107,3 @@
 .table tbody tr:hover {
   background: var(--neutral-50);
 }
-
