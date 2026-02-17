@@ -1015,25 +1015,17 @@
         }
 
         .btn-footer-cta {
-            // display: inline-flex;
-            // align-items: center;
-            // gap: 1rem;
-            // background: white;
-            // color: var(--neutral-800);
-            // padding: var(--spacing-sm) var(--spacing-md);
             margin-bottom: var(--spacing-lg);
-            // border-radius: 50px;
-            // font-weight: 700;
-            // font-size: 0.75rem;
+            border-radius: 50px;
             transition: all 0.3s ease;
-            // text-decoration: none;
-            border-color: var(--primary-200);
-            color: var(--primary-200);
+            border-width: 1px;
+            border-color: var(--primary-400);
+            color: var(--primary-400);
 
             &:hover {
-                border-color: var(--primary-200);
-                background: var(--primary-200);
-                color: var(--neutral-900);
+                border-color: var(--primary-400);
+                background: var(--primary-400);
+                color: #000;
                 transform: translateX(10px);
                 box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
             }

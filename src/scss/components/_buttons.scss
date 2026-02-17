@@ -36,10 +36,10 @@
   transition: width var(--transition-slow), height var(--transition-slow);
 }
 
-.btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
+// .btn:hover::before {
+//   width: 300px;
+//   height: 300px;
+// }
 
 .btn:active {
   transform: scale(0.98);
