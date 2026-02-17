@@ -1027,12 +1027,12 @@
             // font-size: 0.75rem;
             transition: all 0.3s ease;
             // text-decoration: none;
-            border-color: var(--status-shipping);
-            color: var(--status-shipping);
+            border-color: var(--primary-200);
+            color: var(--primary-200);
 
             &:hover {
-                border-color: var(--neutral-300);
-                background: var(--neutral-300);
+                border-color: var(--primary-200);
+                background: var(--primary-200);
                 color: var(--neutral-900);
                 transform: translateX(10px);
                 box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
