@@ -2,8 +2,8 @@
 // CMS Page Styles
 // -----------------------------------------------------------------------------
 
-@use '../abstracts/variables' as *;
-@use '../abstracts/typography' as t;
+@use "../abstracts/variables" as *;
+@use "../abstracts/typography" as t;
 
 .cms-grid {
     display: grid;
@@ -117,7 +117,9 @@
 
     &:hover {
         transform: translateY(-8px);
-        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04);
+        box-shadow:
+            0 12px 20px -5px rgba(0, 0, 0, 0.1),
+            0 8px 8px -5px rgba(0, 0, 0, 0.04);
 
         img {
             transform: scale(1.08);
@@ -167,12 +169,9 @@
     }
 
     p {
-
         margin-bottom: 15px;
     }
 }
-
-
 
 // Status Popover & Timeline
 .status-popover-container {
@@ -199,8 +198,8 @@
     justify-content: center;
     min-width: 130px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    background: #FFEDD5; // Default light orange
-    color: #9A3412; // Default dark orange text
+    background: #ffedd5; // Default light orange
+    color: #9a3412; // Default dark orange text
 
     &:hover {
         transform: scale(1.05) translateY(-2px);
@@ -224,32 +223,32 @@
 
     // Specific Status Styles
     &.pending {
-        background: #FEF3C7;
-        color: #92400E;
+        background: #fef3c7;
+        color: #92400e;
     }
 
     &.confirmed {
-        background: #DBEAFE;
-        color: #1E40AF;
+        background: #dbeafe;
+        color: #1e40af;
     }
 
     &.production {
-        background: #FFE4E6;
-        color: #9F1239;
+        background: #ffe4e6;
+        color: #9f1239;
     }
 
     &.packaging {
-        background: #E0F2FE;
+        background: #e0f2fe;
         color: #075985;
     }
 
     &.shipping {
-        background: #F3E8FF;
-        color: #6B21A8;
+        background: #f3e8ff;
+        color: #6b21a8;
     }
 
     &.completed {
-        background: #DCFCE7;
+        background: #dcfce7;
         color: #166534;
     }
 }
@@ -264,7 +263,9 @@
     border-radius: 16px;
     padding: 24px 15px;
     z-index: 1000;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
     // Animation
     opacity: 0;
@@ -279,7 +280,7 @@
     }
 
     &::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -6px; // Flipped from bottom to top
         right: 30%;
@@ -292,10 +293,10 @@
     }
 
     // Theme Variables Default (Orange/Pending - Amber)
-    --theme-main: #F59E0B;
-    --theme-bg: #FFFBEB;
-    --theme-text: #92400E;
-    --theme-line: #FDE68A;
+    --theme-main: var(--primary-600);
+    --theme-bg: #fffbeb;
+    --theme-text: #92400e;
+    --theme-line: #fde68a;
 
     background: var(--theme-bg);
     border: 1px solid var(--theme-main);
@@ -307,45 +308,45 @@
 
     // Status Specific Themes
     &.pending {
-        --theme-main: #F59E0B;
-        --theme-bg: #FFFBEB;
-        --theme-text: #92400E;
-        --theme-line: #FDE68A;
+        --theme-main: var(--primary-600);
+        --theme-bg: #fffbeb;
+        --theme-text: #92400e;
+        --theme-line: #fde68a;
     }
 
     &.confirmed {
-        --theme-main: #3B82F6;
-        --theme-bg: #EFF6FF;
-        --theme-text: #1E40AF;
-        --theme-line: #BFDBFE;
+        --theme-main: #3b82f6;
+        --theme-bg: #eff6ff;
+        --theme-text: #1e40af;
+        --theme-line: #bfdbfe;
     }
 
     &.production {
-        --theme-main: #E11D48;
-        --theme-bg: #FFF1F2;
-        --theme-text: #9F1239;
-        --theme-line: #FECDD3;
+        --theme-main: #e11d48;
+        --theme-bg: #fff1f2;
+        --theme-text: #9f1239;
+        --theme-line: #fecdd3;
     }
 
     &.packaging {
-        --theme-main: #0284C7;
-        --theme-bg: #F0F9FF;
+        --theme-main: #0284c7;
+        --theme-bg: #f0f9ff;
         --theme-text: #075985;
-        --theme-line: #BAE6FD;
+        --theme-line: #bae6fd;
     }
 
     &.shipping {
-        --theme-main: #7C3AED;
-        --theme-bg: #F5F3FF;
-        --theme-text: #6B21A8;
-        --theme-line: #DDD6FE;
+        --theme-main: #7c3aed;
+        --theme-bg: #f5f3ff;
+        --theme-text: #6b21a8;
+        --theme-line: #ddd6fe;
     }
 
     &.completed {
-        --theme-main: #16A34A;
-        --theme-bg: #F0FDF4;
+        --theme-main: #16a34a;
+        --theme-bg: #f0fdf4;
         --theme-text: #166534;
-        --theme-line: #BBF7D0;
+        --theme-line: #bbf7d0;
     }
 }
 
@@ -357,7 +358,7 @@
     margin-top: 10px;
 
     &::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 14px;
         left: 20px;
@@ -456,7 +457,7 @@
 
     th,
     td {
-        padding: 1rem;
+        padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
         border-bottom: 1px solid #eee;
     }
@@ -575,6 +576,12 @@
     margin-bottom: 0.6rem;
     color: #4a5568;
     font-size: 0.9rem;
+
+    // Tablet: smaller labels
+    @media (max-width: 1024px) {
+        font-size: 0.85rem;
+        margin-bottom: 0.35rem;
+    }
 }
 
 .form-input {
@@ -589,6 +596,12 @@
     background-color: #ffffff;
     transition: all 0.2s ease;
     box-sizing: border-box; // Ensure padding doesn't affect width
+
+    // Tablet: smaller inputs
+    @media (max-width: 1024px) {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
 
     &:focus {
         outline: none;
@@ -639,6 +652,12 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
 
+        // Tablet optimization
+        @media (max-width: 1024px) {
+            min-height: 44px;
+            padding-left: 12px;
+        }
+
         &:hover {
             background: #fff;
             border-color: #cbd5e0;
@@ -674,6 +693,13 @@
             background: transparent;
             border: none;
             border-left: 1px solid #edf2f7;
+
+            // Tablet optimization
+            @media (max-width: 1024px) {
+                height: 44px;
+                width: 44px;
+            }
+
             cursor: pointer;
             color: #a0aec0;
             transition: all 0.2s;
@@ -812,7 +838,6 @@
         transform: translateY(0);
     }
 }
-
 
 textarea.form-input {
     resize: vertical;
@@ -1127,7 +1152,7 @@ textarea.form-input {
             }
 
             &.average {
-                background: #f59e0b;
+                background: var(--primary-600);
             }
         }
 
@@ -1371,7 +1396,9 @@ textarea.form-input {
     box-shadow: $shadow-xl;
     z-index: 100;
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
+    transition:
+        opacity 0.2s,
+        transform 0.2s;
 
     &.show {
         opacity: 1;
@@ -1379,7 +1406,7 @@ textarea.form-input {
     }
 
     &::after {
-        content: '';
+        content: "";
         position: absolute;
         top: 100%;
         left: 50%;
@@ -1403,7 +1430,9 @@ textarea.form-input {
 
 .chart-point {
     cursor: pointer;
-    transition: r 0.2s, stroke-width 0.2s;
+    transition:
+        r 0.2s,
+        stroke-width 0.2s;
 
     &:hover {
         r: 6;

@@ -69,12 +69,12 @@ $shadow-2xl: var(--shadow-2xl);
     --neutral-900: #212121;
 
     --success: #10b981;
-    --warning: #f59e0b;
+    --warning: var(--primary-600);
     --error: #ef4444;
     --info: #3b82f6;
 
     // Status Colors
-    --status-pending: #f59e0b;
+    --status-pending: var(--primary-600);
     --status-confirmed: #3b82f6;
     --status-production: #8b5cf6;
     --status-packaging: #f97316;

@@ -11,16 +11,31 @@
 .mt-md,
 .mt-3 {
   margin-top: var(--spacing-md) !important;
+
+  // Tablet: reduce margin
+  @media (min-width: 769px) and (max-width: 1024px) {
+    margin-top: 0.5rem !important; // 8px instead of 16px
+  }
 }
 
 .mt-lg,
 .mt-4 {
   margin-top: var(--spacing-lg) !important;
+
+  // Tablet: reduce margin
+  @media (min-width: 769px) and (max-width: 1024px) {
+    margin-top: 0.75rem !important; // 12px instead of 24px
+  }
 }
 
 .mt-xl,
 .mt-5 {
   margin-top: var(--spacing-xl) !important;
+
+  // Tablet: reduce margin
+  @media (min-width: 769px) and (max-width: 1024px) {
+    margin-top: 1rem !important; // 16px instead of 32px
+  }
 }
 
 .mt-6 {

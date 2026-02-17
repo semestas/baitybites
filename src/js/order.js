@@ -186,17 +186,46 @@ function showOrderFormEdit() {
 
 async function loadProducts() {
     const { apiCall } = window.app;
+    products = []; // Reset
     try {
         const result = await apiCall('/public/products');
-        if (result.success) {
+        if (result.success && Array.isArray(result.data)) {
             products = result.data;
-            renderProducts();
-            updateTotal();
-            checkResumeCart();
+        } else {
+            console.warn("API returned success false or invalid data", result);
         }
     } catch (error) {
         console.error('Load products error:', error);
     }
+
+    // Always attempt to render, even if empty, to clear spinners
+
+    // Extract unique categories
+    const categories = [...new Set(products.map(p => p.category))].filter(Boolean).sort();
+
+    // Render category tabs dynamically
+    const categoryTabsContainer = document.getElementById('categoryTabs');
+    if (categoryTabsContainer) {
+        if (categories.length > 0) {
+            // Determine initial category
+            if (!categories.includes(currentCategory)) {
+                currentCategory = categories[0];
+            }
+
+            categoryTabsContainer.innerHTML = categories.map(cat => `
+                <div class="category-tab ${cat === currentCategory ? 'active' : ''}" 
+                     onclick="filterProducts('${cat}')">
+                    ${cat}
+                </div>
+            `).join('');
+        } else {
+            categoryTabsContainer.innerHTML = '<div class="text-muted text-sm text-center w-full">Kategori tidak tersedia</div>';
+        }
+    }
+
+    renderProducts();
+    updateTotal();
+    checkResumeCart();
 }
 
 function renderProducts() {
@@ -238,7 +267,7 @@ function renderProducts() {
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">${p.name}</h3>
-                    <p class="product-desc">${p.description}</p>
+                    <p class="product-desc" data-content="${p.description}">${p.description}</p>
                     <div class="product-price-row">
                         <span class="price">${formatCurrency(p.price)}</span>
                         <span class="unit">/${p.unit}</span>

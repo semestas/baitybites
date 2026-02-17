@@ -54,7 +54,7 @@
         &.pending {
             background: #fffbeb;
             border-color: #fef3c7;
-            --step-color: #f59e0b;
+            --step-color: var(--primary-600);
         }
 
         &.paid {

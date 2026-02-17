@@ -1,5 +1,10 @@
 .form-group {
   margin-bottom: var(--spacing-lg);
+
+  // Tablet: reduce spacing between form groups
+  @media (min-width: 769px) and (max-width: 1024px) {
+    margin-bottom: 0.75rem; // 12px instead of 24px
+  }
 }
 
 .form-label {
@@ -8,6 +13,12 @@
   font-weight: 600;
   color: var(--neutral-700);
   font-size: 0.95rem;
+
+  // Tablet: smaller labels
+  @media (min-width: 769px) and (max-width: 1024px) {
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
 }
 
 .form-input,
@@ -21,6 +32,13 @@
   font-size: 1rem;
   transition: all var(--transition-base);
   background: white;
+
+  // Tablet: smaller inputs
+  @media (min-width: 769px) and (max-width: 1024px) {
+    padding: 0.5rem 0.75rem; // Reduced padding
+    font-size: 0.9rem; // Smaller font
+    border-width: 1px; // Thinner border
+  }
 }
 
 .form-input:focus,
@@ -34,5 +52,9 @@
 .form-textarea {
   resize: vertical;
   min-height: 100px;
-}
 
+  // Tablet: smaller textarea
+  @media (min-width: 769px) and (max-width: 1024px) {
+    min-height: 70px; // Reduced height
+  }
+}

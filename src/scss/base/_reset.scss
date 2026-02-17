@@ -80,6 +80,11 @@ img {
 
 .gap-4 {
   gap: var(--spacing-lg) !important;
+
+  // Tablet: reduce gap
+  @media (min-width: 769px) and (max-width: 1024px) {
+    gap: 0.75rem !important; // 12px instead of 24px
+  }
 }
 
 .flex-1 {

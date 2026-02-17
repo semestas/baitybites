@@ -26,7 +26,7 @@
 
     .est-box {
         background: #fffbeb;
-        border-left: 3px solid #f59e0b;
+        border-left: 3px solid var(--primary-600);
         padding: 8px 12px;
         border-radius: 4px;
         margin-bottom: 8px;
@@ -61,7 +61,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
-        min-height: 120px;
+        min-height: 84px;
         gap: 0;
     }
 
@@ -87,7 +87,7 @@
         z-index: 1;
     }
 
-    /* Highlight Pulse Animation */
+    // Highlight Pulse Animation
     @keyframes highlightPulse {
         0% {
             background-color: transparent;
@@ -127,7 +127,7 @@
     }
 
     .border-warning {
-        border-left-color: #f59e0b !important;
+        border-left-color: var(--primary-600) !important;
     }
 
     .border-success {

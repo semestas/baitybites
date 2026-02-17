@@ -87,7 +87,7 @@
                     ` : ''}
                     ${order.pack_start ? `
                         <div class="time-item" title="Mulai Packing">
-                            <i data-lucide="package" style="color: #f59e0b;"></i> ${formatTime(order.pack_start)}
+                            <i data-lucide="package" style="color: var(--primary-600);"></i> ${formatTime(order.pack_start)}
                         </div>
                     ` : ''}
                 </div>

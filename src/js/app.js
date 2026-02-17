@@ -463,11 +463,58 @@ async function loadFooterSettings() {
     }
 }
 
+// Load dynamic footer categories
+async function loadFooterCategories() {
+    const nav = document.getElementById('footerCategories');
+    if (!nav) return;
+
+    try {
+        const { apiCall } = window.app;
+        if (!apiCall) return; // Wait for app initialization
+
+        let categories = [];
+        try {
+            const result = await apiCall('/public/products');
+            if (result.success && Array.isArray(result.data)) {
+                categories = [...new Set(result.data.map(p => p.category))].filter(Boolean).sort();
+            }
+        } catch (apiErr) {
+            console.error('Footer API Error', apiErr);
+            // Non-blocking, continue with empty
+        }
+
+        if (categories.length > 0) {
+            let html = '<a href="/">Home</a>';
+            categories.forEach(cat => {
+                html += `<a href="/order.html">${cat}</a>`;
+            });
+            html += '<a href="/track.html">Lacak Pesanan</a>';
+            nav.innerHTML = html;
+        } else {
+            // Fallback if no categories or error
+            nav.innerHTML = `
+                <a href="/">Home</a>
+                <a href="/order.html">Menu</a>
+                <a href="/track.html">Lacak Pesanan</a>
+             `;
+        }
+    } catch (e) {
+        console.error('Failed to load footer categories', e);
+        // Absolute fallback
+        nav.innerHTML = `
+            <a href="/">Home</a>
+            <a href="/order.html">Menu</a>
+            <a href="/track.html">Lacak Pesanan</a>
+        `;
+    }
+}
+
 // Global init for pages
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initGlobalHeader();
     loadFooterSettings();
+    loadFooterCategories(); // Added this
     checkVersion();
     if (window.lucide) lucide.createIcons();
 });

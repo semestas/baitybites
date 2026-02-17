@@ -463,11 +463,58 @@ async function loadFooterSettings() {
     }
 }
 
+// Load dynamic footer categories
+async function loadFooterCategories() {
+    const nav = document.getElementById('footerCategories');
+    if (!nav) return;
+
+    try {
+        const { apiCall } = window.app;
+        if (!apiCall) return; // Wait for app initialization
+
+        let categories = [];
+        try {
+            const result = await apiCall('/public/products');
+            if (result.success && Array.isArray(result.data)) {
+                categories = [...new Set(result.data.map(p => p.category))].filter(Boolean).sort();
+            }
+        } catch (apiErr) {
+            console.error('Footer API Error', apiErr);
+            // Non-blocking, continue with empty
+        }
+
+        if (categories.length > 0) {
+            let html = '<a href="/">Home</a>';
+            categories.forEach(cat => {
+                html += `<a href="/order.html">${cat}</a>`;
+            });
+            html += '<a href="/track.html">Lacak Pesanan</a>';
+            nav.innerHTML = html;
+        } else {
+            // Fallback if no categories or error
+            nav.innerHTML = `
+                <a href="/">Home</a>
+                <a href="/order.html">Menu</a>
+                <a href="/track.html">Lacak Pesanan</a>
+             `;
+        }
+    } catch (e) {
+        console.error('Failed to load footer categories', e);
+        // Absolute fallback
+        nav.innerHTML = `
+            <a href="/">Home</a>
+            <a href="/order.html">Menu</a>
+            <a href="/track.html">Lacak Pesanan</a>
+        `;
+    }
+}
+
 // Global init for pages
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initGlobalHeader();
     loadFooterSettings();
+    loadFooterCategories(); // Added this
     checkVersion();
     if (window.lucide) lucide.createIcons();
 });
@@ -479,7 +526,7 @@ async function checkVersion() {
         const data = await response.json();
         const versionElement = document.getElementById('footer-version');
         if (versionElement) {
-            versionElement.innerHTML = `Build: v2.0.0 | API: ${data.version || 'unknown'}`;
+            versionElement.innerHTML = `Build: v2.0.1 | API: ${data.version || 'unknown'}`;
             versionElement.style.fontSize = '0.7rem';
             versionElement.style.opacity = '0.5';
             versionElement.style.marginTop = '0.5rem';
@@ -493,7 +540,7 @@ async function checkVersion() {
                     vTag.style.fontSize = '0.7rem';
                     vTag.style.opacity = '0.5';
                     vTag.style.marginTop = '1rem';
-                    vTag.innerHTML = `Build: v2.0.0 | API: ${data.version || 'unknown'}`;
+                    vTag.innerHTML = `Build: v2.0.1 | API: ${data.version || 'unknown'}`;
                     footer.appendChild(vTag);
                 }
             });

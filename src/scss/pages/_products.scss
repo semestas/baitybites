@@ -54,7 +54,7 @@
         .product-image-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 10;
+            aspect-ratio: 21 / 9;
             overflow: hidden;
             background: var(--neutral-50);
         }
@@ -86,7 +86,7 @@
             h3 {
                 margin: 0;
                 color: var(--neutral-900);
-                font-size: 1.125rem;
+                font-size: .9rem;
                 font-weight: 700;
                 line-height: 1.2;
             }
@@ -100,7 +100,7 @@
         }
 
         .product-description {
-            font-size: 0.9rem;
+            font-size: 0.65rem;
             line-height: 1.6;
             margin: 0;
             color: var(--neutral-500);
@@ -121,13 +121,12 @@
 
                 .price-value {
                     font-weight: 700;
-                    font-size: 1.125rem;
-                    color: #f59e0b;
+                    color: var(--primary-600);
                 }
 
                 .price-unit {
                     font-size: 0.75rem;
-                    color: var(--neutral-500);
+                    color: var(--status-shipping);
                     font-weight: 400;
                 }
             }
