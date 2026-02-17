@@ -13,7 +13,6 @@ interface GoogleUser {
 export const googleAuthRoutes = (db: Sql) => {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI?.trim();
 
     /* 
     console.log('Setup Google Auth with:', {

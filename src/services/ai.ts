@@ -23,12 +23,14 @@ export class AIService {
             let extraInstructions = "";
             if (context.toLowerCase().includes("title") || context.toLowerCase().includes("h1")) {
                 extraInstructions = "\n- Crucial constraint: Respond with ONLY ONE short sentence, MAXIMUM 5 words.";
+            } else if (context.toLowerCase().includes("description")) {
+                extraInstructions = "\n- Crucial constraint: Keep it professional and concise. MAXIMUM 20 words.";
             }
 
             const prompt = `
-                You are a professional copywriter for Baitybites, a premium homemade food business specializing in Risol Mayo.
-                Refine and enhance the following content for a ${context}. 
-                Make it catchy, professional, and appetizing while maintaining a friendly "homemade" tone.
+                You are a professional copywriter for Baitybites, a premium homemade food business.
+                Refine the following content for a ${context}. 
+                Make it professional and appetizing. Avoid generic cliches and redundant filler words.
                 Use Indonesian as the primary language.
                 ${extraInstructions}
                 

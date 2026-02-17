@@ -110,7 +110,6 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
             const now = new Date();
             const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const startOfRange = new Date(startOfToday.getTime() - ((days - 1) * 24 * 60 * 60 * 1000));
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
             const [revenueStats] = await db`
                 SELECT 
@@ -274,8 +273,9 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 SELECT 
                     o.id, o.order_number, o.status, o.total_amount, o.created_at,
                     c.name as customer_name,
+                    (SELECT category FROM products p JOIN order_items oi ON p.id = oi.product_id WHERE oi.order_id = o.id LIMIT 1) as category,
                     (
-                        SELECT json_agg(json_build_object('product_name', p.name, 'quantity', oi.quantity, 'subtotal', oi.subtotal))
+                        SELECT json_agg(json_build_object('product_name', p.name, 'quantity', oi.quantity, 'subtotal', oi.subtotal, 'category', p.category))
                         FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id
                     ) as items
                 FROM orders o
@@ -290,12 +290,14 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                     o.id, o.order_number, o.status, o.total_amount, o.notes,
                     o.created_at as order_created, o.updated_at as last_update,
                     c.name as customer_name,
+                    (SELECT category FROM products p JOIN order_items oi ON p.id = oi.product_id WHERE oi.order_id = o.id LIMIT 1) as category,
                     (SELECT start_date FROM production WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as prod_start,
                     (SELECT packaging_date FROM packaging WHERE order_id = o.id ORDER BY created_at DESC LIMIT 1) as pack_start,
                     (
                         SELECT json_agg(json_build_object(
                             'product_name', p.name,
                             'quantity', oi.quantity,
+                            'category', p.category,
                             'production_time', COALESCE(p.production_time, 10),
                             'packaging_time', COALESCE(p.packaging_time, 5)
                         ))

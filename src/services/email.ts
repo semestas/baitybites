@@ -21,7 +21,7 @@ export class EmailService {
     }
 
     async sendPOInvoice(orderData: any) {
-        const { order_number, invoice_number, total_amount, name, email, items, address } = orderData;
+        const { order_number, invoice_number, email } = orderData;
 
         if (!email) {
             console.error("[EmailService] No email provided for order", order_number);
@@ -78,7 +78,7 @@ export class EmailService {
                 const cssPath = "public/css/email.css";
                 styles = await Bun.file(cssPath).text();
                 EmailService.cachedStyles = styles;
-            } catch (e) {
+            } catch {
                 console.warn("[EmailService] Could not load email.css, falling back to basic styles.");
             }
         }
@@ -93,7 +93,7 @@ export class EmailService {
                     ${item.quantity}
                 </td>
                 <td class="right">
-                    ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price * item.quantity)}
+                    ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.subtotal || (Number(item.price || item.unit_price || 0) * item.quantity))}
                 </td>
             </tr>
         `).join('');

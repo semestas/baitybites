@@ -17,7 +17,7 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                 };
             }
 
-            const { name, email, phone, address, items, notes } = body as any;
+            const { name, email, phone, address, items, notes = null } = body as any;
 
             try {
                 return await db.begin(async (sql: any) => {
@@ -41,7 +41,7 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                     // 2. Create Order
                     const [{ count: currentCount }] = await sql`SELECT count(*) as count FROM orders`;
                     const orderNumber = generateOrderNumber(Number(currentCount) + 1);
-                    const totalAmount = items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+                    const totalAmount = items.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
 
                     const [order] = await sql`
                         INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)

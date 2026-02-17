@@ -148,27 +148,22 @@
         container.innerHTML = `
             <div class="order-grid">
                 ${data.map(order => `
-                    <div class="order-card" data-status="${order.status}" id="order-${order.id}">
+                    <div class="order-card" data-status="${(order.status || 'pending').toLowerCase()}" id="order-${order.id}">
                         <div class="order-header">
                             <div>
                                 <div class="order-number">#${order.order_number}</div>
                                 <div class="order-customer">${order.customer_name}</div>
                             </div>
-                            <span class="status-badge ${order.status}">Pending</span>
+                            <span class="status-badge ${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
                         </div>
                         
                         <div class="order-items-divider">
-                            ${(() => {
-                const firstItem = order.items[0];
-                const remainingCount = order.items.length - 1;
-                return `
-                                    <div class="order-item-row">
-                                        <span class="order-item-name">${firstItem.product_name}</span>
-                                        <span class="order-item-price">Rp ${(firstItem.subtotal || 0).toLocaleString('id-ID')}</span>
-                                    </div>
-                                    ${remainingCount > 0 ? `<div class="order-items-others">+ ${remainingCount} other${remainingCount > 1 ? 's' : ''}</div>` : ''}
-                                `;
-            })()}
+                            ${order.items.map(item => `
+                                <div class="order-item-row">
+                                    <span class="order-item-name">${item.product_name}</span>
+                                    <span class="order-item-qty">×${item.quantity}</span>
+                                </div>
+                            `).join('')}
                         </div>
 
                         <div class="order-footer">
@@ -219,15 +214,15 @@
             }
 
             return `
-                <div class="order-card ${isOverdue ? 'overdue-border' : ''}" data-status="${order.status}" id="order-${order.id}">
-                    <div class="order-header-wrap">
-                        <div class="order-num-fill">
-                            <div class="order-number">#${order.order_number}</div>
-                            <div class="order-customer">${order.customer_name}</div>
-                        </div>                            
-                        <div class="status-badge ${order.status} status-badge-fit">
-                            ${order.status === 'confirmed' ? 'Ready' : order.status === 'production' ? 'Cooking' : 'Packing'}
-                        </div>
+                    <div class="order-card ${isOverdue ? 'overdue-border' : ''}" data-status="${order.status.toLowerCase()}" id="order-${order.id}">
+                        <div class="order-header-wrap">
+                            <div class="order-num-fill">
+                                <div class="order-number">#${order.order_number}</div>
+                                <div class="order-customer">${order.customer_name}</div>
+                            </div>                            
+                            <div class="status-badge ${order.status.toLowerCase()} status-badge-fit">
+                                ${order.status === 'confirmed' ? 'Ready' : order.status === 'production' ? 'Cooking' : 'Packing'}
+                            </div>
                         <div class="time-keeper-row" >
                             <div class="time-status-row">
                                 ${timeline.replace('class="', `class="time-status-truncate `)}
@@ -239,17 +234,12 @@
                     </div>
                     
                     <div class="order-items-divider">
-                        ${(() => {
-                    const firstItem = order.items[0];
-                    const remainingCount = order.items.length - 1;
-                    return `
-                                <div class="order-item-row">
-                                    <span class="order-item-name">${firstItem.product_name}</span>
-                                    <span class="order-item-qty">×${firstItem.quantity}</span>
-                                </div>
-                                ${remainingCount > 0 ? `<div class="order-items-others">+ ${remainingCount} other${remainingCount > 1 ? 's' : ''}</div>` : ''}
-                            `;
-                })()}
+                        ${order.items.map(item => `
+                            <div class="order-item-row">
+                                <span class="order-item-name">${item.product_name}</span>
+                                <span class="order-item-qty">×${item.quantity}</span>
+                            </div>
+                        `).join('')}
                     </div>
                     
                     ${order.notes ? `<div class="order-notes-box"><i data-lucide="info" style="width:14px;height:14px;vertical-align:text-bottom;"></i> ${order.notes}</div>` : ''}

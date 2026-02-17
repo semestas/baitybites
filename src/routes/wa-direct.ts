@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
-import { generateOrderNumber, generateInvoiceNumber } from '../utils/helpers';
+import { generateInvoiceNumber } from '../utils/helpers';
 import type { EmailService } from '../services/email';
 import { WhatsAppService } from '../services/whatsapp';
 
@@ -8,7 +8,6 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
             const { name, phone, items, discount = 0, notes = '' } = body as any;
-            const adminEmail = 'id.baitybites@gmail.com';
             const placeholderEmail = `${phone}@wa.baitybites.id`;
 
             let orderResult: any = null;
