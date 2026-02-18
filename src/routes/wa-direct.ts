@@ -4,6 +4,66 @@ import { generateInvoiceNumber } from '../utils/helpers';
 import type { EmailService } from '../services/email';
 import { WhatsAppService } from '../services/whatsapp';
 
+/**
+ * Resilient Background Tasks for WA Direct
+ * Fires Email and WA notifications without blocking the main response
+ */
+async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailService: EmailService, waService: WhatsAppService) {
+    console.log(`[WADirect] Triggering tasks for: ${invoiceNumber}`);
+    try {
+        // Fetch Data for Tasks
+        const [order] = await db`
+            SELECT o.*, c.name, c.phone, c.email as customer_email, i.invoice_number, i.total_amount
+            FROM invoices i
+            JOIN orders o ON i.order_id = o.id
+            JOIN customers c ON o.customer_id = c.id
+            WHERE i.invoice_number = ${invoiceNumber}
+            LIMIT 1
+        `;
+
+        if (!order) {
+            console.error(`[WADirect] Task ABORT: Invoice ${invoiceNumber} not found.`);
+            return;
+        }
+
+        const items = await db`
+            SELECT oi.*, p.name as product_name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ${order.id}
+        `;
+
+        // 1. Prepare Data
+        const totalStr = new Intl.NumberFormat('id-ID').format(Number(order.total_amount));
+        const adminEmail = (process.env.SMTP_USER && process.env.SMTP_USER.includes('@'))
+            ? process.env.SMTP_USER
+            : 'id.baitybites@gmail.com';
+
+        console.log(`[WADirect] Task: Preparing Email to ${adminEmail} and WA for ${order.order_number}`);
+
+        // 2. Parallel Resilient Execution
+        await Promise.all([
+            emailService.sendPOInvoice({
+                order_number: order.order_number,
+                invoice_number: order.invoice_number,
+                total_amount: order.total_amount,
+                name: order.name,
+                email: adminEmail,
+                address: '-',
+                items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
+            }).catch(e => console.error("[WADirect] Task: Email failed", e)),
+
+            waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
+                .then(() => console.log(`[WADirect] Task: WA notify sent successfully.`))
+                .catch(e => console.error("[WADirect] Task: WA failed", e))
+        ]);
+
+        console.log(`[WADirect] Task: All background tasks finished for ${order.order_number}`);
+    } catch (error: any) {
+        console.error("[WADirect] Global Task ERROR:", error);
+    }
+}
+
 export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: WhatsAppService) =>
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
@@ -87,15 +147,10 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 return { success: false, message: error.message || 'Failed to process quick order in database' };
             }
 
-            // --- Background Tasks (Outside the main try/catch to avoid 500 response) ---
+            // --- Unified Resilient Trigger ---
             if (orderResult && orderResult.success) {
-                console.log("[WADirect] Order success in DB, firing background tasks");
-
-                // --- Fast Tasks (Inside the response cycle) ---
-                console.log("[WADirect] Order success in DB, sending fast response");
-
-                // 1. Respond immediately to stop client retries and duplication
-                return {
+                // Return fast response to client
+                const fastResponse = {
                     success: true,
                     message: 'Order saved successfully.',
                     data: {
@@ -104,6 +159,13 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                         total_amount: orderResult.totalAmount
                     }
                 };
+
+                // Trigger tasks in "detach" mode (background)
+                // We DON'T await this, so the response is sent immediately
+                runWADirectBackgroundTasks(orderResult.invoiceNumber, db, emailService, waService)
+                    .catch(e => console.error("[WADirect] Detached task trigger failure:", e));
+
+                return fastResponse;
             }
 
             set.status = 500;
@@ -122,58 +184,10 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 }))
             })
         })
-        .post('/process-tasks/:invoiceNumber', async ({ params, set }) => {
+        .post('/process-tasks/:invoiceNumber', async ({ params }) => {
             const { invoiceNumber } = params;
-            console.log(`[WADirect] Processing heavy tasks for: ${invoiceNumber}`);
-
-            try {
-                const [order] = await db`
-                    SELECT o.*, c.name, c.phone, c.email as customer_email, i.invoice_number, i.total_amount
-                    FROM invoices i
-                    JOIN orders o ON i.order_id = o.id
-                    JOIN customers c ON o.customer_id = c.id
-                    WHERE i.invoice_number = ${invoiceNumber}
-                    LIMIT 1
-                `;
-
-                if (!order) return { success: false, message: 'Invoice not found' };
-
-                const items = await db`
-                    SELECT oi.*, p.name as product_name
-                    FROM order_items oi
-                    JOIN products p ON oi.product_id = p.id
-                    WHERE oi.order_id = ${order.id}
-                `;
-
-                // 1. Prepare Data
-                const totalStr = new Intl.NumberFormat('id-ID').format(Number(order.total_amount));
-                const adminEmail = process.env.SMTP_USER || 'id.baitybites@gmail.com';
-
-                console.log(`[WADirect] Background: Start tasks for ${order.order_number}`);
-
-                // 2. Parallel Tasks
-                const emailTask = emailService.sendPOInvoice({
-                    order_number: order.order_number,
-                    invoice_number: order.invoice_number,
-                    total_amount: order.total_amount,
-                    name: order.name,
-                    email: adminEmail,
-                    address: '-',
-                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
-                }).catch(e => console.error("[WADirect] Task Email ERROR:", e));
-
-                const waTask = waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
-                    .catch(e => console.error("[WADirect] Task WA ERROR:", e));
-
-                // Await all for serverless safety
-                await Promise.all([emailTask, waTask]);
-
-                console.log(`[WADirect] Async tasks finished for ${order.order_number}`);
-                return { success: true };
-            } catch (error: any) {
-                console.error("[WADirect] Global Tasks ERROR:", error);
-                return { success: false, error: error.message };
-            }
+            await runWADirectBackgroundTasks(invoiceNumber, db, emailService, waService);
+            return { success: true, message: 'Tasks triggered manually' };
         })
         .get('/invoice/:invoiceNumber/pdf', async ({ params, set }) => {
             const { invoiceNumber } = params;
@@ -235,5 +249,4 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 set.status = 500;
                 return { success: false, message: 'Internal server error during PDF generation' };
             }
-        })
-
+        });

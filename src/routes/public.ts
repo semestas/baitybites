@@ -4,6 +4,55 @@ import { generateOrderNumber, generateInvoiceNumber } from '../utils/helpers';
 import { authPlugin } from '../middleware/auth';
 import type { EmailService } from '../services/email';
 
+/**
+ * Resilient Background Tasks for Public Orders
+ * Fires Email notifications without blocking the main response
+ */
+async function runPublicOrderBackgroundTasks(invoiceNumber: string, db: Sql, emailService: EmailService) {
+    console.log(`[PublicOrder] Triggering tasks for: ${invoiceNumber}`);
+    try {
+        const [order] = await db`
+            SELECT o.*, c.name, c.email as customer_email, i.invoice_number, i.total_amount
+            FROM invoices i
+            JOIN orders o ON i.order_id = o.id
+            JOIN customers c ON o.customer_id = c.id
+            WHERE i.invoice_number = ${invoiceNumber}
+            LIMIT 1
+        `;
+
+        if (!order) {
+            console.error(`[PublicOrder] Task ABORT: Invoice ${invoiceNumber} not found.`);
+            return;
+        }
+
+        const items = await db`
+            SELECT oi.*, p.name as product_name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ${order.id}
+        `;
+
+        // 1. Prepare Data
+        const recipientEmail = order.customer_email || process.env.SMTP_USER || 'id.baitybites@gmail.com';
+        console.log(`[PublicOrder] Task: Sending invoice mail to ${recipientEmail} for ${order.order_number}`);
+
+        // 2. Execute Heavy Task
+        await emailService.sendPOInvoice({
+            order_number: order.order_number,
+            invoice_number: order.invoice_number,
+            total_amount: order.total_amount,
+            name: order.name,
+            email: recipientEmail,
+            address: order.address || '-',
+            items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
+        });
+
+        console.log(`[PublicOrder] Task: Finished for ${order.order_number}`);
+    } catch (error: any) {
+        console.error("[PublicOrder] Global Task ERROR:", error);
+    }
+}
+
 export const publicRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/public' })
         .use(authPlugin)
@@ -20,7 +69,7 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
             const { name, email, phone, address, items, notes = null } = body as any;
 
             try {
-                return await db.begin(async (sql: any) => {
+                const orderResult = await db.begin(async (sql: any) => {
                     // 1. Create or Find Customer
                     let [customer] = await sql`SELECT id FROM customers WHERE email = ${email}`;
 
@@ -78,27 +127,34 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 day', ${totalAmount}, 'unpaid')
                     `;
 
-                    // 5. Send Email in Background (Enrich with names first)
-                    const productIds = items.map((i: any) => i.product_id);
-                    const productsList = await sql`SELECT id, name FROM products WHERE id = ANY(${productIds})`;
-                    const enrichedItems = items.map((item: any) => ({
-                        ...item,
-                        product_name: productsList.find((p: any) => p.id === item.product_id)?.name || 'Produk'
-                    }));
-
-                    // Respond immediately. Heavy tasks will be handled by the client-side background trigger or separately.
-                    console.log(`[OrderRoute] Order ${orderNumber} saved to DB. Responding fast.`);
-
                     return {
+                        success: true,
+                        orderNumber,
+                        invoiceNumber,
+                        totalAmount
+                    };
+                });
+
+                if (orderResult && orderResult.success) {
+                    const fastResponse = {
                         success: true,
                         message: 'Order berhasil dibuat',
                         data: {
-                            order_number: orderNumber,
-                            invoice_number: invoiceNumber,
-                            total_amount: totalAmount
+                            order_number: orderResult.orderNumber,
+                            invoice_number: orderResult.invoiceNumber,
+                            total_amount: orderResult.totalAmount
                         }
                     };
-                });
+
+                    // Trigger tasks in "detach" mode
+                    runPublicOrderBackgroundTasks(orderResult.invoiceNumber, db, emailService)
+                        .catch(e => console.error("[PublicOrder] Detached task trigger failure:", e));
+
+                    return fastResponse;
+                }
+
+                throw new Error("Unexpected database result");
+
             } catch (error: any) {
                 console.error('Order error:', error);
                 set.status = 400;
@@ -165,49 +221,10 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                 }
             };
         })
-        .post('/process-tasks/:invoiceNumber', async ({ params, set }) => {
+        .post('/process-tasks/:invoiceNumber', async ({ params }) => {
             const { invoiceNumber } = params;
-            console.log(`[PublicOrder] Processing heavy tasks for: ${invoiceNumber}`);
-
-            try {
-                // Fetch Data for Tasks
-                const [order] = await db`
-                    SELECT o.*, c.name, c.email as customer_email, i.invoice_number, i.total_amount
-                    FROM invoices i
-                    JOIN orders o ON i.order_id = o.id
-                    JOIN customers c ON o.customer_id = c.id
-                    WHERE i.invoice_number = ${invoiceNumber}
-                    LIMIT 1
-                `;
-
-                if (!order) return { success: false, message: 'Order not found' };
-
-                const items = await db`
-                    SELECT oi.*, p.name as product_name
-                    FROM order_items oi
-                    JOIN products p ON oi.product_id = p.id
-                    WHERE oi.order_id = ${order.id}
-                `;
-
-                // 1. Email Notify (Customer + Admin)
-                const recipientEmail = order.customer_email || process.env.SMTP_USER || 'id.baitybites@gmail.com';
-
-                await emailService.sendPOInvoice({
-                    order_number: order.order_number,
-                    invoice_number: order.invoice_number,
-                    total_amount: order.total_amount,
-                    name: order.name,
-                    email: recipientEmail,
-                    address: order.address || '-',
-                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
-                });
-
-                console.log(`[PublicOrder] Async tasks finished for ${order.order_number}`);
-                return { success: true };
-            } catch (error: any) {
-                console.error("[PublicOrder] Tasks ERROR:", error);
-                return { success: false, error: error.message };
-            }
+            await runPublicOrderBackgroundTasks(invoiceNumber, db, emailService);
+            return { success: true, message: 'Tasks triggered manually' };
         })
         .get('/products', async () => {
             const products = await db`SELECT * FROM products WHERE stock > 0`;
