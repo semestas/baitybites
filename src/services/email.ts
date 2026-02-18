@@ -21,43 +21,49 @@ export class EmailService {
     }
 
     async sendPOInvoice(orderData: any) {
-        const { order_number, invoice_number, email } = orderData;
+        const { order_number, invoice_number, email, name } = orderData;
 
         if (!email) {
-            console.error("[EmailService] No email provided for order", order_number);
+            console.error("[EmailService] ABORT: No recipient email provided for order", order_number);
             return false;
         }
 
-        console.log(`[EmailService] Starting invoice task for ${email} (Order: ${order_number})...`);
+        console.log(`[EmailService] TASK START: Order ${order_number} for ${name} (${email})`);
 
         let html = "";
         let pdfBuffer = null;
 
         try {
+            console.log(`[EmailService] -> Generating HTML stage...`);
             html = await this.generateInvoiceHtml(orderData);
+            console.log(`[EmailService] -> HTML OK (length: ${html.length})`);
         } catch (e) {
-            console.error("[EmailService] HTML Generation Failed:", e);
-            // Fallback simple HTML
+            console.error("[EmailService] -> HTML Generation Failed:", e);
             html = `<h1>Invoice ${order_number}</h1><p>Gagal membuat tampilan invoice lengkap, namun pesanan Anda telah diterima.</p>`;
         }
 
         try {
-            console.log(`[EmailService] Attempting PDF generation...`);
-            pdfBuffer = await this.generatePdfBuffer(html);
+            console.log(`[EmailService] -> Generating PDF stage...`);
+            // Adding a timeout safety for Puppeteer
+            const pdfPromise = this.generatePdfBuffer(html);
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("PDF Generation Timeout")), 15000));
+            pdfBuffer = await Promise.race([pdfPromise, timeoutPromise]) as Buffer;
+            console.log(`[EmailService] -> PDF OK (${pdfBuffer.length} bytes)`);
         } catch (e) {
-            console.error("[EmailService] PDF Generation ERROR (skipping attachment):", e);
-            // We continue without PDF
+            console.error("[EmailService] -> PDF Generation ERROR (skipping attachment):", e);
         }
 
         try {
             const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
-            const skipBcc = email.toLowerCase() === adminUser.toLowerCase();
+            // Ensure adminUser is an email address
+            const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
+            const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
 
-            console.log(`[EmailService] SMTP: Sending mail to ${email}...`);
+            console.log(`[EmailService] -> SMTP: Sending to ${email} (From: ${fromEmail})...`);
             const info = await this.transporter.sendMail({
-                from: `"Baitybites" <${adminUser}>`,
+                from: `"Baitybites" <${fromEmail}>`,
                 to: email,
-                bcc: skipBcc ? undefined : adminUser,
+                bcc: skipBcc ? undefined : fromEmail,
                 subject: `Invoice Pesanan Baitybites - ${order_number}`,
                 html: html,
                 attachments: pdfBuffer ? [

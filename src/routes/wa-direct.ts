@@ -145,15 +145,14 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     WHERE oi.order_id = ${order.id}
                 `;
 
-                // 1. Fast WA Notify (Staff)
-                const totalStr = new Intl.NumberFormat('id-ID').format(order.total_amount);
-                await waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
-                    .catch(e => console.error("[WADirect] WA notify ERROR:", e));
-
-                // 2. Heavy Email/PDF Notify (System/Admin only for WA Direct)
+                // 1. Prepare Data
+                const totalStr = new Intl.NumberFormat('id-ID').format(Number(order.total_amount));
                 const adminEmail = process.env.SMTP_USER || 'id.baitybites@gmail.com';
 
-                await emailService.sendPOInvoice({
+                console.log(`[WADirect] Background: Start tasks for ${order.order_number}`);
+
+                // 2. Parallel Tasks
+                const emailTask = emailService.sendPOInvoice({
                     order_number: order.order_number,
                     invoice_number: order.invoice_number,
                     total_amount: order.total_amount,
@@ -161,11 +160,18 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     email: adminEmail,
                     address: '-',
                     items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
-                });
+                }).catch(e => console.error("[WADirect] Task Email ERROR:", e));
 
+                const waTask = waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
+                    .catch(e => console.error("[WADirect] Task WA ERROR:", e));
+
+                // Await all for serverless safety
+                await Promise.all([emailTask, waTask]);
+
+                console.log(`[WADirect] Async tasks finished for ${order.order_number}`);
                 return { success: true };
             } catch (error: any) {
-                console.error("[WADirect] Tasks ERROR:", error);
+                console.error("[WADirect] Global Tasks ERROR:", error);
                 return { success: false, error: error.message };
             }
         })
