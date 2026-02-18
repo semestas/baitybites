@@ -269,8 +269,8 @@ Terima kasih atas pesanan Anda! 🙏
                     <div class="wa-summary-box">${summaryText}</div>
 
                     <div class="wa-btn-group">
-                        <button id="btnDownloadPDF" class="wa-btn btn-pdf">
-                            <span>📄</span> Download PDF
+                        <button id="btnDownloadSummary" class="wa-btn btn-pdf">
+                            <span>🖼️</span> Simpan Summary (PNG)
                         </button>
 
                         <button id="btnShareWA" class="wa-btn btn-whatsapp">
@@ -287,36 +287,39 @@ Terima kasih atas pesanan Anda! 🙏
 
         document.body.appendChild(modal);
 
-        // Download PDF functionality
-        document.getElementById('btnDownloadPDF').addEventListener('click', async () => {
-            const btn = document.getElementById('btnDownloadPDF');
+        // Download Summary PNG functionality
+        document.getElementById('btnDownloadSummary').addEventListener('click', async () => {
+            const btn = document.getElementById('btnDownloadSummary');
             const originalHtml = btn.innerHTML;
 
             try {
                 btn.disabled = true;
-                btn.innerHTML = '🕒 Generating...';
+                btn.innerHTML = '🕒 Generating PNG...';
 
-                // Construct PDF URL
-                const pdfUrl = `/api/wa-direct/invoice/${invoiceNumber}/pdf`;
+                // Fetch the image from the server
+                const imageUrl = `/api/wa-direct/summary-image/${invoiceNumber}`;
+                const response = await fetch(imageUrl);
+                if (!response.ok) throw new Error('Gagal mengambil gambar ringkasan');
 
-                // Open in new tab or trigger download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = pdfUrl;
-                link.download = `Invoice-${invoiceNumber}.pdf`;
-                link.target = '_blank';
+                link.href = url;
+                link.download = `Summary-${orderNumber}.png`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
 
-                showNotification('Invoice PDF generating in new tab...', 'success');
+                showNotification('Gambar ringkasan berhasil diunduh!', 'success');
             } catch (err) {
-                console.error('PDF Download error:', err);
-                showNotification('Gagal mengunduh PDF', 'error');
+                console.error('PNG Download error:', err);
+                showNotification('Gagal mengunduh gambar ringkasan', 'error');
             } finally {
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;
-                }, 2000);
+                }, 1000);
             }
         });
 
