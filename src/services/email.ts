@@ -5,6 +5,7 @@ import type { Sql } from "../db/schema";
 export class EmailService {
     private transporter: nodemailer.Transporter;
     private static cachedStyles: string | null = null;
+    private static browser: any = null;
     private db: Sql;
 
     constructor(db: Sql) {
@@ -43,14 +44,18 @@ export class EmailService {
         }
 
         try {
-            console.log(`[EmailService] -> Generating PDF stage...`);
-            // Adding a timeout safety for Puppeteer
+            console.log(`[EmailService] -> Generating PDF stage (Shared Mode)...`);
+            // Speed optimization for WA Direct: 3s max wait
+            // If PDF takes more than 3s, we send the email immediately without it.
             const pdfPromise = this.generatePdfBuffer(html);
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("PDF Generation Timeout")), 15000));
+            const timeoutDuration = 3000;
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("PDF Timeout")), timeoutDuration));
+
             pdfBuffer = await Promise.race([pdfPromise, timeoutPromise]) as Buffer;
-            console.log(`[EmailService] -> PDF OK (${pdfBuffer.length} bytes)`);
+            console.log(`[EmailService] -> PDF OK (${pdfBuffer ? pdfBuffer.length : 0} bytes)`);
         } catch (e) {
-            console.error("[EmailService] -> PDF Generation ERROR (skipping attachment):", e);
+            console.error("[EmailService] -> PDF Generation Skipped (Speed Priority):", e instanceof Error ? e.message : e);
+            // We continue without PDF to ensure 'Instant' delivery
         }
 
         try {
@@ -292,11 +297,13 @@ export class EmailService {
         `;
     }
 
-    async generatePdfBuffer(html: string) {
-        let browser: any = null;
+    private async getBrowser() {
         try {
-            console.log(`[EmailService] PDF: Launching fresh browser...`);
-            browser = await puppeteer.launch({
+            if (EmailService.browser && EmailService.browser.isConnected()) {
+                return EmailService.browser;
+            }
+            console.log(`[EmailService] Launching shared browser instance...`);
+            EmailService.browser = await puppeteer.launch({
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
                 args: [
@@ -311,10 +318,20 @@ export class EmailService {
                 ],
                 timeout: 30000
             });
-            const page = await browser.newPage();
+            return EmailService.browser;
+        } catch (error) {
+            console.error("[EmailService] Browser launch error:", error);
+            return null;
+        }
+    }
 
+    async generatePdfBuffer(html: string) {
+        const browser = await this.getBrowser();
+        if (!browser) return null;
+        let page: any = null;
+        try {
+            page = await browser.newPage();
             console.log(`[EmailService] PDF: Setting content (len: ${html.length})...`);
-            // Fast wait for local content
             await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
 
             console.log(`[EmailService] PDF: Rendering...`);
@@ -325,52 +342,35 @@ export class EmailService {
             });
 
             const buffer = Buffer.from(pdfUint8Array);
-            await browser.close();
+            await page.close();
             console.log(`[EmailService] PDF: Success (${buffer.length} bytes).`);
             return buffer;
         } catch (error) {
             console.error("[EmailService] PDF: Failed:", error);
-            if (browser) await browser.close().catch(() => { });
+            if (page) await page.close().catch(() => { });
             return null;
         }
     }
 
     async generateScreenshotBuffer(html: string) {
-        let browser: any = null;
+        const browser = await this.getBrowser();
+        if (!browser) return null;
+        let page: any = null;
         try {
-            console.log(`[EmailService] Image: Launching browser...`);
-            browser = await puppeteer.launch({
-                headless: true,
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--single-process',
-                    '--disable-extensions'
-                ],
-                timeout: 20000
-            });
-            const page = await browser.newPage();
-
-            // Set a mobile-friendly viewport for the summary card
-            await page.setViewport({ width: 450, height: 800, deviceScaleFactor: 2 });
+            page = await browser.newPage();
+            await page.setViewport({ width: 800, height: 600, deviceScaleFactor: 2 });
             await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
 
-            console.log(`[EmailService] Image: Capturing screenshot...`);
-            // Capture only the summary-card element if it exists, otherwise full page
             const element = await page.$('.summary-card');
-            const buffer = await (element ? element.screenshot({ type: 'png' }) : page.screenshot({ type: 'png', fullPage: true }));
+            const buffer = element
+                ? await element.screenshot({ type: 'png' })
+                : await page.screenshot({ type: 'png', fullPage: true });
 
-            await browser.close();
-            console.log(`[EmailService] Image: Success (${(buffer as Buffer).length} bytes).`);
-            return buffer as Buffer;
+            await page.close();
+            return Buffer.from(buffer);
         } catch (error) {
             console.error("[EmailService] Image: Failed:", error);
-            if (browser) await browser.close().catch(() => { });
+            if (page) await page.close().catch(() => { });
             return null;
         }
     }
