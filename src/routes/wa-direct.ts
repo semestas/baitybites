@@ -39,25 +39,36 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
                     const totalAmount = subtotal - safeDiscount;
 
-                    console.log("[WADirect] Inserting order:", orderNumber, "Total:", totalAmount);
                     const [order] = await sql`
                         INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)
                         VALUES (${customer.id}, ${orderNumber}, CURRENT_TIMESTAMP, ${totalAmount}, 'paid', ${notes + ' (WA Direct Order)'})
                         RETURNING id
                     `;
 
-                    // 3. Add Items
-                    console.log("[WADirect] Inserting items for order:", order.id);
+                    // 3. Add Items & Decrement Stock
                     for (const item of items) {
+                        // Validate stock availability
+                        const [product] = await sql`SELECT id, name, stock FROM products WHERE id = ${item.product_id} FOR UPDATE`;
+                        if (!product) {
+                            throw new Error(`Produk dengan ID ${item.product_id} tidak ditemukan`);
+                        }
+                        if (product.stock < item.quantity) {
+                            throw new Error(`Stok tidak cukup untuk produk "${product.name}". Stok tersedia: ${product.stock}, diminta: ${item.quantity}`);
+                        }
+
                         await sql`
                             INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
                             VALUES (${order.id}, ${item.product_id}, ${item.quantity}, ${item.price}, ${Number(item.price) * Number(item.quantity)})
+                        `;
+
+                        // Decrement stock
+                        await sql`
+                            UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}
                         `;
                     }
 
                     // 4. Generate Invoice
                     const invoiceNumber = generateInvoiceNumber();
-                    console.log("[WADirect] Inserting invoice:", invoiceNumber);
                     await sql`
                         INSERT INTO invoices (order_id, invoice_number, invoice_date, due_date, total_amount, status)
                         VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${totalAmount}, 'paid')
@@ -70,17 +81,17 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                         totalAmount
                     };
                 });
-            } catch (error) {
+            } catch (error: any) {
                 console.error('WA Direct DB Transaction error:', error);
-                set.status = 500;
-                return { success: false, message: 'Failed to process quick order in database' };
+                set.status = 400;
+                return { success: false, message: error.message || 'Failed to process quick order in database' };
             }
 
             // --- Background Tasks (Outside the main try/catch to avoid 500 response) ---
             if (orderResult && orderResult.success) {
                 console.log("[WADirect] Order success in DB, firing background tasks");
 
-                // 5. Send PDF Invoice to Admin Email
+                console.log(`[WADirect] triggering background email to admin: ${process.env.SMTP_USER || 'id.baitybites@gmail.com'}`);
                 emailService.sendPOInvoice({
                     order_number: orderResult.orderNumber,
                     invoice_number: orderResult.invoiceNumber,
@@ -89,7 +100,9 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                     email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
                     address: '-',
                     items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
-                }).catch(e => console.error("[WADirect] Background email failed:", e));
+                })
+                    .then(res => console.log(`[WADirect] Background email ${res ? 'success' : 'failed'} for ${orderResult.orderNumber}`))
+                    .catch(e => console.error("[WADirect] Background email ERROR:", e));
 
                 // 6. Notify Staff via WhatsApp
                 const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);
@@ -183,4 +196,68 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 set.status = 500;
                 return { success: false, message: 'Internal server error during PDF generation' };
             }
+        })
+        .get('/summary-image/:invoiceNumber', async ({ params, set }) => {
+            const { invoiceNumber } = params;
+            try {
+                // Fetch Invoice & Order Data
+                const [order] = await db`
+                    SELECT 
+                        o.*, 
+                        c.name as customer_name,
+                        c.phone as customer_phone,
+                        c.email as customer_email,
+                        i.invoice_number,
+                        i.total_amount
+                    FROM invoices i
+                    JOIN orders o ON i.order_id = o.id
+                    JOIN customers c ON o.customer_id = c.id
+                    WHERE i.invoice_number = ${invoiceNumber}
+                    LIMIT 1
+                `;
+
+                if (!order) {
+                    set.status = 404;
+                    return { success: false, message: 'Invoice not found' };
+                }
+
+                // Get items
+                const items = await db`
+                    SELECT oi.*, p.name as product_name
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = ${order.id}
+                `;
+
+                // Calculate discount from total_amount vs subtotal if not explicitly stored
+                const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.unit_price) * Number(item.quantity)), 0);
+                const discount = Math.max(0, subtotal - Number(order.total_amount));
+
+                // Generate HTML & Image
+                const orderData = {
+                    order_number: order.order_number,
+                    invoice_number: order.invoice_number,
+                    total_amount: order.total_amount,
+                    name: order.customer_name,
+                    phone: order.customer_phone,
+                    items: items,
+                    discount: discount
+                };
+
+                const html = await emailService.generateSummaryCardHtml(orderData);
+                const imageBuffer = await emailService.generateScreenshotBuffer(html);
+
+                if (!imageBuffer) {
+                    set.status = 500;
+                    return { success: false, message: 'Failed to generate summary image' };
+                }
+
+                set.headers['Content-Type'] = 'image/png';
+                return imageBuffer;
+            } catch (error) {
+                console.error('Image Generation Error:', error);
+                set.status = 500;
+                return { success: false, message: 'Internal server error during image generation' };
+            }
         });
+

@@ -246,8 +246,12 @@ function renderProducts() {
         const inCartQty = quantities[p.id] || 0;
         const hasChanged = currentQty !== inCartQty;
         const inCart = inCartQty > 0;
+        // Remaining stock = total stock minus what's already committed to cart
+        const remainingStock = Math.max(0, p.stock - inCartQty);
+        const stockLow = remainingStock > 0 && remainingStock <= 5;
+        const stockOut = remainingStock === 0;
 
-        let btnLabel = 'Tambahkan';
+        let btnLabel = 'Order';
         let btnClass = 'btn-add-cart';
         if (currentQty === 0) {
             // Disabled state
@@ -269,8 +273,14 @@ function renderProducts() {
                     <h3 class="product-name">${p.name}</h3>
                     <p class="product-desc" data-content="${p.description}">${p.description}</p>
                     <div class="product-price-row">
-                        <span class="price">${formatCurrency(p.price)}</span>
-                        <span class="unit">/${p.unit}</span>
+                        <div class="product-price">
+                            <span class="price">${formatCurrency(p.price)}</span>
+                            <span class="unit">/${p.unit}</span>
+                        </div>
+                        <div class="current-stock ${stockLow ? 'stock-low' : ''} ${stockOut ? 'stock-out' : ''}" id="stock-display-${p.id}">
+                            <span class="stock-label">Stok:</span>
+                            <span class="stock-value" id="stock-${p.id}">${remainingStock}</span>
+                        </div>
                     </div>
                     <div class="product-actions">
                         <div class="qty-control">
@@ -311,13 +321,30 @@ function filterProducts(category) {
 function adjustQty(id, delta) {
     if (localQuantities[id] === undefined) localQuantities[id] = 0;
 
-    const newVal = Math.max(0, localQuantities[id] + delta);
+    // Find the product to enforce stock limit
+    const product = products.find(p => p.id == id);
+    const maxStock = product ? Number(product.stock) : Infinity;
+    const inCartQty = quantities[id] || 0;
+    // Max selectable = remaining stock not yet committed to cart
+    const maxSelectable = Math.max(0, maxStock - inCartQty);
+
+    const newVal = Math.min(maxSelectable, Math.max(0, localQuantities[id] + delta));
     localQuantities[id] = newVal;
 
     const qtyEl = document.getElementById(`qty-${id}`);
     const btnAdd = document.getElementById(`btn-add-${id}`);
 
     if (qtyEl) qtyEl.textContent = newVal;
+
+    // Update the live stock display: remaining = maxStock - inCartQty - newVal (pending)
+    const stockEl = document.getElementById(`stock-${id}`);
+    const stockDisplay = document.getElementById(`stock-display-${id}`);
+    if (stockEl && stockDisplay) {
+        const displayStock = Math.max(0, maxStock - inCartQty - newVal);
+        stockEl.textContent = displayStock;
+        stockDisplay.classList.toggle('stock-low', displayStock > 0 && displayStock <= 5);
+        stockDisplay.classList.toggle('stock-out', displayStock === 0);
+    }
 
     if (btnAdd) {
         if (newVal === 0) {
@@ -331,12 +358,11 @@ function adjustQty(id, delta) {
             btnAdd.style.opacity = '1';
             btnAdd.style.cursor = 'pointer';
 
-            const inCartValue = quantities[id] || 0;
-            const hasChanged = newVal !== inCartValue;
+            const hasChanged = newVal !== inCartQty;
 
             if (hasChanged) {
                 btnAdd.classList.add('animate-dizzy');
-                btnAdd.textContent = inCartValue > 0 ? 'Update Keranjang' : 'Tambahkan';
+                btnAdd.textContent = inCartQty > 0 ? 'Update Keranjang' : 'Tambahkan';
 
                 // Pulse feedback
                 btnAdd.classList.remove('pulse-once');
@@ -344,10 +370,10 @@ function adjustQty(id, delta) {
                 btnAdd.classList.add('pulse-once');
             } else {
                 btnAdd.classList.remove('animate-dizzy');
-                btnAdd.textContent = inCartValue > 0 ? 'Dalam Keranjang' : 'Tambahkan';
+                btnAdd.textContent = inCartQty > 0 ? 'Dalam Keranjang' : 'Tambahkan';
             }
 
-            if (inCartValue > 0 && !hasChanged) {
+            if (inCartQty > 0 && !hasChanged) {
                 btnAdd.classList.add('added');
             } else {
                 btnAdd.classList.remove('added');
@@ -362,12 +388,39 @@ function addToCart(id) {
     quantities[id] = val;
     saveCart();
 
+    // After committing to cart, reset pending qty and refresh stock display
+    localQuantities[id] = 0;
+    const qtyEl = document.getElementById(`qty-${id}`);
+    if (qtyEl) qtyEl.textContent = 0;
+
+    const product = products.find(p => p.id == id);
+    const maxStock = product ? Number(product.stock) : 0;
+    const committedQty = quantities[id] || 0;
+    const remainingStock = Math.max(0, maxStock - committedQty);
+
+    const stockEl = document.getElementById(`stock-${id}`);
+    const stockDisplay = document.getElementById(`stock-display-${id}`);
+    if (stockEl && stockDisplay) {
+        stockEl.textContent = remainingStock;
+        stockDisplay.classList.toggle('stock-low', remainingStock > 0 && remainingStock <= 5);
+        stockDisplay.classList.toggle('stock-out', remainingStock === 0);
+    }
+
     const btnAdd = document.getElementById(`btn-add-${id}`);
     if (btnAdd) {
+        btnAdd.disabled = true;
+        btnAdd.style.opacity = '0.5';
+        btnAdd.style.cursor = 'not-allowed';
         btnAdd.textContent = 'Berhasil!';
         btnAdd.classList.add('added');
         btnAdd.classList.remove('animate-dizzy', 'pulse-once');
         setTimeout(() => {
+            // Re-enable if there's still remaining stock
+            if (remainingStock > 0) {
+                btnAdd.disabled = false;
+                btnAdd.style.opacity = '1';
+                btnAdd.style.cursor = 'pointer';
+            }
             btnAdd.textContent = 'Dalam Keranjang';
         }, 1200);
     }
@@ -652,10 +705,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     clearCart();
 
                     loadRecentOrders();
+                } else {
+                    // Show specific server error (e.g. insufficient stock)
+                    showNotification(result.message || 'Gagal membuat pesanan.', 'error');
                 }
             } catch (error) {
                 console.error('Order submission failed:', error);
-                showNotification('Gagal membuat pesanan.', 'error');
+                showNotification('Gagal membuat pesanan. Silakan coba lagi.', 'error');
             } finally {
                 if (btnText) btnText.classList.remove('hidden');
                 if (btnSpinner) btnSpinner.classList.add('hidden');

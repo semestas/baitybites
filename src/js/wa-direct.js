@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const qty = cart[p.id] || 0;
             const sub = qty * p.price;
             const isSelected = qty > 0;
+            const remainingStock = Math.max(0, p.stock - qty);
+            const stockLow = remainingStock > 0 && remainingStock <= 5;
+            const stockOut = remainingStock === 0;
             return `
                 <div class="product-card-wa ${isSelected ? 'selected' : ''}">
                     <div class="selected-badge"></div>
@@ -34,11 +37,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="product-info">
                         <div class="product-name">${p.name}</div>
                         <div class="counter">
-                            <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
+                            <div class="product-price-stock">
+                                <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
+                                <div class="wa-stock-badge ${stockLow ? 'stock-low' : ''} ${stockOut ? 'stock-out' : ''}" id="wa-stock-${p.id}">
+                                    Stok: <strong>${remainingStock}</strong>
+                                </div>
+                            </div>
                             <div class="counter-btns">
                                 <button class="btn-qty" onclick="window.updateQty(${p.id}, -1)">-</button>
-                                <span class="qty-val">${qty}</span>
-                                <button class="btn-qty" onclick="window.updateQty(${p.id}, 1)">+</button>
+                                <span class="qty-val" id="wa-qty-${p.id}">${qty}</span>
+                                <button class="btn-qty" onclick="window.updateQty(${p.id}, 1)" ${stockOut ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button>
                             </div>
                         </div>
                         <div class="subtotal-preview">Subtotal: Rp ${sub.toLocaleString('id-ID')}</div>
@@ -49,12 +57,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     window.updateQty = (pid, delta) => {
-        const qty = (cart[pid] || 0) + delta;
-        if (qty <= 0) {
+        const product = products.find(p => p.id == pid);
+        const maxStock = product ? Number(product.stock) : Infinity;
+        const current = cart[pid] || 0;
+        const newQty = Math.min(maxStock, Math.max(0, current + delta));
+
+        if (newQty <= 0) {
             delete cart[pid];
         } else {
-            cart[pid] = qty;
+            cart[pid] = newQty;
         }
+
+        // Live-update stock badge and qty without full re-render
+        const committedQty = cart[pid] || 0;
+        const remainingStock = Math.max(0, maxStock - committedQty);
+        const stockBadge = document.getElementById(`wa-stock-${pid}`);
+        const qtyEl = document.getElementById(`wa-qty-${pid}`);
+        if (stockBadge) {
+            stockBadge.innerHTML = `Stok: <strong>${remainingStock}</strong>`;
+            stockBadge.classList.toggle('stock-low', remainingStock > 0 && remainingStock <= 5);
+            stockBadge.classList.toggle('stock-out', remainingStock === 0);
+        }
+        if (qtyEl) qtyEl.textContent = committedQty;
+
         updateUI();
     };
 
@@ -295,12 +320,48 @@ Terima kasih atas pesanan Anda! 🙏
             }
         });
 
-        // Share to WhatsApp
-        document.getElementById('btnShareWA').addEventListener('click', () => {
-            const waText = encodeURIComponent(summaryText);
-            // Construct WA URL properly - if local use standard wa.me, if production also fine
-            const waUrl = `https://wa.me/6281315582238?text=${waText}`; // Direct to admin if possible or just use existing
-            window.open(waUrl, '_blank');
+        // Share to WhatsApp as PNG Image
+        document.getElementById('btnShareWA').addEventListener('click', async () => {
+            const btn = document.getElementById('btnShareWA');
+            const originalHtml = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '🕒 Generating Image...';
+
+                // 1. Fetch the image from the server
+                const imageUrl = `/api/wa-direct/summary-image/${invoiceNumber}`;
+                const response = await fetch(imageUrl);
+                if (!response.ok) throw new Error('Gagal mengambil gambar ringkasan');
+
+                const blob = await response.blob();
+                const file = new File([blob], `Order-Summary-${orderNumber}.png`, { type: 'image/png' });
+
+                // 2. Try to use Web Share API (Best for Mobile)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Order Summary BaityBites',
+                        text: `Ringkasan Pesanan BaityBites - ${orderNumber}`
+                    });
+                    showNotification('Gambar ringkasan dibagikan!', 'success');
+                } else {
+                    // 3. Fallback: Open image in new tab so user can save/share it manually
+                    // Or construct a specific message with the text fallback if needed
+                    window.open(imageUrl, '_blank');
+                    showNotification('Gambar dibuka di tab baru. Silakan simpan & bagikan.', 'info');
+                }
+            } catch (err) {
+                console.error('Share error:', err);
+                // Last ditch fallback to text
+                const waText = encodeURIComponent(summaryText);
+                const waUrl = `https://wa.me/6281315582238?text=${waText}`;
+                window.open(waUrl, '_blank');
+                showNotification('Gagal membagikan gambar, mengirim teks sebagai gantinya.', 'warning');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
         });
 
         // Close modal

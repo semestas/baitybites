@@ -49,11 +49,25 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         RETURNING id
                     `;
 
-                    // 3. Add Items
+                    // 3. Add Items & Decrement Stock
                     for (const item of items) {
+                        // Validate stock availability
+                        const [product] = await sql`SELECT id, name, stock FROM products WHERE id = ${item.product_id} FOR UPDATE`;
+                        if (!product) {
+                            throw new Error(`Produk dengan ID ${item.product_id} tidak ditemukan`);
+                        }
+                        if (product.stock < item.quantity) {
+                            throw new Error(`Stok tidak cukup untuk produk "${product.name}". Stok tersedia: ${product.stock}, diminta: ${item.quantity}`);
+                        }
+
                         await sql`
                             INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
                             VALUES (${order.id}, ${item.product_id}, ${item.quantity}, ${item.price}, ${item.price * item.quantity})
+                        `;
+
+                        // Decrement stock
+                        await sql`
+                            UPDATE products SET stock = stock - ${item.quantity} WHERE id = ${item.product_id}
                         `;
                     }
 
@@ -80,7 +94,9 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         email,
                         address,
                         items: enrichedItems
-                    }).catch(e => console.error("[OrderRoute] Background email failed:", e));
+                    })
+                        .then(res => console.log(`[OrderRoute] Background email ${res ? 'success' : 'failed'} for ${orderNumber}`))
+                        .catch(e => console.error("[OrderRoute] Background email ERROR:", e));
 
                     return {
                         success: true,
@@ -92,10 +108,10 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         }
                     };
                 });
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Order error:', error);
-                set.status = 500;
-                return { success: false, message: 'Gagal membuat order' };
+                set.status = 400;
+                return { success: false, message: error.message || 'Gagal membuat order' };
             }
         }, {
             body: t.Object({

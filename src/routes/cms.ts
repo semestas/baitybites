@@ -614,6 +614,47 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 stock: t.Number()
             })
         })
+        .post('/products/sync-stock', async () => {
+            // One-time migration: subtract total sold (non-cancelled orders) from current stock.
+            // IMPORTANT: This should only be called once to correct historical data.
+            // After this, the order routes handle stock decrement automatically.
+            const result = await db`
+                UPDATE products p
+                SET stock = GREATEST(0, p.stock - COALESCE(sold.total_sold, 0))
+                FROM (
+                    SELECT oi.product_id, SUM(oi.quantity) as total_sold
+                    FROM order_items oi
+                    JOIN orders o ON oi.order_id = o.id
+                    WHERE o.status NOT IN ('cancelled')
+                    GROUP BY oi.product_id
+                ) sold
+                WHERE p.id = sold.product_id
+                RETURNING p.id, p.name, p.stock
+            `;
+            return {
+                success: true,
+                message: `Stock synced for ${result.length} product(s)`,
+                data: result
+            };
+        })
+        .get('/products/stock-status', async () => {
+            // Read-only: shows current stock vs total sold for each product (safe to call anytime)
+            const status = await db`
+                SELECT 
+                    p.id, p.name, p.stock as current_stock,
+                    COALESCE(sold.total_sold, 0) as total_sold
+                FROM products p
+                LEFT JOIN (
+                    SELECT oi.product_id, SUM(oi.quantity)::int as total_sold
+                    FROM order_items oi
+                    JOIN orders o ON oi.order_id = o.id
+                    WHERE o.status NOT IN ('cancelled')
+                    GROUP BY oi.product_id
+                ) sold ON p.id = sold.product_id
+                ORDER BY p.id ASC
+            `;
+            return { success: true, data: status };
+        })
 
         // Instagram Integration Routes - SUSPENDED
         .post('/instagram/sync', () => ({ success: false, message: 'Instagram service is currently suspended.' }))
