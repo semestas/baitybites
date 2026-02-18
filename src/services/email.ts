@@ -12,21 +12,32 @@ export class EmailService {
 
     constructor(db: Sql) {
         this.db = db;
+
+        const host = process.env.SMTP_HOST || "smtp.gmail.com";
+        const port = parseInt(process.env.SMTP_PORT || "465");
+        const user = process.env.SMTP_USER;
+        const pass = (process.env.SMTP_PASS || "").replace(/\s/g, ""); // Sanitize: Remove spaces
+        const secure = process.env.SMTP_SECURE === "true" || (port === 465);
+
+        console.log(`[EmailService] Initializing with ${host}:${port} (SSL: ${secure}, User: ${user})`);
+
         this.transporter = nodemailer.createTransport({
-            pool: true,
-            maxConnections: 5,
-            maxMessages: 100,
-            host: process.env.SMTP_HOST || "smtp.gmail.com",
-            // Use port 465 for SSL/TLS, more stable on Render
-            port: parseInt(process.env.SMTP_PORT || "465"),
-            secure: process.env.SMTP_SECURE === "true" || (process.env.SMTP_PORT === "465" || !process.env.SMTP_PORT),
+            // Disable pooling temporarily to rule out pool-related socket hang-ups
+            pool: false,
+            host: host,
+            port: port,
+            secure: secure,
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
+                user: user,
+                pass: pass,
             },
-            connectionTimeout: 30000,
-            greetingTimeout: 30000,
-            socketTimeout: 60000,
+            tls: {
+                // Do not fail on invalid certs (common in some proxy/cloud setups)
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 40000,
+            greetingTimeout: 40000,
+            socketTimeout: 90000,
         } as any);
     }
 
@@ -107,7 +118,8 @@ export class EmailService {
                 const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
                 const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
                 const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
-                console.log(`[EmailService] -> SMTP: Sending to ${email} (BCC Admin: ${!skipBcc}) [Attempt ${smtpAttempt}/${maxSmtpRetries}]...`);
+
+                console.log(`[EmailService] -> SMTP: From: ${fromEmail}, To: ${email} [Attempt ${smtpAttempt}/${maxSmtpRetries}]...`);
 
                 // Add explicit timeout to sendMail call to prevent hanging
                 const sendPromise = this.transporter.sendMail({
