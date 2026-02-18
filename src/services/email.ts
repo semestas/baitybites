@@ -1,44 +1,78 @@
-import nodemailer from "nodemailer";
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import type { Sql } from "../db/schema";
 
 export class EmailService {
-    private transporter: nodemailer.Transporter;
     private static cachedStyles: string | null = null;
     private static browser: any = null;
     private static browserPromise: Promise<any> | null = null;
     private static activeTasks = new Set<string>();
     private db: Sql;
 
+    // Resend API key — set RESEND_API_KEY in Render environment variables
+    private readonly resendApiKey: string | undefined;
+    // Sender address — must be a verified domain in Resend dashboard
+    // Free option: use onboarding@resend.dev for testing, or verify your own domain
+    private readonly fromEmail: string;
+
     constructor(db: Sql) {
         this.db = db;
+        this.resendApiKey = process.env.RESEND_API_KEY;
+        this.fromEmail = process.env.RESEND_FROM_EMAIL || 'Baitybites <onboarding@resend.dev>';
 
-        const host = process.env.SMTP_HOST || "smtp.gmail.com";
-        const port = parseInt(process.env.SMTP_PORT || "465");
-        const user = process.env.SMTP_USER;
-        const pass = (process.env.SMTP_PASS || "").replace(/\s/g, ""); // Sanitize: Remove spaces
-        const secure = process.env.SMTP_SECURE === "true" || (port === 465);
+        if (!this.resendApiKey) {
+            console.warn('[EmailService] WARNING: RESEND_API_KEY is not set. Emails will NOT be sent.');
+        } else {
+            console.log(`[EmailService] Initialized via Resend HTTP API. From: ${this.fromEmail}`);
+        }
+    }
 
-        console.log(`[EmailService] Initializing with ${host}:${port} (SSL: ${secure}, User: ${user})`);
+    /**
+     * Send an email via Resend REST API (HTTPS port 443 — works on Render free tier).
+     * Render blocks outbound SMTP (465/587), so we use HTTP instead of nodemailer.
+     */
+    private async sendViaResend(options: {
+        to: string;
+        subject: string;
+        html: string;
+        attachments?: Array<{ filename: string; content: Buffer; contentType: string }>;
+    }): Promise<boolean> {
+        if (!this.resendApiKey) {
+            console.error('[EmailService] Cannot send email: RESEND_API_KEY is missing.');
+            return false;
+        }
 
-        this.transporter = nodemailer.createTransport({
-            // Disable pooling temporarily to rule out pool-related socket hang-ups
-            pool: false,
-            host: host,
-            port: port,
-            secure: secure,
-            auth: {
-                user: user,
-                pass: pass,
+        const body: Record<string, any> = {
+            from: this.fromEmail,
+            to: [options.to],
+            subject: options.subject,
+            html: options.html,
+        };
+
+        // Resend supports base64 attachments
+        if (options.attachments && options.attachments.length > 0) {
+            body.attachments = options.attachments.map(att => ({
+                filename: att.filename,
+                content: att.content.toString('base64'),
+            }));
+        }
+
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${this.resendApiKey}`,
+                'Content-Type': 'application/json',
             },
-            tls: {
-                // Do not fail on invalid certs (common in some proxy/cloud setups)
-                rejectUnauthorized: false
-            },
-            connectionTimeout: 40000,
-            greetingTimeout: 40000,
-            socketTimeout: 90000,
-        } as any);
+            body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Resend API error ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json() as { id: string };
+        console.log(`[EmailService] Email sent via Resend. ID: ${result.id}`);
+        return true;
     }
 
     async sendPOInvoice(orderData: any) {
@@ -111,21 +145,14 @@ export class EmailService {
             }
         }
 
-        // 3. Send Email with Retry (Transport Reliability)
-        const maxSmtpRetries = 3;
-        for (let smtpAttempt = 1; smtpAttempt <= maxSmtpRetries; smtpAttempt++) {
+        // 3. Send Email via Resend HTTP API (works on Render — SMTP ports are blocked)
+        const maxSendRetries = 3;
+        for (let attempt = 1; attempt <= maxSendRetries; attempt++) {
             try {
-                const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
-                const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
-                const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
+                console.log(`[EmailService] -> Resend: To: ${email} [Attempt ${attempt}/${maxSendRetries}]...`);
 
-                console.log(`[EmailService] -> SMTP: From: ${fromEmail}, To: ${email} [Attempt ${smtpAttempt}/${maxSmtpRetries}]...`);
-
-                // Add explicit timeout to sendMail call to prevent hanging
-                const sendPromise = this.transporter.sendMail({
-                    from: `"Baitybites" <${fromEmail}>`,
+                await this.sendViaResend({
                     to: email,
-                    bcc: skipBcc ? undefined : fromEmail,
                     subject: `Invoice Pesanan Baitybites - ${order_number}`,
                     html: html,
                     attachments: pdfBuffer ? [
@@ -137,23 +164,20 @@ export class EmailService {
                     ] : []
                 });
 
-                const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("SMTP Send Timeout")), 45000));
-                const info = await Promise.race([sendPromise, mailTimeout]) as any;
-
                 if (!pdfBuffer) {
                     console.warn("[EmailService] WARNING: Email sent WITHOUT PDF after all retry attempts.");
                 }
 
-                console.log(`[EmailService] DONE: Email sent successfully. ID: ${info.messageId}`);
+                console.log(`[EmailService] DONE: Invoice email sent successfully to ${email}.`);
                 return true;
             } catch (error: any) {
-                console.error(`[EmailService] SMTP ATTEMPT ${smtpAttempt} FAILED:`, error.code || error.message);
+                console.error(`[EmailService] SEND ATTEMPT ${attempt} FAILED:`, error.message);
 
-                if (smtpAttempt < maxSmtpRetries) {
-                    // Wait before retrying (exponential backoff or simple delay)
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                if (attempt < maxSendRetries) {
+                    // Exponential backoff: 2s, 4s
+                    await new Promise(resolve => setTimeout(resolve, attempt * 2000));
                 } else {
-                    console.error("[EmailService] CRITICAL SMTP ERROR: Giving up after all attempts.");
+                    console.error("[EmailService] CRITICAL: All send attempts failed.");
                     return false;
                 }
             }
@@ -395,11 +419,11 @@ export class EmailService {
                 '--disable-extensions'
             ],
             timeout: 30000
-        }).then(b => {
+        }).then((b: any) => {
             EmailService.browser = b;
             EmailService.browserPromise = null; // Clear promise once resolved
             return b;
-        }).catch(err => {
+        }).catch((err: any) => {
             console.error("[EmailService] Browser launch error:", err);
             EmailService.browserPromise = null;
             return null;
