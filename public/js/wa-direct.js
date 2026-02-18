@@ -182,8 +182,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (res.success) {
-                showNotification('Invoice PDF sent to id.baitybites@gmail.com', 'success');
-
                 // Store order data for summary
                 const orderData = {
                     orderNumber: res.data.order_number,
@@ -202,10 +200,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 discountValInput.value = '';
                 updateUI();
 
-                // Show order summary modal
-                setTimeout(() => {
-                    showOrderSummaryModal(orderData);
-                }, 500);
+                // Show order summary modal immediately
+                showOrderSummaryModal(orderData);
+
+                // Trigger background tasks (Silent Admin Email & Staff Notify)
+                apiCall(`/wa-direct/process-tasks/${res.data.invoice_number}`, { method: 'POST' })
+                    .catch(e => console.error('Silent background tasks failed', e));
+
             } else {
                 showNotification(res.message, 'error');
             }
@@ -266,11 +267,11 @@ Terima kasih atas pesanan Anda! 🙏
                 </div>
 
                 <div class="wa-modal-body">
-                    <div class="wa-summary-box">${summaryText}</div>
+                    <div class="wa-summary-box" id="captureTarget">${summaryText}</div>
 
                     <div class="wa-btn-group">
                         <button id="btnDownloadSummary" class="wa-btn btn-pdf">
-                            <span>🖼️</span> Simpan Summary (PNG)
+                            <span>🖼️</span> Simpan Gambar (PNG)
                         </button>
 
                         <button id="btnShareWA" class="wa-btn btn-whatsapp">
@@ -287,80 +288,66 @@ Terima kasih atas pesanan Anda! 🙏
 
         document.body.appendChild(modal);
 
-        // Download Summary PNG functionality
+        // Download Summary PNG (Client-Side)
         document.getElementById('btnDownloadSummary').addEventListener('click', async () => {
             const btn = document.getElementById('btnDownloadSummary');
+            const target = document.getElementById('captureTarget');
             const originalHtml = btn.innerHTML;
 
             try {
                 btn.disabled = true;
-                btn.innerHTML = '🕒 Generating PNG...';
+                btn.innerHTML = '🕒 Generating...';
 
-                // Fetch the image from the server
-                const imageUrl = `/api/wa-direct/summary-image/${invoiceNumber}`;
-                const response = await fetch(imageUrl);
-                if (!response.ok) throw new Error('Gagal mengambil gambar ringkasan');
+                const canvas = await html2canvas(target, {
+                    scale: 3,
+                    backgroundColor: '#f8f9fa',
+                    logging: false,
+                    useCORS: true
+                });
 
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = url;
-                link.download = `Summary-${orderNumber}.png`;
-                document.body.appendChild(link);
+                link.download = `BAITYBITES-${orderNumber}.png`;
+                link.href = canvas.toDataURL('image/png');
                 link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
 
-                showNotification('Gambar ringkasan berhasil diunduh!', 'success');
+                showNotification('Gambar berhasil diunduh!', 'success');
             } catch (err) {
-                console.error('PNG Download error:', err);
-                showNotification('Gagal mengunduh gambar ringkasan', 'error');
+                console.error('PNG error:', err);
+                showNotification('Gagal membuat gambar', 'error');
             } finally {
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }, 1000);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         });
 
-        // Share to WhatsApp as PNG Image
+        // Share to WhatsApp (Client-Side Image)
         document.getElementById('btnShareWA').addEventListener('click', async () => {
             const btn = document.getElementById('btnShareWA');
+            const target = document.getElementById('captureTarget');
             const originalHtml = btn.innerHTML;
 
             try {
                 btn.disabled = true;
-                btn.innerHTML = '🕒 Generating Image...';
+                btn.innerHTML = '🕒 Preparing...';
 
-                // 1. Fetch the image from the server
-                const imageUrl = `/api/wa-direct/summary-image/${invoiceNumber}`;
-                const response = await fetch(imageUrl);
-                if (!response.ok) throw new Error('Gagal mengambil gambar ringkasan');
-
-                const blob = await response.blob();
+                const canvas = await html2canvas(target, { scale: 3, backgroundColor: '#f8f9fa' });
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
                 const file = new File([blob], `Order-Summary-${orderNumber}.png`, { type: 'image/png' });
 
-                // 2. Try to use Web Share API (Best for Mobile)
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
                         title: 'Order Summary BaityBites',
-                        text: `Ringkasan Pesanan BaityBites - ${orderNumber}`
+                        text: `Halo ${customerName}, berikut ringkasan pesanan Anda.`
                     });
-                    showNotification('Gambar ringkasan dibagikan!', 'success');
                 } else {
-                    // 3. Fallback: Open image in new tab so user can save/share it manually
-                    // Or construct a specific message with the text fallback if needed
-                    window.open(imageUrl, '_blank');
-                    showNotification('Gambar dibuka di tab baru. Silakan simpan & bagikan.', 'info');
+                    const waText = encodeURIComponent(summaryText);
+                    window.open(`https://wa.me/${customerPhone.replace(/\D/g, '')}?text=${waText}`, '_blank');
                 }
             } catch (err) {
                 console.error('Share error:', err);
-                // Last ditch fallback to text
                 const waText = encodeURIComponent(summaryText);
-                const waUrl = `https://wa.me/6281315582238?text=${waText}`;
-                window.open(waUrl, '_blank');
-                showNotification('Gagal membagikan gambar, mengirim teks sebagai gantinya.', 'warning');
+                window.open(`https://wa.me/${customerPhone.replace(/\D/g, '')}?text=${waText}`, '_blank');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;

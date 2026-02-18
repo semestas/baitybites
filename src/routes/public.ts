@@ -86,22 +86,8 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         product_name: productsList.find((p: any) => p.id === item.product_id)?.name || 'Produk'
                     }));
 
-                    // On Netlify, we MUST await or it will be killed.
-                    // Try/catch ensures order still succeeds even if email fails.
-                    try {
-                        await emailService.sendPOInvoice({
-                            order_number: orderNumber,
-                            invoice_number: invoiceNumber,
-                            total_amount: totalAmount,
-                            name,
-                            email,
-                            address,
-                            items: enrichedItems
-                        });
-                        console.log(`[OrderRoute] Background email finished for ${orderNumber}`);
-                    } catch (e) {
-                        console.error("[OrderRoute] Background email ERROR:", e);
-                    }
+                    // Respond immediately. Heavy tasks will be handled by the client-side background trigger or separately.
+                    console.log(`[OrderRoute] Order ${orderNumber} saved to DB. Responding fast.`);
 
                     return {
                         success: true,
@@ -178,6 +164,50 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                     items
                 }
             };
+        })
+        .post('/process-tasks/:invoiceNumber', async ({ params, set }) => {
+            const { invoiceNumber } = params;
+            console.log(`[PublicOrder] Processing heavy tasks for: ${invoiceNumber}`);
+
+            try {
+                // Fetch Data for Tasks
+                const [order] = await db`
+                    SELECT o.*, c.name, c.email as customer_email, i.invoice_number, i.total_amount
+                    FROM invoices i
+                    JOIN orders o ON i.order_id = o.id
+                    JOIN customers c ON o.customer_id = c.id
+                    WHERE i.invoice_number = ${invoiceNumber}
+                    LIMIT 1
+                `;
+
+                if (!order) return { success: false, message: 'Order not found' };
+
+                const items = await db`
+                    SELECT oi.*, p.name as product_name
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = ${order.id}
+                `;
+
+                // 1. Email Notify (Customer + Admin)
+                const recipientEmail = order.customer_email || process.env.SMTP_USER || 'id.baitybites@gmail.com';
+
+                await emailService.sendPOInvoice({
+                    order_number: order.order_number,
+                    invoice_number: order.invoice_number,
+                    total_amount: order.total_amount,
+                    name: order.name,
+                    email: recipientEmail,
+                    address: order.address || '-',
+                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
+                });
+
+                console.log(`[PublicOrder] Async tasks finished for ${order.order_number}`);
+                return { success: true };
+            } catch (error: any) {
+                console.error("[PublicOrder] Tasks ERROR:", error);
+                return { success: false, error: error.message };
+            }
         })
         .get('/products', async () => {
             const products = await db`SELECT * FROM products WHERE stock > 0`;

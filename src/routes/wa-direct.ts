@@ -91,37 +91,13 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
             if (orderResult && orderResult.success) {
                 console.log("[WADirect] Order success in DB, firing background tasks");
 
-                // Fire background tasks
-                console.log(`[WADirect] triggering background tasks for ${orderResult.orderNumber}`);
+                // --- Fast Tasks (Inside the response cycle) ---
+                console.log("[WADirect] Order success in DB, sending fast response");
 
-                // On Netlify, we MUST await these or they will be killed.
-                // But we use a try/catch to ensure the user still gets a success response even if these fail.
-                try {
-                    await emailService.sendPOInvoice({
-                        order_number: orderResult.orderNumber,
-                        invoice_number: orderResult.invoiceNumber,
-                        total_amount: orderResult.totalAmount,
-                        name,
-                        email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
-                        address: '-',
-                        items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
-                    });
-                    console.log(`[WADirect] Background email finished for ${orderResult.orderNumber}`);
-                } catch (e) {
-                    console.error("[WADirect] Background email ERROR:", e);
-                }
-
-                try {
-                    const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);
-                    await waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${orderResult.orderNumber}\nCustomer: ${name}\nTotal: Rp ${totalStr}`)
-                        .catch(e => console.error("[WADirect] Background WA notify failed:", e));
-                } catch (e) {
-                    console.error("[WADirect] Background WA notify ERROR:", e);
-                }
-
+                // 1. Respond immediately to stop client retries and duplication
                 return {
                     success: true,
-                    message: 'Quick order processed successfully. Invoice is being generated.',
+                    message: 'Order saved successfully.',
                     data: {
                         order_number: orderResult.orderNumber,
                         invoice_number: orderResult.invoiceNumber,
@@ -140,11 +116,58 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 notes: t.Optional(t.String()),
                 items: t.Array(t.Object({
                     product_id: t.Number(),
-                    product_name: t.String(), // Included for the email service preview
+                    product_name: t.String(),
                     quantity: t.Number(),
                     price: t.Number()
                 }))
             })
+        })
+        .post('/process-tasks/:invoiceNumber', async ({ params, set }) => {
+            const { invoiceNumber } = params;
+            console.log(`[WADirect] Processing heavy tasks for: ${invoiceNumber}`);
+
+            try {
+                const [order] = await db`
+                    SELECT o.*, c.name, c.phone, c.email as customer_email, i.invoice_number, i.total_amount
+                    FROM invoices i
+                    JOIN orders o ON i.order_id = o.id
+                    JOIN customers c ON o.customer_id = c.id
+                    WHERE i.invoice_number = ${invoiceNumber}
+                    LIMIT 1
+                `;
+
+                if (!order) return { success: false, message: 'Invoice not found' };
+
+                const items = await db`
+                    SELECT oi.*, p.name as product_name
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = ${order.id}
+                `;
+
+                // 1. Fast WA Notify (Staff)
+                const totalStr = new Intl.NumberFormat('id-ID').format(order.total_amount);
+                await waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
+                    .catch(e => console.error("[WADirect] WA notify ERROR:", e));
+
+                // 2. Heavy Email/PDF Notify (System/Admin only for WA Direct)
+                const adminEmail = process.env.SMTP_USER || 'id.baitybites@gmail.com';
+
+                await emailService.sendPOInvoice({
+                    order_number: order.order_number,
+                    invoice_number: order.invoice_number,
+                    total_amount: order.total_amount,
+                    name: order.name,
+                    email: adminEmail,
+                    address: '-',
+                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
+                });
+
+                return { success: true };
+            } catch (error: any) {
+                console.error("[WADirect] Tasks ERROR:", error);
+                return { success: false, error: error.message };
+            }
         })
         .get('/invoice/:invoiceNumber/pdf', async ({ params, set }) => {
             const { invoiceNumber } = params;
@@ -207,67 +230,4 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
                 return { success: false, message: 'Internal server error during PDF generation' };
             }
         })
-        .get('/summary-image/:invoiceNumber', async ({ params, set }) => {
-            const { invoiceNumber } = params;
-            try {
-                // Fetch Invoice & Order Data
-                const [order] = await db`
-                    SELECT 
-                        o.*, 
-                        c.name as customer_name,
-                        c.phone as customer_phone,
-                        c.email as customer_email,
-                        i.invoice_number,
-                        i.total_amount
-                    FROM invoices i
-                    JOIN orders o ON i.order_id = o.id
-                    JOIN customers c ON o.customer_id = c.id
-                    WHERE i.invoice_number = ${invoiceNumber}
-                    LIMIT 1
-                `;
-
-                if (!order) {
-                    set.status = 404;
-                    return { success: false, message: 'Invoice not found' };
-                }
-
-                // Get items
-                const items = await db`
-                    SELECT oi.*, p.name as product_name
-                    FROM order_items oi
-                    JOIN products p ON oi.product_id = p.id
-                    WHERE oi.order_id = ${order.id}
-                `;
-
-                // Calculate discount from total_amount vs subtotal if not explicitly stored
-                const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.unit_price) * Number(item.quantity)), 0);
-                const discount = Math.max(0, subtotal - Number(order.total_amount));
-
-                // Generate HTML & Image
-                const orderData = {
-                    order_number: order.order_number,
-                    invoice_number: order.invoice_number,
-                    total_amount: order.total_amount,
-                    name: order.customer_name,
-                    phone: order.customer_phone,
-                    items: items,
-                    discount: discount
-                };
-
-                const html = await emailService.generateSummaryCardHtml(orderData);
-                const imageBuffer = await emailService.generateScreenshotBuffer(html);
-
-                if (!imageBuffer) {
-                    set.status = 500;
-                    return { success: false, message: 'Failed to generate summary image' };
-                }
-
-                set.headers['Content-Type'] = 'image/png';
-                return imageBuffer;
-            } catch (error) {
-                console.error('Image Generation Error:', error);
-                set.status = 500;
-                return { success: false, message: 'Internal server error during image generation' };
-            }
-        });
 

@@ -28,12 +28,28 @@ export class EmailService {
             return false;
         }
 
-        console.log(`[EmailService] Processing invoice for ${email} (Order: ${order_number})...`);
+        console.log(`[EmailService] Starting invoice task for ${email} (Order: ${order_number})...`);
+
+        let html = "";
+        let pdfBuffer = null;
 
         try {
-            const html = await this.generateInvoiceHtml(orderData);
-            const pdfBuffer = await this.generatePdfBuffer(html);
+            html = await this.generateInvoiceHtml(orderData);
+        } catch (e) {
+            console.error("[EmailService] HTML Generation Failed:", e);
+            // Fallback simple HTML
+            html = `<h1>Invoice ${order_number}</h1><p>Gagal membuat tampilan invoice lengkap, namun pesanan Anda telah diterima.</p>`;
+        }
 
+        try {
+            console.log(`[EmailService] Attempting PDF generation...`);
+            pdfBuffer = await this.generatePdfBuffer(html);
+        } catch (e) {
+            console.error("[EmailService] PDF Generation ERROR (skipping attachment):", e);
+            // We continue without PDF
+        }
+
+        try {
             const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
             const skipBcc = email.toLowerCase() === adminUser.toLowerCase();
 
@@ -55,7 +71,7 @@ export class EmailService {
             console.log(`[EmailService] DONE: Email sent successfully. ID: ${info.messageId}`);
             return true;
         } catch (error: any) {
-            console.error("[EmailService] Global Email Task Error:", error);
+            console.error("[EmailService] SMTP/Transporter ERROR:", error);
             return false;
         }
     }
