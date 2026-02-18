@@ -61,7 +61,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
             const { name, phone, items, discount = 0, notes = '' } = body as any;
-            const placeholderEmail = `${phone}@wa.baitybites.id`;
+            const placeholderEmail = `${phone}@baitybites.id`;
 
             let orderResult: any = null;
             try {

@@ -17,17 +17,15 @@ export class EmailService {
             maxConnections: 5,
             maxMessages: 100,
             host: process.env.SMTP_HOST || "smtp.gmail.com",
-            port: Number(process.env.SMTP_PORT) || 587,
-            secure: process.env.SMTP_SECURE === "true",
+            // Use port 465 for SSL/TLS, more stable on Render
+            port: parseInt(process.env.SMTP_PORT || "465"),
+            secure: process.env.SMTP_SECURE === "true" || (process.env.SMTP_PORT === "465" || !process.env.SMTP_PORT),
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Force IPv4 as cloud providers often have issues with IPv6 SMTP
-            // @ts-ignore
-            family: 4,
-            connectionTimeout: 20000,
-            greetingTimeout: 20000,
+            connectionTimeout: 30000,
+            greetingTimeout: 30000,
             socketTimeout: 60000,
         } as any);
     }
@@ -127,7 +125,7 @@ export class EmailService {
                     ] : []
                 });
 
-                const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("SMTP Send Timeout")), 25000));
+                const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("SMTP Send Timeout")), 45000));
                 const info = await Promise.race([sendPromise, mailTimeout]) as any;
 
                 if (!pdfBuffer) {
