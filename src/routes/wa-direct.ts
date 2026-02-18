@@ -91,25 +91,24 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
             if (orderResult && orderResult.success) {
                 console.log("[WADirect] Order success in DB, firing background tasks");
 
-                try {
-                    console.log(`[WADirect] triggering background email to admin: ${process.env.SMTP_USER || 'id.baitybites@gmail.com'}`);
-                    await emailService.sendPOInvoice({
-                        order_number: orderResult.orderNumber,
-                        invoice_number: orderResult.invoiceNumber,
-                        total_amount: orderResult.totalAmount,
-                        name,
-                        email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
-                        address: '-',
-                        items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
-                    });
-                    console.log(`[WADirect] Background email finished for ${orderResult.orderNumber}`);
-                } catch (e) {
-                    console.error("[WADirect] Background email ERROR:", e);
-                }
+                // Fire background tasks WITHOUT await to prevent request timeout and double orders
+                console.log(`[WADirect] triggering background tasks for ${orderResult.orderNumber}`);
 
-                // 6. Notify Staff via WhatsApp
+                emailService.sendPOInvoice({
+                    order_number: orderResult.orderNumber,
+                    invoice_number: orderResult.invoiceNumber,
+                    total_amount: orderResult.totalAmount,
+                    name,
+                    email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
+                    address: '-',
+                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
+                })
+                    .then(() => console.log(`[WADirect] Background email success for ${orderResult.orderNumber}`))
+                    .catch(e => console.error("[WADirect] Background email ERROR:", e));
+
+                // Notify Staff via WhatsApp
                 const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);
-                waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW HIGH-PRIORITY WA ORDER!\n\nOrder: ${orderResult.orderNumber}\nCustomer: ${name}\nTotal: Rp ${totalStr}\n\nPlease check the system.`)
+                waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${orderResult.orderNumber}\nCustomer: ${name}\nTotal: Rp ${totalStr}`)
                     .catch(e => console.error("[WADirect] Background WA notify failed:", e));
 
                 return {
