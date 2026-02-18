@@ -80,11 +80,8 @@ export class EmailService {
         <html>
         <head>
             <meta charset="utf-8">
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
             <style>
-                body { margin: 0; padding: 20px; background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; justify-content: center; }
+                body { margin: 0; padding: 20px; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; }
                 .summary-card { 
                     background: white; width: 400px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 30px; 
                     border: 1px solid #edf2f7; overflow: hidden; position: relative;
@@ -280,14 +277,23 @@ export class EmailService {
             browser = await puppeteer.launch({
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-                timeout: 60000 // Increased timeout to 60s
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-extensions'
+                ],
+                timeout: 30000
             });
             const page = await browser.newPage();
 
             console.log(`[EmailService] PDF: Setting content (len: ${html.length})...`);
-            // networkidle2 is more resilient than networkidle0 (waits for < 2 active connections)
-            await page.setContent(html, { waitUntil: 'networkidle2', timeout: 45000 });
+            // Fast wait for local content
+            await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
 
             console.log(`[EmailService] PDF: Rendering...`);
             const pdfUint8Array = await page.pdf({
@@ -314,14 +320,23 @@ export class EmailService {
             browser = await puppeteer.launch({
                 headless: true,
                 executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
-                timeout: 30000
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-extensions'
+                ],
+                timeout: 20000
             });
             const page = await browser.newPage();
 
             // Set a mobile-friendly viewport for the summary card
             await page.setViewport({ width: 450, height: 800, deviceScaleFactor: 2 });
-            await page.setContent(html, { waitUntil: 'networkidle0', timeout: 20000 });
+            await page.setContent(html, { waitUntil: 'load', timeout: 15000 });
 
             console.log(`[EmailService] Image: Capturing screenshot...`);
             // Capture only the summary-card element if it exists, otherwise full page

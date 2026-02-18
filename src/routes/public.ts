@@ -86,18 +86,22 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                         product_name: productsList.find((p: any) => p.id === item.product_id)?.name || 'Produk'
                     }));
 
-                    // Fire background email task WITHOUT await
-                    emailService.sendPOInvoice({
-                        order_number: orderNumber,
-                        invoice_number: invoiceNumber,
-                        total_amount: totalAmount,
-                        name,
-                        email,
-                        address,
-                        items: enrichedItems
-                    })
-                        .then(() => console.log(`[OrderRoute] Background email success for ${orderNumber}`))
-                        .catch(e => console.error("[OrderRoute] Background email ERROR:", e));
+                    // On Netlify, we MUST await or it will be killed.
+                    // Try/catch ensures order still succeeds even if email fails.
+                    try {
+                        await emailService.sendPOInvoice({
+                            order_number: orderNumber,
+                            invoice_number: invoiceNumber,
+                            total_amount: totalAmount,
+                            name,
+                            email,
+                            address,
+                            items: enrichedItems
+                        });
+                        console.log(`[OrderRoute] Background email finished for ${orderNumber}`);
+                    } catch (e) {
+                        console.error("[OrderRoute] Background email ERROR:", e);
+                    }
 
                     return {
                         success: true,

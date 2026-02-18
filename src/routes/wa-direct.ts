@@ -91,25 +91,33 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
             if (orderResult && orderResult.success) {
                 console.log("[WADirect] Order success in DB, firing background tasks");
 
-                // Fire background tasks WITHOUT await to prevent request timeout and double orders
+                // Fire background tasks
                 console.log(`[WADirect] triggering background tasks for ${orderResult.orderNumber}`);
 
-                emailService.sendPOInvoice({
-                    order_number: orderResult.orderNumber,
-                    invoice_number: orderResult.invoiceNumber,
-                    total_amount: orderResult.totalAmount,
-                    name,
-                    email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
-                    address: '-',
-                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
-                })
-                    .then(() => console.log(`[WADirect] Background email success for ${orderResult.orderNumber}`))
-                    .catch(e => console.error("[WADirect] Background email ERROR:", e));
+                // On Netlify, we MUST await these or they will be killed.
+                // But we use a try/catch to ensure the user still gets a success response even if these fail.
+                try {
+                    await emailService.sendPOInvoice({
+                        order_number: orderResult.orderNumber,
+                        invoice_number: orderResult.invoiceNumber,
+                        total_amount: orderResult.totalAmount,
+                        name,
+                        email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
+                        address: '-',
+                        items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
+                    });
+                    console.log(`[WADirect] Background email finished for ${orderResult.orderNumber}`);
+                } catch (e) {
+                    console.error("[WADirect] Background email ERROR:", e);
+                }
 
-                // Notify Staff via WhatsApp
-                const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);
-                waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${orderResult.orderNumber}\nCustomer: ${name}\nTotal: Rp ${totalStr}`)
-                    .catch(e => console.error("[WADirect] Background WA notify failed:", e));
+                try {
+                    const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);
+                    await waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${orderResult.orderNumber}\nCustomer: ${name}\nTotal: Rp ${totalStr}`)
+                        .catch(e => console.error("[WADirect] Background WA notify failed:", e));
+                } catch (e) {
+                    console.error("[WADirect] Background WA notify ERROR:", e);
+                }
 
                 return {
                     success: true,
