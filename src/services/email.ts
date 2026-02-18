@@ -43,28 +43,45 @@ export class EmailService {
             html = `<h1>Invoice ${order_number}</h1><p>Gagal membuat tampilan invoice lengkap, namun pesanan Anda telah diterima.</p>`;
         }
 
-        try {
-            console.log(`[EmailService] -> Generating PDF stage (Shared Mode)...`);
-            // Speed optimization for WA Direct: 3s max wait
-            // If PDF takes more than 3s, we send the email immediately without it.
-            const pdfPromise = this.generatePdfBuffer(html);
-            const timeoutDuration = 3000;
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("PDF Timeout")), timeoutDuration));
+        // 2. Generate PDF with Retry Logic (Reliability Mode)
+        const maxRetries = 3;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[EmailService] -> Generating PDF stage (Shared Mode, Attempt ${attempt}/${maxRetries})...`);
 
-            pdfBuffer = await Promise.race([pdfPromise, timeoutPromise]) as Buffer;
-            console.log(`[EmailService] -> PDF OK (${pdfBuffer ? pdfBuffer.length : 0} bytes)`);
-        } catch (e) {
-            console.error("[EmailService] -> PDF Generation Skipped (Speed Priority):", e instanceof Error ? e.message : e);
-            // We continue without PDF to ensure 'Instant' delivery
+                // Allow up to 20 seconds for professional PDF rendering
+                const pdfPromise = this.generatePdfBuffer(html);
+                const timeoutDuration = 20000;
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("PDF Generation Timeout")), timeoutDuration));
+
+                pdfBuffer = await Promise.race([pdfPromise, timeoutPromise]) as Buffer;
+
+                if (pdfBuffer && pdfBuffer.length > 0) {
+                    console.log(`[EmailService] -> PDF OK (${pdfBuffer.length} bytes)`);
+                    break; // Success! Exit retry loop
+                } else {
+                    throw new Error("Empty PDF Buffer");
+                }
+            } catch (e) {
+                const errorMsg = e instanceof Error ? e.message : String(e);
+                console.warn(`[EmailService] -> PDF Attempt ${attempt} failed: ${errorMsg}`);
+
+                if (attempt === maxRetries) {
+                    console.error("[EmailService] -> CRITICAL: All PDF generation attempts failed.");
+                } else {
+                    // Small delay before retrying
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
         }
 
+        // 3. Send Email
         try {
             const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
-            // Ensure adminUser is an email address
             const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
             const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
 
-            console.log(`[EmailService] -> SMTP: Sending to ${email} (From: ${fromEmail})...`);
+            console.log(`[EmailService] -> SMTP: Sending to ${email} (BCC Admin: ${!skipBcc})...`);
             const info = await this.transporter.sendMail({
                 from: `"Baitybites" <${fromEmail}>`,
                 to: email,
@@ -79,6 +96,11 @@ export class EmailService {
                     }
                 ] : []
             });
+
+            if (!pdfBuffer) {
+                console.warn("[EmailService] WARNING: Email sent WITHOUT PDF after all retry attempts.");
+            }
+
             console.log(`[EmailService] DONE: Email sent successfully. ID: ${info.messageId}`);
             return true;
         } catch (error: any) {
