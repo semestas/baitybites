@@ -91,18 +91,21 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
             if (orderResult && orderResult.success) {
                 console.log("[WADirect] Order success in DB, firing background tasks");
 
-                console.log(`[WADirect] triggering background email to admin: ${process.env.SMTP_USER || 'id.baitybites@gmail.com'}`);
-                emailService.sendPOInvoice({
-                    order_number: orderResult.orderNumber,
-                    invoice_number: orderResult.invoiceNumber,
-                    total_amount: orderResult.totalAmount,
-                    name,
-                    email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
-                    address: '-',
-                    items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
-                })
-                    .then(res => console.log(`[WADirect] Background email ${res ? 'success' : 'failed'} for ${orderResult.orderNumber}`))
-                    .catch(e => console.error("[WADirect] Background email ERROR:", e));
+                try {
+                    console.log(`[WADirect] triggering background email to admin: ${process.env.SMTP_USER || 'id.baitybites@gmail.com'}`);
+                    await emailService.sendPOInvoice({
+                        order_number: orderResult.orderNumber,
+                        invoice_number: orderResult.invoiceNumber,
+                        total_amount: orderResult.totalAmount,
+                        name,
+                        email: process.env.SMTP_USER || 'id.baitybites@gmail.com',
+                        address: '-',
+                        items: items.map((i: any) => ({ ...i, subtotal: Number(i.price) * Number(i.quantity) }))
+                    });
+                    console.log(`[WADirect] Background email finished for ${orderResult.orderNumber}`);
+                } catch (e) {
+                    console.error("[WADirect] Background email ERROR:", e);
+                }
 
                 // 6. Notify Staff via WhatsApp
                 const totalStr = new Intl.NumberFormat('id-ID').format(orderResult.totalAmount);

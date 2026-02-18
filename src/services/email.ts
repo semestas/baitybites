@@ -286,8 +286,8 @@ export class EmailService {
             const page = await browser.newPage();
 
             console.log(`[EmailService] PDF: Setting content (len: ${html.length})...`);
-            // Wait until network is idle to ensure images/fonts are loaded for the PDF
-            await page.setContent(html, { waitUntil: 'networkidle0', timeout: 45000 });
+            // networkidle2 is more resilient than networkidle0 (waits for < 2 active connections)
+            await page.setContent(html, { waitUntil: 'networkidle2', timeout: 45000 });
 
             console.log(`[EmailService] PDF: Rendering...`);
             const pdfUint8Array = await page.pdf({

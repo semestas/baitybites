@@ -524,6 +524,39 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
                 courier: t.Optional(t.String())
             })
         })
+        .delete('/orders/:id', async ({ params }) => {
+            try {
+                return await db.begin(async (sql: any) => {
+                    // 1. Get order items to restore stock
+                    const items = await sql`SELECT product_id, quantity FROM order_items WHERE order_id = ${params.id}`;
+
+                    // 2. Restore stock for each item
+                    for (const item of items) {
+                        await sql`UPDATE products SET stock = stock + ${item.quantity} WHERE id = ${item.product_id}`;
+                    }
+
+                    // 3. Delete associated records (manual cascade as FKs are not ON DELETE CASCADE)
+                    await sql`DELETE FROM payments WHERE invoice_id IN (SELECT id FROM invoices WHERE order_id = ${params.id})`;
+                    await sql`DELETE FROM invoices WHERE order_id = ${params.id}`;
+                    await sql`DELETE FROM production WHERE order_id = ${params.id}`;
+                    await sql`DELETE FROM packaging WHERE order_id = ${params.id}`;
+                    await sql`DELETE FROM shipping WHERE order_id = ${params.id}`;
+                    await sql`DELETE FROM order_items WHERE order_id = ${params.id}`;
+
+                    // 4. Finally delete the order
+                    const [deleted] = await sql`DELETE FROM orders WHERE id = ${params.id} RETURNING id, order_number`;
+
+                    if (!deleted) {
+                        return { success: false, message: 'Pesanan tidak ditemukan' };
+                    }
+
+                    return { success: true, message: `Pesanan ${deleted.order_number} berhasil dihapus dan stok dikembalikan.` };
+                });
+            } catch (error: any) {
+                console.error('[CMS] Order delete error:', error);
+                return { success: false, message: error.message || 'Gagal menghapus pesanan' };
+            }
+        })
 
         // --- Product Management (Stock etc.) ---
         .get('/products', async () => {
