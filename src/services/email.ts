@@ -6,11 +6,16 @@ export class EmailService {
     private transporter: nodemailer.Transporter;
     private static cachedStyles: string | null = null;
     private static browser: any = null;
+    private static browserPromise: Promise<any> | null = null;
+    private static activeTasks = new Set<string>();
     private db: Sql;
 
     constructor(db: Sql) {
         this.db = db;
         this.transporter = nodemailer.createTransport({
+            pool: true,
+            maxConnections: 3,
+            maxMessages: 100,
             host: process.env.SMTP_HOST || "smtp.gmail.com",
             port: Number(process.env.SMTP_PORT) || 587,
             secure: process.env.SMTP_SECURE === "true",
@@ -18,12 +23,12 @@ export class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            // Force IPv4 as cloud providers often have issues with IPv6 SMTP (ECONNREFUSED)
-            // @ts-ignore - 'family' is passed to net.connect
+            // Force IPv4 as cloud providers often have issues with IPv6 SMTP
+            // @ts-ignore
             family: 4,
-            connectionTimeout: 10000, // 10s
-            greetingTimeout: 10000,
-            socketTimeout: 30000,
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 60000,
         } as any);
     }
 
@@ -35,8 +40,24 @@ export class EmailService {
             return false;
         }
 
+        // Prevent duplicate concurrent tasks for the same invoice
+        if (EmailService.activeTasks.has(invoice_number)) {
+            console.log(`[EmailService] Task for ${invoice_number} is already in progress. Skipping duplicate.`);
+            return true;
+        }
+        EmailService.activeTasks.add(invoice_number);
+
         console.log(`[EmailService] TASK START: Order ${order_number} for ${name} (${email})`);
 
+        try {
+            return await this.executeMailTask(orderData);
+        } finally {
+            EmailService.activeTasks.delete(invoice_number);
+        }
+    }
+
+    private async executeMailTask(orderData: any) {
+        const { order_number, invoice_number, email, name } = orderData;
         let html = "";
         let pdfBuffer = null;
 
@@ -337,31 +358,40 @@ export class EmailService {
     }
 
     private async getBrowser() {
-        try {
-            if (EmailService.browser && EmailService.browser.isConnected()) {
-                return EmailService.browser;
-            }
-            console.log(`[EmailService] Launching shared browser instance...`);
-            EmailService.browser = await puppeteer.launch({
-                headless: true,
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-gpu',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--single-process',
-                    '--disable-extensions'
-                ],
-                timeout: 30000
-            });
+        if (EmailService.browser && EmailService.browser.isConnected()) {
             return EmailService.browser;
-        } catch (error) {
-            console.error("[EmailService] Browser launch error:", error);
-            return null;
         }
+
+        if (EmailService.browserPromise) {
+            return EmailService.browserPromise;
+        }
+
+        console.log(`[EmailService] Launching shared browser instance (Atomic)...`);
+        EmailService.browserPromise = puppeteer.launch({
+            headless: true,
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process',
+                '--disable-extensions'
+            ],
+            timeout: 30000
+        }).then(b => {
+            EmailService.browser = b;
+            EmailService.browserPromise = null; // Clear promise once resolved
+            return b;
+        }).catch(err => {
+            console.error("[EmailService] Browser launch error:", err);
+            EmailService.browserPromise = null;
+            return null;
+        });
+
+        return EmailService.browserPromise;
     }
 
     async generatePdfBuffer(html: string) {

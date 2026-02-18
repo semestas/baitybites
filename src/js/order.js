@@ -700,10 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.getElementById('successModal').classList.add('active');
                     document.getElementById('successModal').style.display = 'flex';
 
-                    // Trigger background tasks (Heavy Email/PDF)
-                    apiCall(`/public/process-tasks/${result.data.invoice_number}`, { method: 'POST' })
-                        .then(r => console.log('Background tasks finished', r))
-                        .catch(e => console.error('Background tasks failed', e));
+                    // Background tasks (Email/PDF) are handled automatically by the server
 
                     // Reset form and cart
                     document.getElementById('orderForm').reset();

@@ -203,9 +203,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Show order summary modal immediately
                 showOrderSummaryModal(orderData);
 
-                // Trigger background tasks (Silent Admin Email & Staff Notify)
-                apiCall(`/wa-direct/process-tasks/${res.data.invoice_number}`, { method: 'POST' })
-                    .catch(e => console.error('Silent background tasks failed', e));
+                // Form clears automatically for next order
+                // Triggered automatically by backend now
 
             } else {
                 showNotification(res.message, 'error');
