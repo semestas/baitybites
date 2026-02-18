@@ -11,7 +11,6 @@ The **WA Direct Module** is a mobile-first ordering interface designed for staff
 - ✅ **Discount Support**: Apply nominal discounts on the fly
 - ✅ **Instant Order Processing**: Orders are saved immediately to the database
 - ✅ **Automated PDF Invoice**: Generated and emailed to admin automatically
-- ✅ **WhatsApp Staff Notification**: High-priority alerts sent to staff
 - ✅ **Offline Support**: Cached for use when internet is unstable
 
 ## Access
@@ -69,7 +68,6 @@ The floating cart footer shows:
    - ✅ Order saved to database with status `paid`
    - ✅ Invoice number generated
    - ✅ PDF invoice emailed to `id.baitybites@gmail.com`
-   - ✅ WhatsApp notification sent to staff
 4. Success message appears with order details
 5. Form clears automatically for the next order
 
@@ -130,11 +128,8 @@ POST /api/wa-direct/order
 }
 ```
 
-### Background Processing
-The following tasks run asynchronously (non-blocking):
 1. **PDF Invoice Generation**: Uses Puppeteer to render HTML invoice as PDF
 2. **Email Delivery**: Sends invoice to admin email with PDF attachment
-3. **WhatsApp Notification**: Alerts staff of new high-priority order
 
 This ensures the UI responds instantly while heavy operations complete in the background.
 
@@ -196,11 +191,6 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=id.baitybites@gmail.com
 SMTP_PASS=your_app_password
-
-# WhatsApp Notification (Optional)
-ADMIN_PHONE=6281234567890
-WAHA_URL=https://your-waha-instance.com
-WAHA_SESSION=default
 ```
 
 ## Mobile Compatibility

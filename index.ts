@@ -11,8 +11,6 @@ import { customerRoutes } from "./src/routes/customer";
 import { orderRoutes } from "./src/routes/orders";
 import { googleAuthRoutes } from "./src/routes/google-auth";
 import { waDirectRoutes } from "./src/routes/wa-direct";
-import { WhatsAppService } from "./src/services/whatsapp";
-import { webhookRoutes } from "./src/routes/webhooks";
 import { AIService } from "./src/services/ai";
 import { EmailService } from "./src/services/email";
 
@@ -21,7 +19,6 @@ const db = await initDatabase();
 const PUBLIC_DIR = join(import.meta.dir, "public");
 
 // Initialize services
-const waService = new WhatsAppService(db);
 // const igService = new InstagramService(db);
 const aiService = new AIService();
 const emailService = new EmailService(db);
@@ -85,8 +82,7 @@ const app = new Elysia()
             .use(cmsRoutes(db, aiService))
             .use(orderRoutes(db))
             .use(googleAuthRoutes(db))
-            .use(waDirectRoutes(db, emailService, waService))
-            .use(webhookRoutes(db, waService))
+            .use(waDirectRoutes(db, emailService))
     )
     // Serve HTML files with proper headers
     .onBeforeHandle(() => { /* Hook for potential shared logic */ })

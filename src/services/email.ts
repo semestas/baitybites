@@ -18,7 +18,13 @@ export class EmailService {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-        });
+            // Force IPv4 as cloud providers often have issues with IPv6 SMTP (ECONNREFUSED)
+            // @ts-ignore - 'family' is passed to net.connect
+            family: 4,
+            connectionTimeout: 10000, // 10s
+            greetingTimeout: 10000,
+            socketTimeout: 30000,
+        } as any);
     }
 
     async sendPOInvoice(orderData: any) {
@@ -75,38 +81,49 @@ export class EmailService {
             }
         }
 
-        // 3. Send Email
-        try {
-            const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
-            const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
-            const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
+        // 3. Send Email with Retry (Transport Reliability)
+        const maxSmtpRetries = 3;
+        for (let smtpAttempt = 1; smtpAttempt <= maxSmtpRetries; smtpAttempt++) {
+            try {
+                const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
+                const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
+                const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
 
-            console.log(`[EmailService] -> SMTP: Sending to ${email} (BCC Admin: ${!skipBcc})...`);
-            const info = await this.transporter.sendMail({
-                from: `"Baitybites" <${fromEmail}>`,
-                to: email,
-                bcc: skipBcc ? undefined : fromEmail,
-                subject: `Invoice Pesanan Baitybites - ${order_number}`,
-                html: html,
-                attachments: pdfBuffer ? [
-                    {
-                        filename: `Invoice-${invoice_number}.pdf`,
-                        content: pdfBuffer,
-                        contentType: 'application/pdf'
-                    }
-                ] : []
-            });
+                console.log(`[EmailService] -> SMTP: Sending to ${email} (BCC Admin: ${!skipBcc}) [Attempt ${smtpAttempt}/${maxSmtpRetries}]...`);
+                const info = await this.transporter.sendMail({
+                    from: `"Baitybites" <${fromEmail}>`,
+                    to: email,
+                    bcc: skipBcc ? undefined : fromEmail,
+                    subject: `Invoice Pesanan Baitybites - ${order_number}`,
+                    html: html,
+                    attachments: pdfBuffer ? [
+                        {
+                            filename: `Invoice-${invoice_number}.pdf`,
+                            content: pdfBuffer,
+                            contentType: 'application/pdf'
+                        }
+                    ] : []
+                });
 
-            if (!pdfBuffer) {
-                console.warn("[EmailService] WARNING: Email sent WITHOUT PDF after all retry attempts.");
+                if (!pdfBuffer) {
+                    console.warn("[EmailService] WARNING: Email sent WITHOUT PDF after all retry attempts.");
+                }
+
+                console.log(`[EmailService] DONE: Email sent successfully. ID: ${info.messageId}`);
+                return true;
+            } catch (error: any) {
+                console.error(`[EmailService] SMTP ATTEMPT ${smtpAttempt} FAILED:`, error.code || error.message);
+
+                if (smtpAttempt < maxSmtpRetries) {
+                    // Wait before retrying (exponential backoff or simple delay)
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                } else {
+                    console.error("[EmailService] CRITICAL SMTP ERROR: Giving up after all attempts.");
+                    return false;
+                }
             }
-
-            console.log(`[EmailService] DONE: Email sent successfully. ID: ${info.messageId}`);
-            return true;
-        } catch (error: any) {
-            console.error("[EmailService] SMTP/Transporter ERROR:", error);
-            return false;
         }
+        return false;
     }
 
     async generateSummaryCardHtml(orderData: any) {

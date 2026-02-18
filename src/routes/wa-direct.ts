@@ -2,13 +2,12 @@ import { Elysia, t } from 'elysia';
 import type { Sql } from '../db/schema';
 import { generateInvoiceNumber } from '../utils/helpers';
 import type { EmailService } from '../services/email';
-import { WhatsAppService } from '../services/whatsapp';
 
 /**
  * Resilient Background Tasks for WA Direct
  * Fires Email and WA notifications without blocking the main response
  */
-async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailService: EmailService, waService: WhatsAppService) {
+async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailService: EmailService) {
     console.log(`[WADirect] Triggering tasks for: ${invoiceNumber}`);
     try {
         // Fetch Data for Tasks
@@ -39,24 +38,18 @@ async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailS
             ? process.env.SMTP_USER
             : 'id.baitybites@gmail.com';
 
-        console.log(`[WADirect] Task: Preparing Email to ${adminEmail} and WA for ${order.order_number}`);
+        console.log(`[WADirect] Task: Preparing Email to ${adminEmail} for ${order.order_number}`);
 
-        // 2. Parallel Resilient Execution
-        await Promise.all([
-            emailService.sendPOInvoice({
-                order_number: order.order_number,
-                invoice_number: order.invoice_number,
-                total_amount: order.total_amount,
-                name: order.name,
-                email: adminEmail,
-                address: '-',
-                items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
-            }).catch(e => console.error("[WADirect] Task: Email failed", e)),
-
-            waService.sendText(process.env.ADMIN_PHONE || '', `🚀 NEW WA ORDER!\n\nOrder: ${order.order_number}\nCustomer: ${order.name}\nTotal: Rp ${totalStr}`)
-                .then(() => console.log(`[WADirect] Task: WA notify sent successfully.`))
-                .catch(e => console.error("[WADirect] Task: WA failed", e))
-        ]);
+        // 2. Resilient Execution
+        await emailService.sendPOInvoice({
+            order_number: order.order_number,
+            invoice_number: order.invoice_number,
+            total_amount: order.total_amount,
+            name: order.name,
+            email: adminEmail,
+            address: '-',
+            items: items.map((i: any) => ({ ...i, subtotal: Number(i.unit_price) * Number(i.quantity) }))
+        }).catch(e => console.error("[WADirect] Task: Email failed", e));
 
         console.log(`[WADirect] Task: All background tasks finished for ${order.order_number}`);
     } catch (error: any) {
@@ -64,7 +57,7 @@ async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailS
     }
 }
 
-export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: WhatsAppService) =>
+export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
             const { name, phone, items, discount = 0, notes = '' } = body as any;
@@ -162,7 +155,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
 
                 // Trigger tasks in "detach" mode (background)
                 // We DON'T await this, so the response is sent immediately
-                runWADirectBackgroundTasks(orderResult.invoiceNumber, db, emailService, waService)
+                runWADirectBackgroundTasks(orderResult.invoiceNumber, db, emailService)
                     .catch(e => console.error("[WADirect] Detached task trigger failure:", e));
 
                 return fastResponse;
@@ -186,7 +179,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService, waService: W
         })
         .post('/process-tasks/:invoiceNumber', async ({ params }) => {
             const { invoiceNumber } = params;
-            await runWADirectBackgroundTasks(invoiceNumber, db, emailService, waService);
+            await runWADirectBackgroundTasks(invoiceNumber, db, emailService);
             return { success: true, message: 'Tasks triggered manually' };
         })
         .get('/invoice/:invoiceNumber/pdf', async ({ params, set }) => {
