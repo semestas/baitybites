@@ -14,7 +14,7 @@ export class EmailService {
         this.db = db;
         this.transporter = nodemailer.createTransport({
             pool: true,
-            maxConnections: 3,
+            maxConnections: 5,
             maxMessages: 100,
             host: process.env.SMTP_HOST || "smtp.gmail.com",
             port: Number(process.env.SMTP_PORT) || 587,
@@ -109,9 +109,10 @@ export class EmailService {
                 const adminUser = process.env.SMTP_USER || "id.baitybites@gmail.com";
                 const fromEmail = adminUser.includes('@') ? adminUser : "id.baitybites@gmail.com";
                 const skipBcc = email.toLowerCase() === fromEmail.toLowerCase();
-
                 console.log(`[EmailService] -> SMTP: Sending to ${email} (BCC Admin: ${!skipBcc}) [Attempt ${smtpAttempt}/${maxSmtpRetries}]...`);
-                const info = await this.transporter.sendMail({
+
+                // Add explicit timeout to sendMail call to prevent hanging
+                const sendPromise = this.transporter.sendMail({
                     from: `"Baitybites" <${fromEmail}>`,
                     to: email,
                     bcc: skipBcc ? undefined : fromEmail,
@@ -125,6 +126,9 @@ export class EmailService {
                         }
                     ] : []
                 });
+
+                const mailTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("SMTP Send Timeout")), 25000));
+                const info = await Promise.race([sendPromise, mailTimeout]) as any;
 
                 if (!pdfBuffer) {
                     console.warn("[EmailService] WARNING: Email sent WITHOUT PDF after all retry attempts.");
