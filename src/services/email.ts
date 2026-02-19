@@ -32,6 +32,7 @@ export class EmailService {
      */
     private async sendViaBrevo(options: {
         to: string;
+        bcc?: string;
         subject: string;
         html: string;
         attachments?: Array<{ filename: string; content: Buffer; contentType: string }>;
@@ -47,6 +48,10 @@ export class EmailService {
             subject: options.subject,
             htmlContent: options.html,
         };
+
+        if (options.bcc) {
+            body.bcc = [{ email: options.bcc }];
+        }
 
         if (options.attachments && options.attachments.length > 0) {
             body.attachment = options.attachments.map(att => ({
@@ -154,6 +159,7 @@ export class EmailService {
 
                 await this.sendViaBrevo({
                     to: email,
+                    bcc: (email !== this.senderEmail) ? this.senderEmail : undefined,
                     subject: `Invoice Pesanan Baitybites - ${order_number}`,
                     html: html,
                     attachments: pdfBuffer ? [
