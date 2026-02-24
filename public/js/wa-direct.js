@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="selected-badge"></div>
                     <img src="${p.image_url || '/assets/logo.png'}" class="product-thumb" alt="${p.name}">
                     <div class="product-info">
-                        <div class="product-name">${p.name}</div>
+                        <div class="product-name">${p.name} ${p.category === 'Risol' ? '<span title="Produk Frozen" style="color: #0891b2; font-size: 0.8rem; margin-left: 4px;">❄</span>' : ''}</div>
                         <div class="counter">
                             <div class="product-price-stock">
                                 <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>

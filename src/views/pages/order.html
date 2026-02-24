@@ -44,6 +44,27 @@
                     </div>
                 </div>
 
+                <!-- Frozen Notice -->
+                <div class="info-box frozen-notice mb-4 animate-fade-in">
+                    <div class="notice-content">
+                        <div class="notice-icon frozen-icon"><i data-lucide="snowflake"></i></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <div>
+                                    <p class="notice-title">Produk Frozen (Beku)</p>
+                                    <p class="notice-text">Semua varian Risol Mayo dikirim dalam <strong>bentuk
+                                            frozen</strong> untuk menjaga kesegaran.</p>
+                                </div>
+                                <button type="button" onclick="openServingModal()" class="btn btn-sm btn-outline"
+                                    style="border-color: #0891b2; color: #0891b2; background: white;">
+                                    <i data-lucide="flame" size="14"></i>
+                                    <span>Cara Memasak</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Category Navigation -->
                 <div class="category-tabs" id="categoryTabs">
                     <div class="spinner spinner-sm"></div>
@@ -53,6 +74,8 @@
                 <div id="productList" class="product-grid">
                     <div class="spinner product-spinner"></div>
                 </div>
+
+                {{> serving_modal }}
 
                 <!-- Order Summary Modal -->
                 <div id="order-confirmation-section" class="modal-overlay animate-fade-in hidden">

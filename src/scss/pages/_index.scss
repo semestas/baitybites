@@ -147,6 +147,28 @@
             }
         }
 
+        .frozen-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba($white, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba($white, 0.2);
+            color: $white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1.2s ease-out 0.1s both;
+
+            i,
+            svg {
+                color: #A5F3FC; // Cyan/Frozen color
+            }
+        }
+
         .hero-greeting {
             font-size: clamp(0.9rem, 1.5vw, 1.25rem); // Reduced from 1.5rem max
             font-weight: 700;

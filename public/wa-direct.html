@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WhatsApp Direct Quick Order - Baitybites</title>
-    <link rel="stylesheet" href="/css/style.css?v=2.2.6">
-    <link rel="stylesheet" href="/css/main.css?v=2.2.6">
-    <link rel="stylesheet" href="/css/wa-direct.css?v=2.2.6">
+    <link rel="stylesheet" href="/css/style.css?v=2.2.7">
+    <link rel="stylesheet" href="/css/main.css?v=2.2.7">
+    <link rel="stylesheet" href="/css/wa-direct.css?v=2.2.7">
     <link rel="shortcut icon" href="/assets/favicon.png" type="image/x-icon">
 </head>
 
@@ -17,10 +17,78 @@
             <img src="/assets/favicon.png" alt="">
             <h2>Quick WA Order</h2>
         </div>
-        <p>Direct Owner Entry Module <small style="opacity: 0.7; font-size: 0.7rem;">v2.2.6</small></p>
+        <p>Direct Owner Entry Module <small style="opacity: 0.7; font-size: 0.7rem;">v2.2.7</small></p>
     </div>
 
     <div class="container" style="padding: 10px;">
+        <!-- Frozen Notice -->
+        <div
+            style="background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+            <div
+                style="background: #0891b2; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="font-size: 14px;">❄</span>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <p style="margin: 0; font-size: 0.8rem; color: #155e75; line-height: 1.4;">Layanan Risol Mayo dalam
+                    <strong>bentuk frozen</strong>.</p>
+                <button type="button" onclick="openServingModal()"
+                    style="background: white; border: 1px solid #0891b2; color: #0891b2; border-radius: 4px; padding: 4px 8px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: pointer;">
+                    Cara Masak
+                </button>
+            </div>
+        </div>
+
+        <!-- Serving Information Modal (Embedded for WA Direct) -->
+        <div id="servingModal" class="modal-overlay">
+            <div class="modal modal-sm"
+                style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span
+                            style="background: #fff7ed; color: #ea580c; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔥</span>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #111;">Saran Penyajian</h3>
+                    </div>
+                    <button type="button" onclick="closeServingModal()"
+                        style="border: none; background: #eee; width: 26px; height: 26px; border-radius: 50%; cursor: pointer;">&times;</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div
+                        style="display: flex; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 8px; border-left: 3px solid #f59638;">
+                        <span style="font-weight: 800; color: #f59638;">1.</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #374151;"><strong>Defrost:</strong> Diamkan di
+                            suhu ruang hingga tidak beku.</p>
+                    </div>
+                    <div
+                        style="display: flex; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 8px; border-left: 3px solid #f59638;">
+                        <span style="font-weight: 800; color: #f59638;">2.</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #374151;"><strong>Minyak:</strong> Panaskan
+                            minyak segar api sedang.</p>
+                    </div>
+                    <div
+                        style="display: flex; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 8px; border-left: 3px solid #f59638;">
+                        <span style="font-weight: 800; color: #f59638;">3.</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #374151;"><strong>Goreng:</strong> Gunakan api
+                            kecil agar matang merata.</p>
+                    </div>
+                    <div
+                        style="display: flex; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 8px; border-left: 3px solid #f59638;">
+                        <span style="font-weight: 800; color: #f59638;">4.</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #374151;"><strong>Waktu:</strong> Goreng hingga
+                            kuning keemasan.</p>
+                    </div>
+                    <div
+                        style="display: flex; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 8px; border-left: 3px solid #f59638;">
+                        <span style="font-weight: 800; color: #f59638;">5.</span>
+                        <p style="margin: 0; font-size: 0.85rem; color: #374151;"><strong>Sajikan:</strong> Nikmati
+                            selagi hangat.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeServingModal()"
+                    style="width: 100%; margin-top: 20px; padding: 12px; background: #f59638; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">OK</button>
+            </div>
+        </div>
+
         <input type="text" id="custName" class="customer-input" placeholder="Nama Pelanggan">
         <input type="tel" id="custPhone" class="customer-input" placeholder="Nomor WhatsApp (Cth: 0812...)">
 
@@ -57,8 +125,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="/js/app.js?v=2.2.6"></script>
-    <script src="/js/wa-direct.js?v=2.2.6"></script>
+    <script src="/js/app.js?v=2.2.7"></script>
+    <script src="/js/wa-direct.js?v=2.2.7"></script>
 </body>
 
 </html>

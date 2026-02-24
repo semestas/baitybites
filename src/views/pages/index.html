@@ -29,10 +29,15 @@
                     <img src="/assets/logo.png" alt="Baitybites Logo">
                 </div>
 
+                <div class="frozen-badge">
+                    <i data-lucide="snowflake" size="16"></i>
+                    <span>Tersedia dalam Bentuk Frozen</span>
+                </div>
+
                 <h1 class="hero-title">Risol Mayo Premium</h1>
                 <p class="hero-description">
-                    Sensasi kelezatan kulit krispi yang gurih berpadu dengan limpahan saus mayo premium yang lembut dan
-                    meleleh di mulut. Dibuat dengan bahan pilihan untuk gigitan yang tak terlupakan.
+                    Nikmati lezatnya Risol Mayo Premium kami kapan saja. Dijual dalam <strong>bentuk frozen</strong>
+                    untuk menjaga kesegaran dan rasa, siap digoreng kapan pun Anda menginginkannya.
                 </p>
 
                 <div class="button-group">
@@ -53,6 +58,10 @@
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </a>
+                    <button onclick="openServingModal()" class="cta-button secondary">
+                        <i data-lucide="info" size="20"></i>
+                        <span>Saran Penyajian</span>
+                    </button>
                 </div>
             </div>
 
@@ -89,6 +98,9 @@
                 </button>
             </div>
         </section>
+
+        <!-- Serving Information Modal -->
+        {{> serving_modal }}
 
         <!-- Testimony Modal -->
         <div id="testimonyModal" class="modal-overlay" style="display: none;">

@@ -526,7 +526,7 @@ async function checkVersion() {
         const data = await response.json();
         const versionElement = document.getElementById('footer-version');
         if (versionElement) {
-            versionElement.innerHTML = `Build: v2.2.6 | API: ${data.version || 'unknown'}`;
+            versionElement.innerHTML = `Build: v2.2.7 | API: ${data.version || 'unknown'}`;
             versionElement.style.fontSize = '0.7rem';
             versionElement.style.opacity = '0.5';
             versionElement.style.marginTop = '0.5rem';
@@ -540,7 +540,7 @@ async function checkVersion() {
                     vTag.style.fontSize = '0.7rem';
                     vTag.style.opacity = '0.5';
                     vTag.style.marginTop = '1rem';
-                    vTag.innerHTML = `Build: v2.2.6 | API: ${data.version || 'unknown'}`;
+                    vTag.innerHTML = `Build: v2.2.7 | API: ${data.version || 'unknown'}`;
                     footer.appendChild(vTag);
                 }
             });
@@ -749,8 +749,39 @@ function closeNav() {
     if (overlay) overlay.classList.remove('active');
 }
 
+// Serving Modal Control
+function openServingModal() {
+    const modal = document.getElementById('servingModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scroll
+    }
+}
+
+function closeServingModal() {
+    const modal = document.getElementById('servingModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scroll
+    }
+}
+
+// Global click-to-close for modals
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        const modalId = e.target.id;
+        // Don't close if it's the specific modal logic handled elsewhere
+        // But for serving modal and basic overlays it's fine
+        if (modalId === 'servingModal') {
+            closeServingModal();
+        }
+    }
+});
+
 // Export for use in other modules
 window.app = {
+    openServingModal,
+    closeServingModal,
     apiCall,
     formatCurrency,
     formatDate,

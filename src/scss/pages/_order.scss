@@ -91,6 +91,21 @@
             font-weight: 700;
             color: var(--primary-600);
             box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            .frozen-indicator {
+                color: #0891b2;
+                display: flex;
+                align-items: center;
+
+                svg {
+                    width: 12px;
+                    height: 12px;
+                    stroke-width: 3;
+                }
+            }
         }
     }
 
@@ -1208,5 +1223,58 @@
 
     @media (min-width: 768px) {
         padding-bottom: 0; // Remove extra padding on desktop
+    }
+}
+
+// Frozen Notice Specific Styles
+.frozen-notice {
+    width: max-content;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    border: 1px solid #a5f3fc;
+    color: #0891b2;
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.05);
+    padding: var(--spacing-xl);
+
+    .notice-content {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        text-align: left;
+    }
+
+    .notice-icon.frozen-icon {
+        background: #0891b2;
+        color: white;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(8, 145, 178, 0.2);
+
+        svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+        }
+    }
+
+    .notice-title {
+        color: #0e7490;
+        font-weight: 800;
+        margin-bottom: 2px;
+    }
+
+    .notice-text {
+        color: #155e75;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+
+        strong {
+            color: #0891b2;
+            font-weight: 700;
+        }
     }
 }

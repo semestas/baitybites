@@ -267,7 +267,10 @@ function renderProducts() {
             <div class="product-card animate-fade-in">
                 <div class="product-image">
                     <img src="${p.image_url || '/assets/placeholder-product.png'}" alt="${p.name}">
-                    <div class="product-badge">${p.category}</div>
+                    <div class="product-badge">
+                        ${p.category}
+                        ${p.category === 'Risol' ? '<span class="frozen-indicator" title="Produk Frozen"><i data-lucide="snowflake"></i></span>' : ''}
+                    </div>
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">${p.name}</h3>
