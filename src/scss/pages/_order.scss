@@ -1001,11 +1001,11 @@
     // margin-top: 6rem;
     position: relative;
     overflow: hidden;
-    margin-bottom: 2.35rem; // Extra space on mobile for sticky bar
+    // margin-bottom: 2.35rem; // Extra space on mobile for sticky bar
 
-    @media (min-width: 768px) {
-        margin-bottom: 0; // Remove on desktop
-    }
+    // @media (min-width: 768px) {
+    //     margin-bottom: 0; // Remove on desktop
+    // }
 
     .container {
         position: relative;
@@ -1044,12 +1044,12 @@
         }
 
         .footer-heading {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
 
             @media (min-width: 768px) {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
         }
 

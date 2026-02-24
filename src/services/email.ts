@@ -106,7 +106,7 @@ export class EmailService {
     }
 
     private async executeMailTask(orderData: any) {
-        const { order_number, invoice_number, email, name } = orderData;
+        const { order_number, invoice_number, email } = orderData;
         let html = "";
         let pdfBuffer = null;
 
@@ -287,7 +287,7 @@ export class EmailService {
                 </div>
 
                 <div class="footer">
-                    Terima kasih atas pesanan Anda! 🙏 <br><b>BaityBites Team</b>
+                    Terima kasih atas pesanan Anda! 🙏 <br><b>Baitybites Team</b>
                 </div>
             </div>
         </body>

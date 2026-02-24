@@ -12,7 +12,7 @@
 <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
     rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css?v=2.2.5">
+<link rel="stylesheet" href="/css/style.css?v=2.2.6">
 <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -245,7 +245,7 @@
                             </div>
                             <div class="field-edit-box">
                                 <input type="text" id="hero_greeting" class="form-input"
-                                    placeholder="Contoh: 👋 Selamat Datang di BaityBites">
+                                    placeholder="Contoh: 👋 Selamat Datang di Baitybites">
                                 <div class="edit-controls">
                                     <button type="button" class="btn btn-outline"
                                         onclick="cancelInlineEdit('hero_greeting')">Batal</button>
@@ -739,6 +739,27 @@
                                 </div>
                             </div>
 
+                            <!-- Top Products Card -->
+                            <div class="pos-report-table-card mb-6">
+                                <div class="table-header">
+                                    <h3>Top Performing Products</h3>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table" id="top-products-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product Name</th>
+                                                <th class="text-center">Units Sold</th>
+                                                <th class="text-right">Revenue</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- To be populated by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                             <!-- Detailed Table -->
                             <div class="pos-report-table-card">
                                 <div class="table-header">
@@ -831,7 +852,7 @@
         </div>
     </div>
 
-    <script src="/js/app.js?v=2.2.5"></script>
+    <script src="/js/app.js?v=2.2.6"></script>
     <script>
         // apiCall is already globally available from app.js
 
@@ -1040,6 +1061,18 @@
                     document.getElementById('row-net-net').textContent = window.app.formatCurrency(gross);
                     document.getElementById('row-total-sales').textContent = window.app.formatCurrency(gross);
                     document.getElementById('row-total-net').textContent = window.app.formatCurrency(gross);
+
+                    // Top Products
+                    const topProductsBody = document.querySelector('#top-products-table tbody');
+                    if (topProductsBody && data.topProducts) {
+                        topProductsBody.innerHTML = data.topProducts.map(p => `
+                            <tr>
+                                <td>${p.name}</td>
+                                <td class="text-center">${p.total_qty}</td>
+                                <td class="text-right font-bold">${window.app.formatCurrency(p.total_sales)}</td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="3" class="text-center py-4 text-muted">No products sold in this period</td></tr>';
+                    }
 
                     // Draw Chart
                     drawSalesChart(data.trend);
@@ -1406,7 +1439,7 @@
                         yPos += 5;
 
                         // Export the visible table
-                        const visibleTable = document.querySelector('.table:visible');
+                        const visibleTable = document.getElementById('detail-report-body').closest('table');
                         if (visibleTable) {
                             doc.autoTable({
                                 startY: yPos,
@@ -1475,9 +1508,19 @@
                         csv += `Total Orders,${document.getElementById('report-orders-v2').textContent}\n`;
                         csv += `Average Order Value,${document.getElementById('report-avg-v2').textContent}\n`;
                         csv += `Gross Sales,${document.getElementById('row-gross-sales')?.textContent || 'N/A'}\n`;
-                        csv += `Net Sales,${document.getElementById('row-net-sales')?.textContent || 'N/A'}\n`;
+                        csv += `Net Sales,${document.getElementById('row-net-sales')?.textContent || 'N/A'}\n\n`;
+
+                        csv += 'Top Performing Products\n';
+                        csv += 'Product Name,Units Sold,Revenue\n';
+                        const topRows = document.querySelectorAll('#top-products-table tbody tr');
+                        topRows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            if (cells.length >= 3) {
+                                csv += `"${cells[0].textContent.trim()}",${cells[1].textContent.trim()},"${cells[2].textContent.trim()}"\n`;
+                            }
+                        });
                     } else {
-                        const table = document.querySelector('.table:visible');
+                        const table = document.getElementById('detail-report-body').closest('table');
                         if (table) {
                             const rows = table.querySelectorAll('tr');
                             rows.forEach(row => {

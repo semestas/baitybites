@@ -1,7 +1,7 @@
 # Cloudinary Integration Guide
 
 ## Overview
-BaityBites now uses **Cloudinary** as the cloud-based image storage solution, replacing local file system storage. All product images, gallery photos, and user avatars are now uploaded to and served from Cloudinary's CDN.
+Baitybites now uses **Cloudinary** as the cloud-based image storage solution, replacing local file system storage. All product images, gallery photos, and user avatars are now uploaded to and served from Cloudinary's CDN.
 
 ## Configuration
 

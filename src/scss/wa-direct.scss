@@ -34,10 +34,24 @@ body.wa-direct-page {
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
+    .wa-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+
+        img {
+            display: block;
+            height: 2rem;
+            aspect-ratio: 1/1;
+            filter: invert(0) brightness(3);
+        }
+    }
+
     h2 {
         margin: 0;
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
 
     p {
@@ -309,43 +323,44 @@ body.wa-direct-page {
 }
 
 .wa-modal-header {
-    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    background: linear-gradient(135deg, #62ad82 0%, #2c7249 100%);
     color: white;
-    padding: 20px;
+    padding: 16px;
     border-radius: 16px 16px 0 0;
     text-align: center;
 
     .wa-success-icon {
-        font-size: 48px;
-        margin-bottom: 10px;
+        font-size: 24px;
+        margin: 0;
     }
 
     h2 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1rem;
+        color: var(--neutral-300);
     }
 
     p {
-        margin: 10px 0 0 0;
+        margin: 0;
         opacity: 0.9;
-        font-size: 0.9rem;
+        font-size: 0.75rem;
     }
 }
 
 .wa-modal-body {
-    padding: 20px;
+    padding: 8px;
 }
 
 .wa-summary-box {
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     font-family: monospace;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     white-space: pre-wrap;
-    line-height: 1.6;
-    border: 1px solid #e0e0e0;
+    line-height: 1.35;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .wa-btn-group {

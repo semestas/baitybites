@@ -221,11 +221,7 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                 }
             };
         })
-        .post('/process-tasks/:invoiceNumber', async ({ params }) => {
-            const { invoiceNumber } = params;
-            await runPublicOrderBackgroundTasks(invoiceNumber, db, emailService);
-            return { success: true, message: 'Tasks triggered manually' };
-        })
+
         .get('/products', async () => {
             const products = await db`SELECT * FROM products WHERE stock > 0`;
             return {

@@ -33,7 +33,7 @@ async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailS
         `;
 
         // 1. Prepare Data
-        const totalStr = new Intl.NumberFormat('id-ID').format(Number(order.total_amount));
+        const _totalStr = new Intl.NumberFormat('id-ID').format(Number(order.total_amount));
         const adminEmail = (process.env.SMTP_USER && process.env.SMTP_USER.includes('@'))
             ? process.env.SMTP_USER
             : 'id.baitybites@gmail.com';
@@ -177,11 +177,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
                 }))
             })
         })
-        .post('/process-tasks/:invoiceNumber', async ({ params }) => {
-            const { invoiceNumber } = params;
-            await runWADirectBackgroundTasks(invoiceNumber, db, emailService);
-            return { success: true, message: 'Tasks triggered manually' };
-        })
+
         .get('/invoice/:invoiceNumber/pdf', async ({ params, set }) => {
             const { invoiceNumber } = params;
 
@@ -219,7 +215,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
                     order_number: order.order_number,
                     invoice_number: order.invoice_number,
                     total_amount: order.total_amount,
-                    name: order.customer_name,
+                    _name: order.customer_name, // Prefixed with '_' as it's not directly used in generateInvoiceHtml
                     email: order.customer_email,
                     address: order.address || '-',
                     items: items

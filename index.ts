@@ -66,7 +66,7 @@ const app = new Elysia()
     .get("/favicon.ico", () => Bun.file(join(PUBLIC_DIR, "assets/favicon.png")))
     .get("/.well-known/*", () => new Response(null, { status: 404 }))
     .use(cors({
-        origin: '*', // Using '*' instead of true avoids Vary: Origin which can interfere with caching
+        origin: true, // Reflects the request origin, safer than '*' when using credentials
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         credentials: true
@@ -86,38 +86,48 @@ const app = new Elysia()
     )
     // Serve HTML files with proper headers
     .onBeforeHandle(() => { /* Hook for potential shared logic */ })
-    .get("/", () => new Response(readFileSync(join(PUBLIC_DIR, "index.html"), "utf-8"), {
-        headers: { "Content-Type": "text/html; charset=utf-8" }
-    }))
+    // Serve HTML files with proper headers - Using Bun.file for performance/security
+    .get("/", () => {
+        return new Response(Bun.file(join(PUBLIC_DIR, "index.html")), {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+    })
     // Standard pages loop
     .group("", app => {
         [
             "index", "login", "admin", "order", "track", "cms", "dashboard", "orders", "customers",
             "products", "production", "kitchen", "privacy", "tos", "profile", "docs", "wa-direct"
         ].forEach(page => {
-            app.get(`/${page}.html`, () => new Response(readFileSync(join(PUBLIC_DIR, `${page}.html`), "utf-8"), {
-                headers: { "Content-Type": "text/html; charset=utf-8" }
-            }));
+            app.get(`/${page}.html`, () => {
+                return new Response(Bun.file(join(PUBLIC_DIR, `${page}.html`)), {
+                    headers: { "Content-Type": "text/html; charset=utf-8" }
+                });
+            });
             app.get(`/${page}`, ({ redirect }) => redirect(`/${page}.html`));
         });
         return app;
     })
     // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
+    // Refactored to prevent path traversal
     .get("/css/*", ({ params }) => {
-        const filePath = join(PUBLIC_DIR, "css", (params as any)["*"]);
-        return Bun.file(filePath);
+        const path = (params as any)["*"];
+        if (path.includes('..')) return new Response("Forbidden", { status: 403 });
+        return Bun.file(join(PUBLIC_DIR, "css", path));
     })
     .get("/js/*", ({ params }) => {
-        const filePath = join(PUBLIC_DIR, "js", (params as any)["*"]);
-        return Bun.file(filePath);
+        const path = (params as any)["*"];
+        if (path.includes('..')) return new Response("Forbidden", { status: 403 });
+        return Bun.file(join(PUBLIC_DIR, "js", path));
     })
     .get("/assets/*", ({ params }) => {
-        const filePath = join(PUBLIC_DIR, "assets", (params as any)["*"]);
-        return Bun.file(filePath);
+        const path = (params as any)["*"];
+        if (path.includes('..')) return new Response("Forbidden", { status: 403 });
+        return Bun.file(join(PUBLIC_DIR, "assets", path));
     })
     .get("/uploads/*", ({ params }) => {
-        const filePath = join(PUBLIC_DIR, "uploads", decodeURIComponent((params as any)["*"]));
-        return Bun.file(filePath);
+        const path = decodeURIComponent((params as any)["*"]);
+        if (path.includes('..')) return new Response("Forbidden", { status: 403 });
+        return Bun.file(join(PUBLIC_DIR, "uploads", path));
     })
     .get("/sw.js", () => Bun.file(join(PUBLIC_DIR, "sw.js")))
     .get("/manifest.json", () => Bun.file(join(PUBLIC_DIR, "manifest.json")))
@@ -126,7 +136,7 @@ const app = new Elysia()
         timestamp: new Date().toISOString(),
         env: process.env.NODE_ENV || 'development'
     }))
-    // BaityBites v1.1.2 - All reports registered
+    // Baitybites v1.1.2 - All reports registered
     .listen(process.env.PORT || 9876);
 
 // --- Background Job: Instagram Sync (Every 1 Hour) - SUSPENDED ---

@@ -27,7 +27,7 @@ async function updateVersion() {
             const regex = /(href|src)=["'](?!\/\/|http)([^"']+\.(css|js))(\?v=[^"']*)?["']/g;
 
             let changed = false;
-            const newContent = content.replace(regex, (match, attr, path, ext, oldQuery) => {
+            const newContent = content.replace(regex, (match, attr, path) => {
                 const newTag = `${attr}="${path}?v=${VERSION}"`;
                 if (match !== newTag) {
                     changed = true;

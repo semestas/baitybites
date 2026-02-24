@@ -1,6 +1,6 @@
 
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
-import { join, basename } from "node:path";
+import { join } from "node:path";
 import packageJson from "./package.json";
 
 const VERSION = packageJson.version;
@@ -21,7 +21,7 @@ async function buildManifest() {
         json.version = VERSION;
         await writeFile(MANIFEST_DEST, JSON.stringify(json, null, 4), 'utf-8');
         console.log(`  ✓ Built manifest.json`);
-    } catch (error) {
+    } catch {
         // If manifest doesn't exist in src, try reading from public and updating it there
         try {
             let content = await readFile(MANIFEST_DEST, 'utf-8');
@@ -29,7 +29,7 @@ async function buildManifest() {
             json.version = VERSION;
             await writeFile(MANIFEST_DEST, JSON.stringify(json, null, 4), 'utf-8');
             console.log(`  ✓ Updated manifest.json version`);
-        } catch (e) {
+        } catch {
             // Silently fail if no manifest found
         }
     }
@@ -46,7 +46,7 @@ async function getPartials() {
             }
         }
         return partials;
-    } catch (e) {
+    } catch {
         return {};
     }
 }
@@ -114,7 +114,7 @@ async function buildHtml() {
                 // Replace any existing ?v=... with ?v=VERSION
                 const versionRegex = /(href|src)=["'](?!\/\/|http)([^"']+\.(css|js))(\?v=[^"']*)?["']/g;
 
-                content = content.replace(versionRegex, (match, attr, path, ext, oldQuery) => {
+                content = content.replace(versionRegex, (match, attr, path) => {
                     return `${attr}="${path}?v=${VERSION}"`;
                 });
 
@@ -149,7 +149,7 @@ if (process.argv.includes('--watch')) {
     buildHtml();
 
     // Watch for HTML changes
-    watch(SRC_DIR, (eventType: string, filename: string | null) => {
+    watch(SRC_DIR, (_: string, filename: string | null) => {
         if (filename && filename.endsWith('.html')) {
             console.log(`[HTML Builder] HTML changed: ${filename}`);
             buildHtml();
@@ -158,33 +158,33 @@ if (process.argv.includes('--watch')) {
 
     // Watch for JS changes
     try {
-        watch(JS_SRC_DIR, (eventType: string, filename: string | null) => {
+        watch(JS_SRC_DIR, (_: string, filename: string | null) => {
             if (filename && filename.endsWith('.js')) {
                 console.log(`[HTML Builder] JS changed: ${filename}`);
                 buildHtml();
             }
         });
-    } catch (e) { }
+    } catch { }
 
     // Watch for Partials changes
     try {
-        watch(PARTIALS_DIR, (eventType: string, filename: string | null) => {
+        watch(PARTIALS_DIR, (_: string, filename: string | null) => {
             if (filename && filename.endsWith('.html')) {
                 console.log(`[HTML Builder] Partial changed: ${filename}`);
                 buildHtml();
             }
         });
-    } catch (e) {
+    } catch {
         // partials dir might not exist yet
     }
 
     // Watch for SW changes
     try {
-        watch(SW_SRC, (eventType: string, filename: string | null) => {
+        watch(SW_SRC, () => {
             console.log(`[HTML Builder] Service Worker changed`);
             buildServiceWorker();
         });
-    } catch (e) {
+    } catch {
         console.log("Could not watch sw.js directly (maybe it doesn't exist yet?)");
     }
 

@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showNotification('Gagal memproses pesanan', 'error');
         } finally {
             btnSubmit.disabled = false;
-            btnSubmit.innerHTML = '<span>⎙</span> Print & Send PDF Invoice';
+            btnSubmit.innerHTML = '<span>⎙</span> Buat & Kirim Invoice';
         }
     });
 
@@ -249,9 +249,12 @@ Subtotal: Rp ${subtotal.toLocaleString('id-ID')}
 Diskon: Rp ${discount.toLocaleString('id-ID')}
 ━━━━━━━━━━━━━━━━━━━━
 GRAND TOTAL: Rp ${totalAmount.toLocaleString('id-ID')}
+━━━━━━━━━━━━━━━━━━━━
+💰 Pembayaran: 
+Siti Nurbaity | BCA-7145060133
 
 Terima kasih atas pesanan Anda! 🙏
-- BaityBites Team`;
+- Baitybites Team`;
 
         // Create modal using classes defined in wa-direct.scss
         const modal = document.createElement('div');
@@ -270,7 +273,7 @@ Terima kasih atas pesanan Anda! 🙏
 
                     <div class="wa-btn-group">
                         <button id="btnDownloadSummary" class="wa-btn btn-pdf">
-                            <span>🖼️</span> Simpan Gambar (PNG)
+                            <span>🖼️</span> Screenshot Invoice
                         </button>
 
                         <button id="btnShareWA" class="wa-btn btn-whatsapp">
@@ -336,7 +339,7 @@ Terima kasih atas pesanan Anda! 🙏
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
-                        title: 'Order Summary BaityBites',
+                        title: 'Order Summary Baitybites',
                         text: `Halo ${customerName}, berikut ringkasan pesanan Anda.`
                     });
                 } else {
@@ -358,11 +361,13 @@ Terima kasih atas pesanan Anda! 🙏
             modal.remove();
         });
 
-        // Close on backdrop click
+        // Modal can only be closed by the close button
+        /*
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.remove();
             }
         });
+        */
     }
 });

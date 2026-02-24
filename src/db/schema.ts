@@ -327,14 +327,20 @@ export async function initDatabase() {
     console.error("Migration error on testimonials table:", e);
   }
 
-  // Insert default admin user (password: admin123)
+  // Insert default admin user
   const adminExists = await sql`SELECT id FROM users WHERE username = 'admin' LIMIT 1`;
   if (adminExists.length === 0) {
-    const hashedPassword = await Bun.password.hash("admin123");
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const hashedPassword = await Bun.password.hash(adminPassword);
     await sql`
       INSERT INTO users (username, password, name, role)
       VALUES ('admin', ${hashedPassword}, 'Administrator', 'admin')
     `;
+    if (adminPassword === "admin123") {
+      console.warn("⚠️ Initial admin user created with default password 'admin123'. Please change it immediately!");
+    } else {
+      console.log("✅ Initial admin user created with password from ADMIN_PASSWORD env.");
+    }
   }
 
   /* 
