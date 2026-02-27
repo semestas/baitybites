@@ -106,10 +106,13 @@ body.wa-direct-page {
     background: #eee;
 }
 
-.product-info {
+.product-info,
+.product-card-wa {
     flex: 1;
 
     .product-name {
+        flex: none;
+        width: 100%;
         font-weight: 700;
         color: #2d3436;
         font-size: 0.95rem;

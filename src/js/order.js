@@ -282,7 +282,7 @@ function renderProducts() {
                         </div>
                         <div class="current-stock ${stockLow ? 'stock-low' : ''} ${stockOut ? 'stock-out' : ''}" id="stock-display-${p.id}">
                             <span class="stock-label">Stok:</span>
-                            <span class="stock-value" id="stock-${p.id}">${remainingStock}</span>
+                            <span class="stock-value" id="stock-${p.id}">${remainingStock}</span> <span class="stock-unit">${p.unit}</span>
                         </div>
                     </div>
                     <div class="product-actions">

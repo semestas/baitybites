@@ -26,11 +26,11 @@ export const googleAuthRoutes = (db: Sql) => {
     const isLocal = process.env.HOST === 'localhost' || process.env.NODE_ENV === 'development';
 
     // In production (Netlify), we treat everything as same-domain via proxy
-    // Local: http://localhost:3000
+    // Local: http://localhost:2415
     // Prod: https://baitybites.netlify.app (proxying to Render)
 
     const baseUrl = isLocal
-        ? `http://localhost:${process.env.PORT || 3000}`
+        ? `http://localhost:${process.env.PORT || 2415}`
         : 'https://baitybites.netlify.app';
 
     // The redirect URI sent to Google must match the Proxy URL (Netlify) not Render directly
@@ -73,7 +73,7 @@ export const googleAuthRoutes = (db: Sql) => {
             }
 
             const url = await oauth2.createURL('Google', ['email', 'profile']);
-            const currentPort = process.env.PORT || 3000;
+            const currentPort = process.env.PORT || 2415;
             return {
                 debug_info: "=== CONFIGURATION CHECK ===",
                 server_port: currentPort,

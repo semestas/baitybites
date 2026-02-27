@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="product-price-stock">
                                 <div class="product-price">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
                                 <div class="wa-stock-badge ${stockLow ? 'stock-low' : ''} ${stockOut ? 'stock-out' : ''}" id="wa-stock-${p.id}">
-                                    Stok: <strong>${remainingStock}</strong>
+                                    Stok: <strong>${remainingStock}</strong> ${p.unit}
                                 </div>
                             </div>
                             <div class="counter-btns">
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const stockBadge = document.getElementById(`wa-stock-${pid}`);
         const qtyEl = document.getElementById(`wa-qty-${pid}`);
         if (stockBadge) {
-            stockBadge.innerHTML = `Stok: <strong>${remainingStock}</strong>`;
+            stockBadge.innerHTML = `Stok: <strong>${remainingStock} ${product.unit}</strong>`;
             stockBadge.classList.toggle('stock-low', remainingStock > 0 && remainingStock <= 5);
             stockBadge.classList.toggle('stock-out', remainingStock === 0);
         }

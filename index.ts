@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { join } from "path";
-import { readFileSync } from "fs";
+
 import { initDatabase } from "./src/db/schema";
 import { jwtConfig } from "./src/utils/jwt";
 import { authRoutes } from "./src/routes/auth";
@@ -95,7 +95,7 @@ const app = new Elysia()
     // Standard pages loop
     .group("", app => {
         [
-            "index", "login", "admin", "order", "track", "cms", "dashboard", "orders", "customers",
+            "index", "login", "admin", "admin-products", "order", "track", "cms", "dashboard", "orders", "customers",
             "products", "production", "kitchen", "privacy", "tos", "profile", "docs", "wa-direct"
         ].forEach(page => {
             app.get(`/${page}.html`, () => {
@@ -137,7 +137,7 @@ const app = new Elysia()
         env: process.env.NODE_ENV || 'development'
     }))
     // Baitybites v1.1.2 - All reports registered
-    .listen(process.env.PORT || 9876);
+    .listen(process.env.PORT || 2415);
 
 // --- Background Job: Instagram Sync (Every 1 Hour) - SUSPENDED ---
 /*
@@ -148,7 +148,7 @@ setInterval(async () => {
 }, 1000 * 60 * 60); // 1 hour
 */
 
-const port = app.server?.port || process.env.PORT || 9876;
+const port = app.server?.port || process.env.PORT || 2415;
 
 // Server started successfully
 console.log(`

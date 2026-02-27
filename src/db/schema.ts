@@ -9,7 +9,7 @@ const sql = postgres(connectionString, {
   onnotice: () => { }, // Suppress NOTICE logs to keep production logs clean
   max: 5,              // Reduced max connections for stability on free/shared tiers
   idle_timeout: 20,    // Idle connection timeout in seconds
-  connect_timeout: 30, // Connection timeout in seconds
+  connect_timeout: 60, // Increased to 60s for Neon cold starts
   prepare: false       // Disable prepared statements for better compatibility with poolers/shards
 });
 
