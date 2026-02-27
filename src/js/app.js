@@ -364,7 +364,7 @@ function isPublicPath() {
 
 // Check authentication
 function checkAuth() {
-    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html', '/admin-products', '/admin-products.html'];
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -552,7 +552,7 @@ async function checkVersion() {
 
 // Header initialization for all pages
 function initGlobalHeader() {
-    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html', '/admin-products', '/admin-products.html'];
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 

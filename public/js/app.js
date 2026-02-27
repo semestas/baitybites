@@ -364,7 +364,7 @@ function isPublicPath() {
 
 // Check authentication
 function checkAuth() {
-    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html', '/admin-products', '/admin-products.html'];
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -526,7 +526,7 @@ async function checkVersion() {
         const data = await response.json();
         const versionElement = document.getElementById('footer-version');
         if (versionElement) {
-            versionElement.innerHTML = `Build: v2.2.7 | API: ${data.version || 'unknown'}`;
+            versionElement.innerHTML = `Build: v2.2.8 | API: ${data.version || 'unknown'}`;
             versionElement.style.fontSize = '0.7rem';
             versionElement.style.opacity = '0.5';
             versionElement.style.marginTop = '0.5rem';
@@ -540,7 +540,7 @@ async function checkVersion() {
                     vTag.style.fontSize = '0.7rem';
                     vTag.style.opacity = '0.5';
                     vTag.style.marginTop = '1rem';
-                    vTag.innerHTML = `Build: v2.2.7 | API: ${data.version || 'unknown'}`;
+                    vTag.innerHTML = `Build: v2.2.8 | API: ${data.version || 'unknown'}`;
                     footer.appendChild(vTag);
                 }
             });
@@ -552,7 +552,7 @@ async function checkVersion() {
 
 // Header initialization for all pages
 function initGlobalHeader() {
-    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html', '/admin-products', '/admin-products.html'];
+    const adminPages = ['/dashboard', '/dashboard.html', '/orders.html', '/customers.html', '/products.html', '/production.html', '/cms.html', '/kitchen', '/kitchen.html'];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 

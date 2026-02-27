@@ -95,7 +95,7 @@ const app = new Elysia()
     // Standard pages loop
     .group("", app => {
         [
-            "index", "login", "admin", "admin-products", "order", "track", "cms", "dashboard", "orders", "customers",
+            "index", "login", "admin", "order", "track", "cms", "dashboard", "orders", "customers",
             "products", "production", "kitchen", "privacy", "tos", "profile", "docs", "wa-direct"
         ].forEach(page => {
             app.get(`/${page}.html`, () => {

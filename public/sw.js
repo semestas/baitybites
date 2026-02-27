@@ -1,4 +1,4 @@
-const CACHE_VERSION = '2.2.7';
+const CACHE_VERSION = '2.2.8';
 
 // --- Production Protection: Silence console.log in non-local environments ---
 if (!['localhost', '127.0.0.1', '0.0.0.0'].includes(self.location.hostname)) {
