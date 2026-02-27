@@ -330,11 +330,11 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 2rem;
-        padding-bottom: var(--spacing-md);
+        // padding-bottom: var(--spacing-md);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--neutral-100);
+        // border-bottom: 1px solid var(--neutral-100);
     }
 
     .summary-details {
@@ -1239,7 +1239,7 @@
 
 // Frozen Notice Specific Styles
 .frozen-notice {
-    width: max-content;
+    width: fit-content;
     margin: 0 auto;
     background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
     border: 1px solid #a5f3fc;

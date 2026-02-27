@@ -97,17 +97,20 @@
 
     ul {
         margin: 0;
-        padding-left: 1.2rem;
         color: #166534;
         display: grid;
         gap: 0.4rem;
     }
 
-    li i {
-        width: 14px;
-        height: 14px;
-        vertical-align: middle;
-        margin-right: 4px;
+    li {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+
+        i {
+            width: 21px;
+            height: 21px;
+        }
     }
 }
 

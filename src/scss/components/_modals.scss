@@ -152,7 +152,7 @@
       font-size: 0.75rem;
     }
 
-    > div {
+    >div {
       flex: none;
       width: fit-content;
       font-size: 0.65rem;
@@ -179,5 +179,34 @@
     padding: var(--spacing-md) var(--spacing-lg);
     background: white;
     box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+  }
+}
+
+#addProductModal {
+  .modal {
+    #addProductForm {
+      .modal-body {
+        @media (max-width: 768px) {
+          .form-group {
+            &.form-group-block {
+              display: block;
+
+              >div {
+                width: fit-content;
+                font-size: 0.65rem;
+                align-self: flex-end;
+                margin-left: auto;
+              }
+            }
+          }
+
+          .grid {
+            &.grid-2 {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        }
+      }
+    }
   }
 }
