@@ -385,6 +385,7 @@ export class EmailService {
                 </table>
 
                 <div class="track-section">
+                    <p>Pembayaran: <strong>Siti Nurbaity BCA-7145060133</strong></p>
                     <p>Anda dapat melacak status pesanan Anda melalui tombol di bawah ini:</p>
                     <a href="https://baitybites.netlify.app/track.html?number=${invoice_number}" class="btn">Lacak Pesanan Saya</a>
                 </div>
