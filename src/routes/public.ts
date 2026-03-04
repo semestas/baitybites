@@ -93,8 +93,8 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                     const totalAmount = items.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
 
                     const [order] = await sql`
-                        INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)
-                        VALUES (${customer.id}, ${orderNumber}, CURRENT_TIMESTAMP, ${totalAmount}, 'pending', ${notes})
+                        INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes, brand)
+                        VALUES (${customer.id}, ${orderNumber}, CURRENT_TIMESTAMP, ${totalAmount}, 'pending', ${notes}, ${body.brand || 'baitybites'})
                         RETURNING id
                     `;
 
@@ -167,6 +167,7 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                 phone: t.String(),
                 address: t.String(),
                 notes: t.Optional(t.String()),
+                brand: t.Optional(t.String()),
                 items: t.Array(t.Object({
                     product_id: t.Number(),
                     quantity: t.Number(),
@@ -222,19 +223,22 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
             };
         })
 
-        .get('/products', async () => {
-            const products = await db`SELECT * FROM products WHERE stock > 0`;
+        .get('/products', async ({ query }) => {
+            const brand = (query as any).brand || 'baitybites';
+            const products = await db`SELECT * FROM products WHERE stock > 0 AND brand = ${brand}`;
             return {
                 success: true,
                 data: products
             };
         })
-        .get('/gallery', async () => {
-            const gallery = await db`SELECT * FROM gallery WHERE is_active = TRUE ORDER BY display_order ASC`;
+        .get('/gallery', async ({ query }) => {
+            const brand = (query as any).brand || 'baitybites';
+            const gallery = await db`SELECT * FROM gallery WHERE is_active = TRUE AND brand = ${brand} ORDER BY display_order ASC`;
             return { success: true, data: gallery };
         })
-        .get('/testimonials', async () => {
-            const testimonials = await db`SELECT * FROM testimonials WHERE is_approved = TRUE ORDER BY created_at DESC`;
+        .get('/testimonials', async ({ query }) => {
+            const brand = (query as any).brand || 'baitybites';
+            const testimonials = await db`SELECT * FROM testimonials WHERE is_approved = TRUE AND brand = ${brand} ORDER BY created_at DESC`;
             return { success: true, data: testimonials };
         })
         .get('/instagram-widget', async () => {
@@ -244,14 +248,11 @@ export const publicRoutes = (db: Sql, emailService: EmailService) =>
                 data: widget ? widget.value : null
             };
         })
-        .get('/settings', async () => {
+        .get('/settings', async ({ query }) => {
+            const brand = (query as any).brand || 'baitybites';
             const settingsList = await db`
                 SELECT key, value FROM settings 
-                WHERE key IN (
-                    'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 
-                    'social_instagram', 'social_facebook', 'social_tiktok',
-                    'hero_greeting', 'hero_title', 'hero_description', 'hero_background_url', 'hero_button_text', 'hero_button_link'
-                )
+                WHERE brand = ${brand} OR brand IS NULL
             `;
             const settings = settingsList.reduce((acc: any, curr: any) => {
                 acc[curr.key] = curr.value;

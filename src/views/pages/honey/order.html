@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Beli Golden Revival Honey - Premium Selection</title>
+    <meta name="description"
+        content="Pesan madu premium Golden Revival secara online. Kemurnian alam untuk energi Anda. Nikmati pengiriman cepat dan kemasan aman.">
+    {{> honey_head }}
+</head>
+
+<body class="honey-theme bg-neutral-50">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/honey/" class="logo">
+                        <img src="/assets/honey/logo.png" alt="Golden Revival Logo" class="logo-header">
+                        <span class="brand-name ml-2 font-bold text-xl text-honey-800">Golden Revival</span>
+                    </a>
+                    <nav class="nav" id="mainNav">
+                        <a href="/honey/">Home</a>
+                        <a href="/honey/order.html">Order</a>
+                        <a href="/honey/track.html">Track Order</a>
+                        <a href="/honey/login.html">Login</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content order-main-content">
+            <div class="container order-page-container">
+                <!-- Honey Specific Notice -->
+                <div class="info-box honey-notice mt-4 mb-4 animate-fade-in p-6 bg-honey-100 border-honey-200">
+                    <div class="notice-content flex items-center gap-4">
+                        <div class="notice-icon text-honey-600"><i data-lucide="sun"></i></div>
+                        <div class="flex-1">
+                            <p class="notice-title font-bold text-honey-900">Madu Alam Murni</p>
+                            <p class="notice-text text-honey-800">Setiap pesanan dikemas dengan pengamanan ekstra untuk
+                                menjaga kualitas madu hingga ke tangan Anda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Navigation -->
+                <div class="category-tabs" id="categoryTabs">
+                    <div class="spinner spinner-sm"></div>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="productList" class="product-grid">
+                    <div class="spinner product-spinner mx-auto p-12"></div>
+                </div>
+
+                <!-- Order Summary Modal -->
+                {{> order_confirmation_modal }}
+
+                <!-- Sticky Order Summary Bar -->
+                {{> order_sticky_bar }}
+
+                <!-- Resume Cart Warning -->
+                {{> order_resume_cart }}
+
+                <!-- Recent Orders for Logged-in Users -->
+                {{> order_recent_orders }}
+            </div>
+        </main>
+
+        {{> honey_footer }}
+    </div>
+
+
+
+    <script>window.CURRENT_BRAND = 'honey';</script>
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/order.js?v={{VERSION}}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            // Force honey brand for this page
+            localStorage.setItem('current_brand', 'honey');
+        });
+    </script>
+</body>
+
+</html>

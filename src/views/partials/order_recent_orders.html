@@ -1,0 +1,20 @@
+<div id="recentOrdersSection" class="recent-orders-section animate-fade-in hidden">
+    <div class="recent-orders-list">
+        <div class="flex justify-between items-center recent-orders-header cursor-pointer w-full"
+            onclick="toggleRecentOrders()">
+            <div class="flex items-center gap-2">
+                <i id="recentOrdersChevron" data-lucide="chevron-up" class="transition-transform"></i>
+                <div class="recent-orders-title no-margin">Pesanan Terbaru Anda</div>
+            </div>
+            <button onclick="event.stopPropagation(); loadRecentOrders(this)" class="btn btn-outline btn-sm"
+                title="Refresh Data">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+        <div id="recentOrdersBody" class="recent-orders-body transition-all">
+            <div id="recentOrdersList" class="flex flex-wrap gap-2">
+                <p class="text-center text-muted">Memuat pesanan...</p>
+            </div>
+        </div>
+    </div>
+</div>

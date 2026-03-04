@@ -107,6 +107,26 @@ const app = new Elysia()
         });
         return app;
     })
+    // Honey Brand Pages
+    .group("/honey", app => {
+        [
+            "index", "login", "order", "track"
+        ].forEach(page => {
+            app.get(`/${page}.html`, () => {
+                return new Response(Bun.file(join(PUBLIC_DIR, "honey", `${page}.html`)), {
+                    headers: { "Content-Type": "text/html; charset=utf-8" }
+                });
+            });
+            app.get(`/${page}`, ({ redirect }) => redirect(`/honey/${page}.html`));
+        });
+        // Root redirect for honey
+        app.get("/", () => {
+            return new Response(Bun.file(join(PUBLIC_DIR, "honey", "index.html")), {
+                headers: { "Content-Type": "text/html; charset=utf-8" }
+            });
+        });
+        return app;
+    })
     // Serve static assets manually (CSS, JS, images, etc.) - NOT HTML
     // Refactored to prevent path traversal
     .get("/css/*", ({ params }) => {

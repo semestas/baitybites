@@ -315,8 +315,10 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
 
-    // Redirect all users (including admins) to landing page
-    window.location.href = '/';
+    // Redirect to brand home
+    const brand = window.CURRENT_BRAND || 'baitybites';
+    const homePath = brand === 'honey' ? '/honey/' : '/';
+    window.location.href = homePath;
 }
 
 // Role constants
@@ -472,9 +474,15 @@ async function loadFooterCategories() {
         const { apiCall } = window.app;
         if (!apiCall) return; // Wait for app initialization
 
+        const brand = window.CURRENT_BRAND || 'baitybites';
+        const brandPrefix = brand === 'honey' ? '/honey' : '';
+        const homePath = brand === 'honey' ? '/honey/' : '/';
+        const orderPath = brand === 'honey' ? '/honey/order.html' : '/order.html';
+        const trackPath = brand === 'honey' ? '/honey/track.html' : '/track.html';
+
         let categories = [];
         try {
-            const result = await apiCall('/public/products');
+            const result = await apiCall(`/public/products?brand=${brand}`);
             if (result.success && Array.isArray(result.data)) {
                 categories = [...new Set(result.data.map(p => p.category))].filter(Boolean).sort();
             }
@@ -484,27 +492,30 @@ async function loadFooterCategories() {
         }
 
         if (categories.length > 0) {
-            let html = '<a href="/">Home</a>';
+            let html = `<a href="${homePath}">Home</a>`;
             categories.forEach(cat => {
-                html += `<a href="/order.html">${cat}</a>`;
+                html += `<a href="${orderPath}">${cat}</a>`;
             });
-            html += '<a href="/track.html">Lacak Pesanan</a>';
+            html += `<a href="${trackPath}">Lacak Pesanan</a>`;
             nav.innerHTML = html;
         } else {
             // Fallback if no categories or error
             nav.innerHTML = `
-                <a href="/">Home</a>
-                <a href="/order.html">Menu</a>
-                <a href="/track.html">Lacak Pesanan</a>
+                <a href="${homePath}">Home</a>
+                <a href="${orderPath}">Menu</a>
+                <a href="${trackPath}">Lacak Pesanan</a>
              `;
         }
     } catch (e) {
         console.error('Failed to load footer categories', e);
         // Absolute fallback
+        const homePath = window.CURRENT_BRAND === 'honey' ? '/honey/' : '/';
+        const orderPath = window.CURRENT_BRAND === 'honey' ? '/honey/order.html' : '/order.html';
+        const trackPath = window.CURRENT_BRAND === 'honey' ? '/honey/track.html' : '/track.html';
         nav.innerHTML = `
-            <a href="/">Home</a>
-            <a href="/order.html">Menu</a>
-            <a href="/track.html">Lacak Pesanan</a>
+            <a href="${homePath}">Home</a>
+            <a href="${orderPath}">Menu</a>
+            <a href="${trackPath}">Lacak Pesanan</a>
         `;
     }
 }
@@ -604,7 +615,16 @@ function initGlobalHeader() {
         `;
     } else {
         // Handle Public Navigation
-        const isHome = normalizedPath === '/' || normalizedPath.endsWith('index') || normalizedPath.endsWith('index.html');
+        const brand = window.CURRENT_BRAND || 'baitybites';
+        const isHoney = brand === 'honey';
+        const homePath = isHoney ? '/honey/' : '/';
+        const orderPath = isHoney ? '/honey/order.html' : '/order.html';
+        const trackPath = isHoney ? '/honey/track.html' : '/track.html';
+        const loginPath = isHoney ? '/honey/login.html' : '/login.html';
+        const profilePath = isHoney ? '/honey/profile.html' : '/profile.html';
+
+        const isHome = normalizedPath === homePath || normalizedPath === (homePath.replace(/\/$/, '')) ||
+            normalizedPath.endsWith('index') || normalizedPath.endsWith('index.html');
         const isOrder = normalizedPath.includes('order.html') || normalizedPath.endsWith('/order');
         const isTrack = normalizedPath.includes('track');
         const isProfile = normalizedPath.includes('profile');
@@ -613,22 +633,22 @@ function initGlobalHeader() {
             // Logged in
             const isAdmin = user.role === 'admin';
             nav.innerHTML = `
-                <a href="/" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
-                ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : `<a href="/order.html" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>`}
-                <a href="/track.html" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
-                ${isAdmin ? '' : `<a href="/profile.html" class="nav-link ${isProfile ? 'active' : ''}">Profil</a>`}
+                <a href="${homePath}" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : `<a href="${orderPath}" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>`}
+                <a href="${trackPath}" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
+                ${isAdmin ? '' : `<a href="${profilePath}" class="nav-link ${isProfile ? 'active' : ''}">Profil</a>`}
                 <div class="user-menu" style="display: flex; align-items: center; gap: 1rem; margin-left: var(--spacing-md); padding-left: var(--spacing-md); border-left: 1px solid rgba(255,255,255,0.2);">
                     <span style="font-size: 0.9rem; font-weight: 500;">Halo, ${user.name.split(' ')[0]}</span>
-                    <button onclick="logout()" class="btn btn-outline btn-md" style="color: white; border-color: white;">Logout</button>
+                    <button onclick="logout()" class="btn btn-outline btn-md" style="color: ${isHoney ? 'var(--honey-800)' : 'white'}; border-color: ${isHoney ? 'var(--honey-800)' : 'white'};">Logout</button>
                 </div>
             `;
         } else {
             // Not logged in
             nav.innerHTML = `
-                <a href="/" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
-                <a href="/order.html" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>
-                <a href="/track.html" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
-                <a href="/login.html" class="btn btn-primary btn-md" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
+                <a href="${homePath}" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                <a href="${orderPath}" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>
+                <a href="${trackPath}" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
+                <a href="${loginPath}" class="btn btn-primary btn-md" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
             `;
         }
     }

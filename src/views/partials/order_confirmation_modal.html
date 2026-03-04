@@ -1,0 +1,141 @@
+<!-- Order Summary Modal -->
+<div id="order-confirmation-section" class="modal-overlay animate-fade-in hidden">
+    <div class="modal order-modal animate-scale-up">
+        <div class="modal-header">
+            <h2 class="text-center w-full">Ringkasan Pesanan</h2>
+            <button type="button" class="btn-close" onclick="backToProductList()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="checkout-layout-grid">
+                <div class="checkout-summary-column">
+                    <div class="order-summary-box">
+                        <div class="summary-table">
+                            <div class="summary-table-header">
+                                <div class="summary-table-header-text">Product</div>
+                                <div class="summary-table-header-text">QTY</div>
+                                <div class="summary-table-header-text">Total</div>
+                            </div>
+                            <div id="summary-items">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+
+                        <div class="summary-footer">
+                            <div class="footer-row">
+                                <span>Total Pesanan</span>
+                                <span id="summary-subtotal">Rp 0</span>
+                            </div>
+                            <div class="footer-row">
+                                <span>Ongkir</span>
+                                <span>Rp 0</span>
+                            </div>
+                            <div class="footer-row total-row">
+                                <span>Total</span>
+                                <span id="summary-total">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkout-form-column">
+                    <!-- Customer Info Preview -->
+                    <div id="customer-info-preview" class="animate-fade-in hidden">
+                        <div class="preview-header">
+                            <div class="preview-title-wrapper">
+                                <h3 class="preview-title">Data Pengiriman</h3>
+                                <span class="preview-badge">Sudah Disimpan</span>
+                            </div>
+                            <button type="button" onclick="showOrderFormEdit()" class="btn btn-outline btn-sm">
+                                Ubah
+                            </button>
+                        </div>
+
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <label>Nama Lengkap</label>
+                                <div id="preview-name" class="preview-value">-</div>
+                            </div>
+                            <div class="preview-item">
+                                <label>Nomor WhatsApp</label>
+                                <div id="preview-phone" class="preview-value">-</div>
+                            </div>
+                            <div class="preview-item full-width">
+                                <label>Alamat Tujuan</label>
+                                <div id="preview-address" class="preview-value address">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="orderForm">
+                        <div id="customer-form-fields">
+                            <div class="card p-4 mb-4">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Lengkap</label>
+                                        <input type="text" id="name" class="form-input" placeholder="Nama Anda"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor WhatsApp</label>
+                                        <input type="tel" id="phone" class="form-input" placeholder="08..." required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="email" class="form-input" placeholder="email@contoh.com"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Alamat Pengiriman</label>
+                                    <textarea id="address" class="form-textarea" placeholder="Alamat lengkap"
+                                        required></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Catatan Tambahan (Opsional)</label>
+                            <input type="text" id="notes" class="form-input" placeholder="..." required>
+                        </div>
+
+                        <div class="mt-4 flex flex-col gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg w-full">
+                                <span id="btnText">Pesan Sekarang</span>
+                                <div id="btnSpinner" class="spinner btn-spinner wh-20 hidden"></div>
+                            </button>
+                            <button type="button" onclick="backToProductList()" class="btn btn-outline btn-lg w-full">
+                                Kembali Pilih Produk
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal-overlay hidden">
+    <div class="modal animate-scale-up success-modal-compact">
+        <div class="modal-header">
+            <div class="icon-wrapper">
+                <i data-lucide="check-circle" size="48"></i>
+            </div>
+            <h2>Pesanan Berhasil!</h2>
+        </div>
+        <div class="modal-body text-center">
+            <p class="mb-4">Terima kasih atas pesanan Anda. Nomor order Anda adalah:</p>
+            <h3 id="successOrderNumber" class="text-2xl font-bold mb-2">PO-XXXX</h3>
+            <p class="text-sm opacity-75 mb-6">Silakan simpan nomor ini untuk melacak pesanan.</p>
+            <div class="flex flex-col gap-3">
+                <a id="btnTrackLink" href="/track.html" class="btn btn-primary">Lacak Pesanan</a>
+                <button onclick="location.reload()" class="btn btn-outline">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>

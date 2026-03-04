@@ -1,0 +1,22 @@
+[build]
+  command = "bun install && bun run build"
+  publish = "public/honey"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# API Proxies (pointing to the shared backend)
+[[redirects]]
+  from = "/api/*"
+  to = "https://baitybites-backend.railway.app/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/public/*"
+  to = "https://baitybites-backend.railway.app/public/:splat"
+  status = 200

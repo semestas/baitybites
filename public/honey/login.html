@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Login Pelanggan Golden Revival</title>
+    <meta name="description"
+        content="Masuk ke portal pelanggan Golden Revival untuk akses eksklusif produk madu premium, pelacakan pesanan harian, dan promo menarik.">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="/assets/honey/logo.png">
+<meta name="theme-color" content="#d97706">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Exo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css?v=2.2.10">
+<link rel="stylesheet" href="/css/honey.css?v=2.2.10">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="honey-theme">
+    <div class="login-page">
+        <div class="login-container customer-login">
+            <div class="login-card border-honey-200">
+                <div class="login-logo">
+                    <img src="/assets/honey/logo.png" alt="Golden Revival Logo">
+                </div>
+                <div class="login-header">
+                    <h1 class="text-honey-900">Portal Pelanggan</h1>
+                    <p>Masuk untuk mendapatkan promo khusus & kemudahan lacak pesanan.</p>
+                </div>
+
+                <div class="google-login-area">
+                    <button type="button" onclick="loginWithGoogle()"
+                        class="btn btn-outline btn-lg btn-google-login border-honey-300">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
+                            style="width: 24px;">
+                        <span class="text-honey-800">Masuk dengan Google</span>
+                    </button>
+
+                    <div class="benefit-box bg-honey-50 border-honey-100">
+                        <p class="text-honey-900 font-bold">
+                            <i data-lucide="award"></i> Member Gold Benefits:
+                        </p>
+                        <ul class="text-honey-800">
+                            <li><i data-lucide="gift"></i>
+                                <strong>Promo Eksklusif</strong> Madu Langka Dunia.
+                            </li>
+                            <li><i data-lucide="history"></i>
+                                <strong>Lacak Pengiriman</strong> lebih praktis & cepat.
+                            </li>
+                            <li><i data-lucide="zap"></i>
+                                <strong>Early Access</strong> produk panen terbatas.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <a href="/honey/" class="text-sm text-honey-600 hover:text-honey-800">Kembali ke Beranda</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>window.CURRENT_BRAND = 'honey';</script>
+    <script src="/js/app.js?v=2.2.10"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+
+            // Check auth status
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user) {
+                    window.location.href = '/honey/';
+                    return;
+                }
+            }
+
+            // Handle redirect from Google OAuth
+            const params = new URLSearchParams(window.location.search);
+            const authStatus = params.get('auth');
+            const token = params.get('token');
+
+            if (authStatus === 'success' && token) {
+                localStorage.setItem('token', token);
+                fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            localStorage.setItem('user', JSON.stringify(result.data));
+                            const redirectPath = localStorage.getItem('login_redirect') || '/honey/';
+                            localStorage.removeItem('login_redirect');
+                            window.location.href = redirectPath;
+                        }
+                    });
+            }
+        });
+
+        function loginWithGoogle() {
+            localStorage.setItem('login_redirect', '/honey/');
+            window.location.href = '/api/auth/google/login';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <title>Lacak Pesanan Golden Revival - Real-time Tracking</title>
+    <meta name="description"
+        content="Lacak status pengiriman madu Golden Revival Anda secara real-time. Masukkan nomor order atau invoice untuk melihat progress pesanan.">
+    {{> honey_head }}
+</head>
+
+<body class="honey-theme bg-neutral-50">
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="/honey/" class="logo">
+                        <img src="/assets/honey/logo.png" alt="Golden Revival Logo" class="logo-header">
+                        <span class="brand-name ml-2 font-bold text-xl text-honey-800">Golden Revival</span>
+                    </a>
+                    <nav class="nav" id="mainNav">
+                        <a href="/honey/">Home</a>
+                        <a href="/honey/order.html">Order</a>
+                        <a href="/honey/track.html">Track Order</a>
+                        <a href="/honey/login.html">Login</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content main-content-track">
+            <div class="container">
+                <div class="track-page">
+                    <div class="track-card">
+                        <div class="text-center mb-4">
+                            <img src="/assets/honey/logo.png" alt="Golden Revival Logo" class="track-form-logo"
+                                style="max-height: 80px; margin: 0 auto 1rem;">
+                            <h1 class="text-honey-900">Lacak Pengiriman</h1>
+                            <p class="text-muted">Pantau perjalanan energi alami Anda dari alam hingga ke depan pintu.
+                            </p>
+                        </div>
+
+                        <form id="trackForm" class="flex flex-col gap-2 mb-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="trackNumber" class="form-input"
+                                    placeholder="PO-2026... atau INV-2026..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="btnText">Lacak</span>
+                                    <div id="btnSpinner" class="spinner" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="customerOrdersArea" style="display: none;">
+                            <h4 class="text-honey-800">Pesanan Terakhir Anda</h4>
+                            <div id="customerOrdersList" class="flex flex-col gap-2"></div>
+                        </div>
+
+                        <div id="errorArea" class="text-danger mt-3 text-center" style="display: none;"></div>
+
+                        <div id="resultArea" style="display: none;">
+                            <div class="order-details border-honey-200 bg-honey-50">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 id="resOrderNumber" class="text-honey-900">PO-XXXX</h3>
+                                    <span id="resBadge" class="badge">Status</span>
+                                </div>
+                                <div class="text-muted res-date-details">
+                                    <p>Pelanggan: <span id="resCustomerName" class="font-bold">-</span></p>
+                                    <p>Tanggal Order: <span id="resDate">-</span></p>
+                                    <p>Invoice: <span id="resInvoiceNumber" class="font-mono">-</span></p>
+                                    <div class="payment-info card p-3 mt-3 bg-white border-honey-200">
+                                        <p class="text-sm font-bold text-honey-800 mb-1">Metode Pembayaran:</p>
+                                        <p class="text-sm">Bank Transfer / QRIS (Sesuai Invoice)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="status-timeline">
+                                <div class="timeline-item pending" id="step-pending">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="clock"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pesanan Diterima</div>
+                                        <div class="timeline-date">Pencatatan Berhasil</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item paid" id="step-paid">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="credit-card"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Verifikasi & Pembayaran</div>
+                                        <div class="timeline-date">Menunggu Konfirmasi</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item production" id="step-production">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="flask-conical"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Quality Control</div>
+                                        <div class="timeline-date">Pengecekan Kemurnian</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item packaging" id="step-packaging">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="package"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pengemasan Aman</div>
+                                        <div class="timeline-date">Proteksi Ekstra</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item shipping" id="step-shipping">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="truck"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Pengiriman</div>
+                                        <div class="timeline-date" id="resShippingText">Persiapan Kurir</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed" id="step-completed">
+                                    <div class="timeline-dot bg-honey-600"><i data-lucide="check-circle"></i></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Selesai</div>
+                                        <div class="timeline-date">Selamat Menikmati Kebaikan Alam</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 text-center">
+                                <a href="/honey/" class="btn btn-outline">Kembali ke Beranda</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        {{> honey_footer }}
+    </div>
+
+    <script>window.CURRENT_BRAND = 'honey';</script>
+    <script src="/js/app.js?v={{VERSION}}"></script>
+    <script src="/js/track.js?v={{VERSION}}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Brand-specific tracking UI adjustments
+            window.CURRENT_BRAND = 'honey';
+        });
+    </script>
+</body>
+
+</html>

@@ -35,6 +35,7 @@ export interface Product {
   unit: string;
   stock: number;
   image_url?: string;
+  brand?: string;
   created_at?: string;
 }
 
@@ -46,6 +47,7 @@ export interface Order {
   total_amount: number;
   status: 'pending' | 'confirmed' | 'invoiced' | 'paid' | 'production' | 'packaging' | 'shipping' | 'completed' | 'cancelled';
   notes?: string;
+  brand?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -167,11 +169,17 @@ export async function initDatabase() {
   try {
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT`;
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'General'`;
+    await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS brand TEXT DEFAULT 'baitybites'`;
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS production_time INTEGER DEFAULT 10`;
     await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS packaging_time INTEGER DEFAULT 5`;
   } catch (e) {
     console.error("Migration error on products table:", e);
   }
+
+  // Create brand index
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand)`;
+  } catch (e) { }
 
   await sql`
     CREATE TABLE IF NOT EXISTS orders (
@@ -300,9 +308,14 @@ export async function initDatabase() {
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL,
+      brand TEXT,
       updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     )
   `;
+
+  try {
+    await sql`ALTER TABLE settings ADD COLUMN IF NOT EXISTS brand TEXT`;
+  } catch (e) { }
 
   await sql`
     CREATE TABLE IF NOT EXISTS testimonials (
@@ -319,8 +332,11 @@ export async function initDatabase() {
     )
   `;
 
-  // Migration for testimonials reply
+  // Migration for testimonials reply and brand support
   try {
+    await sql`ALTER TABLE gallery ADD COLUMN IF NOT EXISTS brand TEXT DEFAULT 'baitybites'`;
+    await sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS brand TEXT DEFAULT 'baitybites'`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS brand TEXT DEFAULT 'baitybites'`;
     await sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS reply TEXT`;
     await sql`ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS reply_at TIMESTAMPTZ`;
   } catch (e) {

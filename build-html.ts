@@ -88,41 +88,47 @@ async function buildHtml() {
         await mkdir(PUBLIC_DIR, { recursive: true });
         await mkdir(JS_DEST_DIR, { recursive: true });
         const partials = await getPartials();
-        const files = await readdir(SRC_DIR);
-        const htmlFiles = files.filter(f => f.endsWith('.html'));
 
-        if (htmlFiles.length === 0) {
-            console.warn(`[HTML Builder] No source HTML files found in ${SRC_DIR}. Did you move them?`);
-        } else {
-            for (const file of htmlFiles) {
-                const srcPath = join(SRC_DIR, file);
-                const destPath = join(PUBLIC_DIR, file);
+        async function processDirectory(currentSrc: string, currentDest: string) {
+            await mkdir(currentDest, { recursive: true });
+            const entries = await readdir(currentSrc, { withFileTypes: true });
 
-                // Read source template
-                let content = await readFile(srcPath, 'utf-8');
+            for (const entry of entries) {
+                const srcPath = join(currentSrc, entry.name);
+                const destPath = join(currentDest, entry.name);
 
-                // Replace partials
-                for (const [name, partialContent] of Object.entries(partials)) {
-                    const regex = new RegExp(`\\{\\{>\\s*${name}\\s*\\}\\}`, 'g');
-                    content = content.replace(regex, partialContent);
+                if (entry.isDirectory()) {
+                    await processDirectory(srcPath, destPath);
+                } else if (entry.name.endsWith('.html')) {
+                    // Read source template
+                    let content = await readFile(srcPath, 'utf-8');
+
+                    // Replace partials
+                    for (const [name, partialContent] of Object.entries(partials)) {
+                        const regex = new RegExp(`\\{\\{>\\s*${name}\\s*\\}\\}`, 'g');
+                        content = content.replace(regex, partialContent);
+                    }
+
+                    // Replace VERSION placeholder
+                    content = content.replace(/\{\{VERSION\}\}/g, VERSION)
+                        .replace(/\$VERSION/g, VERSION);
+
+                    // Replace any existing ?v=... with ?v=VERSION
+                    const versionRegex = /(href|src)=["'](?!\/\/|http|https)([^"']+\.(css|js))(\?v=[^"']*)?["']/g;
+
+                    content = content.replace(versionRegex, (match, attr, path) => {
+                        return `${attr}="${path}?v=${VERSION}"`;
+                    });
+
+                    // Write to public folder
+                    await writeFile(destPath, content, 'utf-8');
+                    const relativePath = join(currentDest.replace(PUBLIC_DIR, '').replace(/^[\/\\]/, ''), entry.name);
+                    console.log(`  ✓ Built ${relativePath}`);
                 }
-
-                // Replace VERSION placeholder
-                content = content.replace(/\{\{VERSION\}\}/g, VERSION)
-                    .replace(/\$VERSION/g, VERSION);
-
-                // Replace any existing ?v=... with ?v=VERSION
-                const versionRegex = /(href|src)=["'](?!\/\/|http)([^"']+\.(css|js))(\?v=[^"']*)?["']/g;
-
-                content = content.replace(versionRegex, (match, attr, path) => {
-                    return `${attr}="${path}?v=${VERSION}"`;
-                });
-
-                // Write to public folder
-                await writeFile(destPath, content, 'utf-8');
-                console.log(`  ✓ Built ${file}`);
             }
         }
+
+        await processDirectory(SRC_DIR, PUBLIC_DIR);
 
         // Build JS files
         await buildJs();

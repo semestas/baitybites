@@ -11,8 +11,12 @@ let currentCategory = 'Risol';
 // Helper to check valid input (not empty, not just a dash)
 const isValidField = (val) => val && val.trim().length > 2 && val.trim() !== '-';
 
+// Brand Management
+const currentBrand = window.CURRENT_BRAND || 'baitybites';
+const cartKey = `${currentBrand}_cart`;
+
 // Load initial quantities from localStorage
-const savedCart = localStorage.getItem('baitybites_cart');
+const savedCart = localStorage.getItem(cartKey);
 if (savedCart) {
     try {
         quantities = JSON.parse(savedCart);
@@ -24,7 +28,7 @@ if (savedCart) {
 }
 
 function saveCart() {
-    localStorage.setItem('baitybites_cart', JSON.stringify(quantities));
+    localStorage.setItem(cartKey, JSON.stringify(quantities));
     checkResumeCart();
 }
 
@@ -188,7 +192,7 @@ async function loadProducts() {
     const { apiCall } = window.app;
     products = []; // Reset
     try {
-        const result = await apiCall('/public/products');
+        const result = await apiCall(`/public/products?brand=${currentBrand}`);
         if (result.success && Array.isArray(result.data)) {
             products = result.data;
         } else {
@@ -643,6 +647,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 phone: document.getElementById('phone').value,
                 address: document.getElementById('address').value,
                 notes: document.getElementById('notes').value,
+                brand: currentBrand,
                 items
             };
 
@@ -728,7 +733,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Re-sync cart on page modification (e.g. back button navigation/BFCache)
 window.addEventListener('pageshow', (event) => {
     // Reload quantities from localStorage to prevent stale state from BFCache
-    const savedCart = localStorage.getItem('baitybites_cart');
+    const savedCart = localStorage.getItem(cartKey);
     if (savedCart) {
         try {
             quantities = JSON.parse(savedCart);
