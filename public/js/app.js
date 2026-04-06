@@ -215,7 +215,9 @@ async function apiCall(endpoint, options = {}, retryCount = 0) {
 
                 // Only redirect to login if we are NOT on a public page
                 if (!isPublicPath()) {
-                    window.location.href = '/login.html';
+                    const brand = window.CURRENT_BRAND || 'baitybites';
+                    const loginPath = brand === 'honey' ? '/honey/login.html' : '/login.html';
+                    window.location.href = loginPath;
                 }
                 return;
             }
@@ -353,10 +355,15 @@ function getUser() {
 // Internal helper for public path detection
 function isPublicPath() {
     const publicPages = ['/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/wa-direct.html', '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos', '/wa-direct'];
+    
+    // Brand public pages
+    const honeyPublicPages = ['/honey', '/honey/', '/honey/index.html', '/honey/login.html', '/honey/order.html', '/honey/track.html', '/honey/login', '/honey/order', '/honey/track'];
+    
+    const allPublicPages = [...publicPages, ...honeyPublicPages];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
-    return publicPages.some(page =>
+    return allPublicPages.some(page =>
         currentPath === page ||
         currentPath.endsWith(page) ||
         normalizedPath === page ||
@@ -383,7 +390,9 @@ function checkAuth() {
 
     // 1. Not logged in -> Redirect to login if not public
     if (!token && !isPublicPage) {
-        window.location.href = '/login.html';
+        const brand = window.CURRENT_BRAND || 'baitybites';
+        const loginPath = brand === 'honey' ? '/honey/login.html' : '/login.html';
+        window.location.href = loginPath;
         return;
     }
 
