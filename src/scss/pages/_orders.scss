@@ -40,7 +40,7 @@
 .order-number {
   font-weight: 700;
   font-family: var(--font-display);
-  color: var(--neutral-900);
+  color: var(--accent);
 }
 
 .order-customer {
@@ -246,7 +246,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 2rem;
-  margin-bottom: 8px;
 }
 
 .item-name {
