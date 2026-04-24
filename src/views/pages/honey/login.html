@@ -9,45 +9,48 @@
 </head>
 
 <body class="honey-theme">
-    <div class="login-page">
+    <div class="login-page honey-theme">
         <div class="login-container customer-login">
-            <div class="login-card border-honey-200">
-                <div class="login-logo">
-                    <img src="/assets/honey/logo.png" alt="Golden Revival Logo">
+            <div class="login-card lux-card border-none">
+                <div class="login-logo mb-6">
+                    <img src="/assets/honey/logo.png" alt="Golden Revival Logo" style="height: 60px;">
                 </div>
-                <div class="login-header">
-                    <h1 class="text-honey-900">Portal Pelanggan</h1>
-                    <p>Masuk untuk mendapatkan promo khusus & kemudahan lacak pesanan.</p>
+                <div class="login-header mb-8">
+                    <h1 class="display-title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Golden Portal</h1>
+                    <p class="text-neutral-600">Masuk untuk akses eksklusif & kemudahan pelacakan.</p>
                 </div>
 
                 <div class="google-login-area">
                     <button type="button" onclick="loginWithGoogle()"
-                        class="btn btn-outline btn-lg btn-google-login border-honey-300">
+                        class="btn btn-honey-outline btn-full-width py-4 mb-8">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"
-                            style="width: 24px;">
-                        <span class="text-honey-800">Masuk dengan Google</span>
+                            style="width: 24px; margin-right: 12px;">
+                        <span>Masuk dengan Google</span>
                     </button>
 
-                    <div class="benefit-box bg-honey-50 border-honey-100">
-                        <p class="text-honey-900 font-bold">
+                    <div class="benefit-box bg-honey-100 border-none p-6 text-left rounded-xl" style="background: rgba(251, 243, 219, 0.5);">
+                        <p class="text-honey-900 font-bold mb-4">
                             <i data-lucide="award"></i> Member Gold Benefits:
                         </p>
-                        <ul class="text-honey-800">
-                            <li><i data-lucide="gift"></i>
-                                <strong>Promo Eksklusif</strong> Madu Langka Dunia.
+                        <ul class="text-honey-800 list-none p-0 flex flex-col gap-3">
+                            <li class="flex items-center gap-3">
+                                <span class="bg-honey-200 p-1 rounded-full"><i data-lucide="gift" size="16"></i></span>
+                                <div><strong>Promo Eksklusif</strong> Madu Langka Dunia.</div>
                             </li>
-                            <li><i data-lucide="history"></i>
-                                <strong>Lacak Pengiriman</strong> lebih praktis & cepat.
+                            <li class="flex items-center gap-3">
+                                <span class="bg-honey-200 p-1 rounded-full"><i data-lucide="history" size="16"></i></span>
+                                <div><strong>Lacak Pengiriman</strong> lebih praktis & cepat.</div>
                             </li>
-                            <li><i data-lucide="zap"></i>
-                                <strong>Early Access</strong> produk panen terbatas.
+                            <li class="flex items-center gap-3">
+                                <span class="bg-honey-200 p-1 rounded-full"><i data-lucide="zap" size="16"></i></span>
+                                <div><strong>Early Access</strong> produk panen terbatas.</div>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="mt-8 text-center">
-                    <a href="/honey/" class="text-sm text-honey-600 hover:text-honey-800">Kembali ke Beranda</a>
+                    <a href="/honey/" class="btn btn-honey-ghost text-honey-600">← Kembali ke Beranda</a>
                 </div>
             </div>
         </div>

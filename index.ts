@@ -71,6 +71,13 @@ const app = new Elysia()
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         credentials: true
     }))
+    .onBeforeHandle(({ set }) => {
+        // Security Headers
+        set.headers['X-Frame-Options'] = 'DENY';
+        set.headers['X-Content-Type-Options'] = 'nosniff';
+        set.headers['X-XSS-Protection'] = '1; mode=block';
+        set.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
+    })
 
     .use(jwtConfig)
     .decorate("db", db)
@@ -85,7 +92,6 @@ const app = new Elysia()
             .use(waDirectRoutes(db, emailService))
     )
     // Serve HTML files with proper headers
-    .onBeforeHandle(() => { /* Hook for potential shared logic */ })
     // Serve HTML files with proper headers - Using Bun.file for performance/security
     .get("/", () => {
         return new Response(Bun.file(join(PUBLIC_DIR, "index.html")), {
@@ -110,7 +116,7 @@ const app = new Elysia()
     // Honey Brand Pages
     .group("/honey", app => {
         [
-            "index", "login", "order", "track"
+            "index", "login", "order", "track", "guides"
         ].forEach(page => {
             app.get(`/${page}.html`, () => {
                 return new Response(Bun.file(join(PUBLIC_DIR, "honey", `${page}.html`)), {
@@ -153,11 +159,13 @@ const app = new Elysia()
     .get("/manifest.json", () => Bun.file(join(PUBLIC_DIR, "manifest.json")))
     .get("/api/health", () => ({
         status: "ok",
+        uptime: process.uptime(),
         timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV || 'development'
+        env: process.env.NODE_ENV || 'development',
+        version: process.env.APP_VERSION || '2.2.10'
     }))
     // Baitybites v1.1.2 - All reports registered
-    .listen(process.env.PORT || 2415);
+    .listen(process.env.PORT || 9876);
 
 // --- Background Job: Instagram Sync (Every 1 Hour) - SUSPENDED ---
 /*
@@ -168,7 +176,7 @@ setInterval(async () => {
 }, 1000 * 60 * 60); // 1 hour
 */
 
-const port = app.server?.port || process.env.PORT || 2415;
+const port = app.server?.port || process.env.PORT || 9876;
 
 // Server started successfully
 console.log(`

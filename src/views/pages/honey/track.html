@@ -9,23 +9,8 @@
 </head>
 
 <body class="honey-theme bg-neutral-50">
-    <div class="page-wrapper">
-        <header class="header">
-            <div class="container">
-                <div class="header-content">
-                    <a href="/honey/" class="logo">
-                        <img src="/assets/honey/logo.png" alt="Golden Revival Logo" class="logo-header">
-                        <span class="brand-name ml-2 font-bold text-xl text-honey-800">Golden Revival</span>
-                    </a>
-                    <nav class="nav" id="mainNav">
-                        <a href="/honey/">Home</a>
-                        <a href="/honey/order.html">Order</a>
-                        <a href="/honey/track.html">Track Order</a>
-                        <a href="/honey/login.html">Login</a>
-                    </nav>
-                </div>
-            </div>
-        </header>
+    <div class="page-wrapper honey-theme">
+        {{> honey_header }}
 
         <main class="main-content main-content-track">
             <div class="container">
@@ -43,7 +28,7 @@
                             <div class="flex gap-2">
                                 <input type="text" id="trackNumber" class="form-input"
                                     placeholder="PO-2026... atau INV-2026..." required>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn-honey-primary">
                                     <span id="btnText">Lacak</span>
                                     <div id="btnSpinner" class="spinner" style="display: none;"></div>
                                 </button>

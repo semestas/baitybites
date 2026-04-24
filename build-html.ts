@@ -155,7 +155,7 @@ if (process.argv.includes('--watch')) {
     buildHtml();
 
     // Watch for HTML changes
-    watch(SRC_DIR, (_: string, filename: string | null) => {
+    watch(SRC_DIR, { recursive: true }, (_: string, filename: string | null) => {
         if (filename && filename.endsWith('.html')) {
             console.log(`[HTML Builder] HTML changed: ${filename}`);
             buildHtml();
@@ -164,7 +164,7 @@ if (process.argv.includes('--watch')) {
 
     // Watch for JS changes
     try {
-        watch(JS_SRC_DIR, (_: string, filename: string | null) => {
+        watch(JS_SRC_DIR, { recursive: true }, (_: string, filename: string | null) => {
             if (filename && filename.endsWith('.js')) {
                 console.log(`[HTML Builder] JS changed: ${filename}`);
                 buildHtml();
@@ -174,7 +174,7 @@ if (process.argv.includes('--watch')) {
 
     // Watch for Partials changes
     try {
-        watch(PARTIALS_DIR, (_: string, filename: string | null) => {
+        watch(PARTIALS_DIR, { recursive: true }, (_: string, filename: string | null) => {
             if (filename && filename.endsWith('.html')) {
                 console.log(`[HTML Builder] Partial changed: ${filename}`);
                 buildHtml();

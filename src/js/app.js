@@ -352,7 +352,11 @@ function getUser() {
 
 // Internal helper for public path detection
 function isPublicPath() {
-    const publicPages = ['/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/wa-direct.html', '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos', '/wa-direct'];
+    const publicPages = [
+        '/', '/index.html', '/login.html', '/admin.html', '/order.html', '/track.html', '/profile.html', '/privacy.html', '/tos.html', '/wa-direct.html',
+        '/index', '/login', '/admin', '/order', '/track', '/profile', '/privacy', '/tos', '/wa-direct',
+        '/honey', '/honey/', '/honey/index', '/honey/index.html', '/honey/login', '/honey/login.html', '/honey/order', '/honey/order.html', '/honey/track', '/honey/track.html', '/honey/guides', '/honey/guides.html'
+    ];
     const currentPath = window.location.pathname;
     const normalizedPath = currentPath.replace(/\/$/, '') || '/';
 
@@ -442,17 +446,17 @@ async function loadFooterSettings() {
             const contactContainer = document.getElementById('footer-contact');
             if (contactContainer) {
                 let html = '';
-                if (s.contact_email) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="mail" style="width: 16px; height: 16px;"></i> ${s.contact_email}</div>`;
-                if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="phone" style="width: 16px; height: 16px;"></i> ${s.contact_phone}</div>`;
+                if (s.contact_email) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="mail" style="width: 16px; height: 16px;"></i> ${s.contact_email}</div>`;
+                if (s.contact_phone) html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="phone" style="width: 16px; height: 16px;"></i> ${s.contact_phone}</div>`;
                 if (s.contact_whatsapp) {
                     const waLink = `https://wa.me/${s.contact_whatsapp.replace(/[^0-9]/g, '')}`;
-                    html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    html += `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                         <a href="${waLink}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color 0.3s;" onmouseover="this.style.color='var(--success)'" onmouseout="this.style.color='inherit'">
                             <i data-lucide="message-circle" style="width: 16px; height: 16px;"></i> WhatsApp: ${s.contact_whatsapp}
                         </a>
                     </div>`;
                 }
-                if (s.contact_address) html += `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> ${s.contact_address}</div>`;
+                if (s.contact_address) html += `<div style="display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> ${s.contact_address}</div>`;
 
                 if (html) {
                     contactContainer.innerHTML = html;
@@ -628,12 +632,16 @@ function initGlobalHeader() {
         const isOrder = normalizedPath.includes('order.html') || normalizedPath.endsWith('/order');
         const isTrack = normalizedPath.includes('track');
         const isProfile = normalizedPath.includes('profile');
+        const isGuides = normalizedPath.includes('guides');
+
+        const guidesHtml = isHoney ? `<a href="/honey/guides.html" class="nav-link ${isGuides ? 'active' : ''}">Edukasi</a>` : '';
 
         if (user) {
             // Logged in
             const isAdmin = user.role === 'admin';
             nav.innerHTML = `
                 <a href="${homePath}" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                ${guidesHtml}
                 ${isAdmin ? '<a href="/dashboard.html" class="nav-link">Dashboard</a>' : `<a href="${orderPath}" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>`}
                 <a href="${trackPath}" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
                 ${isAdmin ? '' : `<a href="${profilePath}" class="nav-link ${isProfile ? 'active' : ''}">Profil</a>`}
@@ -646,9 +654,10 @@ function initGlobalHeader() {
             // Not logged in
             nav.innerHTML = `
                 <a href="${homePath}" class="nav-link ${isHome ? 'active' : ''}">Beranda</a>
+                ${guidesHtml}
                 <a href="${orderPath}" class="nav-link ${isOrder ? 'active' : ''}">Pesan</a>
                 <a href="${trackPath}" class="nav-link ${isTrack ? 'active' : ''}">Lacak</a>
-                <a href="${loginPath}" class="btn btn-primary btn-md" style="margin-left: var(--spacing-md); height: 35px;">Login</a>
+                <a href="${loginPath}" class="btn btn-primary btn-md" style="margin-left: var(--spacing-md); height: 35px;">Masuk</a>
             `;
         }
     }
