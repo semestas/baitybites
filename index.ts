@@ -2,6 +2,9 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { join } from "path";
 
+// Set System Timezone to Indonesia (WIB)
+process.env.TZ = 'Asia/Jakarta';
+
 import { initDatabase } from "./src/db/schema";
 import { jwtConfig } from "./src/utils/jwt";
 import { authRoutes } from "./src/routes/auth";

@@ -80,19 +80,19 @@
     const orderName = document.getElementById('topOrderName');
     const orderValue = document.getElementById('topOrderValue');
     if (orderName) orderName.textContent = top.mostOrders?.name || '-';
-    if (orderValue) orderValue.textContent = (top.mostOrders?.value || 0) + ' Orders';
+    if (orderValue) orderValue.textContent = (top.mostOrders?.value || 0) + ' Order';
 
     // Most Re-purchases
     const repeatName = document.getElementById('topRepeatName');
     const repeatValue = document.getElementById('topRepeatValue');
     if (repeatName) repeatName.textContent = top.mostRePurchases?.name || '-';
-    if (repeatValue) repeatValue.textContent = (top.mostRePurchases?.value || 0) + ' Times';
+    if (repeatValue) repeatValue.textContent = (top.mostRePurchases?.value || 0) + ' Kali';
 
     // Favorite Product
     const productName = document.getElementById('topProductName');
     const productValue = document.getElementById('topProductValue');
     if (productName) productName.textContent = top.favoriteProduct?.name || '-';
-    if (productValue) productValue.textContent = (top.favoriteProduct?.value || 0) + ' Units';
+    if (productValue) productValue.textContent = (top.favoriteProduct?.value || 0) + ' Unit';
   }
 
   function updateOrderFlow(flowData) {
@@ -126,7 +126,7 @@
     if (!orders || orders.length === 0) {
       grid.innerHTML = `
         <div class="text-center py-2xl w-full" style="grid-column: 1 / -1;">
-          <div style="color: #9ca3af;">No recent orders</div>
+          <div style="color: #9ca3af;">Tidak ada order terbaru</div>
         </div>
       `;
       return;

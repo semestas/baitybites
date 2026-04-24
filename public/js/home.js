@@ -132,7 +132,7 @@ async function loadContent() {
                         <div>
                             <h4>
                                 ${t.name}
-                                ${t.role === 'Verified Customer' ? '<span class="verified-badge"><i data-lucide="check-circle" size="14"></i></span>' : ''}
+                                ${t.role === 'Verified Customer' || t.role === 'Pelanggan Terverifikasi' ? '<span class="verified-badge"><i data-lucide="check-circle" size="14"></i></span>' : ''}
                             </h4>
                             <div class="user-meta">
                                 <span class="role">${t.role || 'Pelanggan'}</span>
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content: document.getElementById('testContent').value,
                 rating: parseInt(document.querySelector('input[name="rating"]:checked')?.value || 5),
                 avatar_url: user?.avatar_url || null,
-                role: user?.is_google ? 'Verified Customer' : 'Pelanggan'
+                role: user?.is_google ? 'Pelanggan Terverifikasi' : 'Pelanggan'
             };
 
             try {

@@ -2,7 +2,7 @@
     "name": "Baitybites OMS",
     "short_name": "Baitybites",
     "description": "Order Management System for Baitybites",
-    "version": "2.2.10",
+    "version": "2.2.12",
     "start_url": "/kitchen.html",
     "display": "standalone",
     "background_color": "#0f172a",

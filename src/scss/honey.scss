@@ -1,11 +1,16 @@
 :root {
-    --honey-primary: #f0a542; /* Soft Amber/Orange */
+    --honey-primary: #f0a542;
+    /* Soft Amber/Orange */
     --honey-primary-glow: rgba(240, 165, 66, 0.4);
     --honey-primary-hover: #db9031;
-    --honey-dark: #2F4134; /* Deep moss green */
-    --honey-darker: #28372C; /* Darker green for backgrounds */
-    --honey-text: #F3EFE0; /* Creamy off-white text */
-    --honey-text-muted: #AABBAC; /* Muted pale green/gray */
+    --honey-dark: #2F4134;
+    /* Deep moss green */
+    --honey-darker: #28372C;
+    /* Darker green for backgrounds */
+    --honey-text: #F3EFE0;
+    /* Creamy off-white text */
+    --honey-text-muted: #AABBAC;
+    /* Muted pale green/gray */
     --honey-surface: rgba(255, 255, 255, 0.04);
     --honey-border: rgba(240, 165, 66, 0.15);
 
@@ -14,6 +19,7 @@
     --container-max: 1300px;
 }
 
+
 .honey-theme {
     background-color: var(--honey-darker);
     color: var(--honey-text);
@@ -21,6 +27,10 @@
     scroll-behavior: smooth;
     overflow-x: hidden;
     position: relative;
+
+    .text-neutral-500 {
+        color: var(--honey-text);
+    }
 }
 
 /* Ambient Aura Backgrounds */
@@ -59,6 +69,7 @@
 .serif-title,
 .serif-title-sm {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     color: var(--honey-primary);
     line-height: 1.1;
 }
@@ -121,6 +132,7 @@
 
 .brand-text {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: -0.01em;
@@ -354,6 +366,7 @@
 
 .lux-card h3 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.75rem;
     margin-bottom: 1rem;
     color: var(--honey-darker);
@@ -425,6 +438,7 @@
 .stat-num {
     display: block;
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 3rem;
     font-weight: 800;
     color: var(--honey-primary);
@@ -448,13 +462,14 @@
 
 .display-title-sm {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: clamp(2.5rem, 5vw, 4rem);
     line-height: 1.1;
     color: var(--honey-primary);
 }
 
 .footer-premium {
-    background: var(--honey-darker);
+    background: #000;
     border-top: 1px solid rgba(212, 175, 55, 0.1);
     padding: 6rem 0 3rem;
     color: var(--honey-text);
@@ -482,6 +497,7 @@
 
 .footer-tagline {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.75rem;
     color: var(--honey-primary);
 }
@@ -568,6 +584,7 @@
 
 .slide-caption h3 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.75rem;
     margin-bottom: 0.5rem;
     color: var(--honey-primary);
@@ -722,6 +739,7 @@
 
 .product-info h3 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.5rem;
     margin-bottom: 0.75rem;
     color: var(--honey-primary);
@@ -762,6 +780,7 @@
 
 .step-num {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 4rem;
     font-weight: 900;
     color: var(--honey-primary);
@@ -772,6 +791,7 @@
 
 .step-item h4 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.5rem;
     color: var(--honey-primary);
     margin-bottom: 1rem;
@@ -841,6 +861,7 @@
 .stat-num {
     display: block;
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 3rem;
     font-weight: 800;
     color: var(--honey-primary);
@@ -1266,6 +1287,7 @@
     background: rgba(212, 175, 55, 0.05);
     color: var(--honey-primary);
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     padding: 1.5rem 2rem;
     font-size: 1.1rem;
     border-bottom: 1px solid rgba(212, 175, 55, 0.2);
@@ -1352,6 +1374,7 @@
 
 .gr-section__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: clamp(2.2rem, 5vw, 3.5rem);
     font-weight: 800;
     color: var(--honey-text);
@@ -1389,6 +1412,7 @@
     text-transform: uppercase;
     padding: 6px 14px;
     border-radius: 100px;
+    width: fit-content;
 }
 
 .gr-chip--sm {
@@ -1435,6 +1459,7 @@
     border: none;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: fit-content;
 }
 
 .gr-btn--gold {
@@ -1540,6 +1565,7 @@
 
 .gr-hero__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: clamp(3rem, 6vw, 5rem);
     font-weight: 900;
     line-height: 1.05;
@@ -1764,6 +1790,7 @@
 
 .gr-feature-card__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--honey-text);
@@ -1793,9 +1820,9 @@
 /* ─── Products ─── */
 .gr-products {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .gr-products__grid {
@@ -1810,6 +1837,9 @@
     border-radius: 20px;
     overflow: hidden;
     transition: all 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .gr-product-card:hover {
@@ -1826,11 +1856,11 @@
 .gr-product-card__img-wrap {
     position: relative;
     overflow: hidden;
-    height: 260px;
+    height: 280px;
 }
 
 .gr-product-card--featured .gr-product-card__img-wrap {
-    height: 320px;
+    height: 280px;
 }
 
 .gr-product-card__img-wrap img {
@@ -1863,10 +1893,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    flex: 1;
 }
 
 .gr-product-card__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.35rem;
     font-weight: 700;
     color: var(--honey-text);
@@ -1920,11 +1952,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 0.5rem;
+    padding-top: 1.5rem;
+    margin-top: auto;
 }
 
 .gr-product-card__price {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.35rem;
     font-weight: 800;
     color: var(--honey-primary);
@@ -1959,6 +1993,7 @@
 .gr-stat__num {
     display: block;
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 3rem;
     font-weight: 900;
     color: var(--honey-primary);
@@ -2079,6 +2114,7 @@
 .gr-split__badge-num {
     display: block;
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.75rem;
     font-weight: 900;
     color: var(--honey-primary);
@@ -2109,6 +2145,7 @@
 
 .gr-process__num {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 5rem;
     font-weight: 900;
     color: var(--honey-primary);
@@ -2135,6 +2172,7 @@
 
 .gr-process__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--honey-text);
@@ -2200,6 +2238,7 @@
 
 .gr-carousel__caption h3 {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 1.5rem;
     color: var(--honey-primary);
     margin: 0 0 0.5rem;
@@ -2270,6 +2309,7 @@
 
 .gr-cta__title {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 900;
     color: var(--honey-text);
@@ -2382,11 +2422,33 @@
     z-index: 100;
 }
 
+.wh-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.wh-header-logo {
+    display: block;
+    height: 64px;
+    transition: transform 0.3s ease;
+}
+
+.wh-header-logo img {
+    height: 100%;
+    width: auto;
+    display: block;
+}
+
+.wh-header-logo:hover {
+    transform: scale(1.05);
+}
+
 .wh-nav {
     display: flex;
     gap: 3rem;
-    justify-content: flex-start;
-    padding-left: 2rem;
+    align-items: center;
+    padding-left: 3rem;
 }
 
 .wh-nav-link {
@@ -2394,7 +2456,7 @@
     text-decoration: none;
     font-size: 0.8rem;
     font-weight: 500;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.05em;
     opacity: 0.8;
     transition: opacity 0.3s;
 }
@@ -2426,11 +2488,12 @@
     line-height: 0.8;
     display: block;
     margin-left: -1rem;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .wh-title-serif {
     font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
     font-size: 3rem;
     font-style: italic;
     color: var(--honey-primary);
@@ -2575,7 +2638,7 @@
     right: -80px;
     width: 600px;
     height: 600px;
-    background-image: 
+    background-image:
         radial-gradient(rgba(230, 154, 58, 0.3) 2px, transparent 0),
         radial-gradient(rgba(230, 154, 58, 0.3) 2px, transparent 0);
     background-size: 60px 60px;

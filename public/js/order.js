@@ -455,7 +455,7 @@ function updateTotal() {
         if (count > 0) {
             bar.classList.add('visible');
             if (stickyTotal) stickyTotal.textContent = formatCurrency(total);
-            if (stickyCount) stickyCount.textContent = count + ' Items';
+            if (stickyCount) stickyCount.textContent = count + ' Item';
         } else {
             bar.classList.remove('visible');
         }
