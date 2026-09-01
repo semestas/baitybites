@@ -363,7 +363,7 @@
                     </h4>
 
                     <div class="editable-field" id="field-hero_background_url">
-                        <label class="field-label">Background Image URL</label>
+                        <label class="field-label">Background Hero</label>
                         <div class="field-display" onclick="startInlineEdit('hero_background_url')">
                             <div class="field-value-text" id="text-hero_background_url">---</div>
                             <button type="button" class="btn-edit-inline">
@@ -371,13 +371,39 @@
                             </button>
                         </div>
                         <div class="field-edit-box">
-                            <input type="text" id="hero_background_url" class="form-input"
-                                placeholder="Paste URL gambar background di sini">
+                            <div class="mb-3">
+                                <div class="flex gap-2 mb-2" style="flex-wrap: wrap;">
+                                    <button type="button" class="btn btn-outline btn-sm active" data-bg-source="upload" onclick="switchHeroBackgroundSource('upload')">Unggah File</button>
+                                    <button type="button" class="btn btn-outline btn-sm" data-bg-source="product" onclick="switchHeroBackgroundSource('product')">Pilih Produk</button>
+                                    <button type="button" class="btn btn-outline btn-sm" data-bg-source="url" onclick="switchHeroBackgroundSource('url')">URL</button>
+                                </div>
+
+                                <div id="hero-bg-upload-panel" class="hero-bg-panel">
+                                    <input type="file" id="heroBackgroundUpload" accept="image/*" class="form-input" />
+                                    <small class="text-muted" style="display:block; margin-top:0.5rem;">Gunakan foto produk yang jelas, bukan foto terlalu kecil, terlalu gelap, atau terlalu ramai.</small>
+                                </div>
+
+                                <div id="hero-bg-product-panel" class="hero-bg-panel" style="display:none;">
+                                    <select id="heroBackgroundProduct" class="form-input">
+                                        <option value="">Pilih foto dari produk terdaftar</option>
+                                    </select>
+                                    <small class="text-muted" style="display:block; margin-top:0.5rem;">Pilih gambar produk yang paling menggambarkan karakter Baitybites: hangat, bersih, dan menggugah selera.</small>
+                                </div>
+
+                                <div id="hero-bg-url-panel" class="hero-bg-panel" style="display:none;">
+                                    <input type="text" id="hero_background_url" class="form-input"
+                                        placeholder="https://example.com/hero-image.jpg">
+                                    <small class="text-muted" style="display:block; margin-top:0.5rem;">Gunakan URL gambar dengan komposisi produk yang jelas, pencahayaan bagus, dan sesuai nuansa website kita.</small>
+                                </div>
+                            </div>
+
+                            <div id="heroBgPreview" class="mb-3" style="height: 180px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: linear-gradient(135deg, rgba(245,150,56,0.18), rgba(25,25,25,0.12)); background-size: cover; background-position: center; display:none;"></div>
+
                             <div class="edit-controls">
                                 <button type="button" class="btn btn-outline"
                                     onclick="cancelInlineEdit('hero_background_url')">Batal</button>
                                 <button type="button" class="btn btn-primary"
-                                    onclick="saveIndividualSetting('hero_background_url')">Simpan</button>
+                                    onclick="saveHeroBackgroundSetting()">Simpan</button>
                             </div>
                         </div>
                     </div>
@@ -1928,8 +1954,114 @@
                             }
                         }
                     });
+
+                    const heroBackgroundUrl = data.hero_background_url || '';
+                    const preview = document.getElementById('heroBgPreview');
+                    if (preview && heroBackgroundUrl) {
+                        preview.style.display = 'block';
+                        preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('${heroBackgroundUrl}')`;
+                    }
+                    if (document.getElementById('hero_background_url')) {
+                        document.getElementById('hero_background_url').value = heroBackgroundUrl;
+                    }
                 }
+                await loadHeroBackgroundProducts();
             } catch (e) { console.error(e); }
+        }
+
+        async function loadHeroBackgroundProducts() {
+            try {
+                const res = await apiCall('/cms/products');
+                const select = document.getElementById('heroBackgroundProduct');
+                if (!select || !res.success || !Array.isArray(res.data)) return;
+
+                select.innerHTML = '<option value="">Pilih foto dari produk terdaftar</option>' +
+                    res.data
+                        .filter(p => p.image_url)
+                        .map(p => `<option value="${p.image_url}">${p.name}</option>`)
+                        .join('');
+            } catch (e) {
+                console.error('Failed to load product images for hero background:', e);
+            }
+        }
+
+        function switchHeroBackgroundSource(source) {
+            const panels = ['upload', 'product', 'url'];
+            panels.forEach(key => {
+                const panel = document.getElementById(`hero-bg-${key}-panel`);
+                if (panel) panel.style.display = key === source ? 'block' : 'none';
+            });
+
+            document.querySelectorAll('[data-bg-source]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.bgSource === source);
+            });
+        }
+
+        function updateHeroBackgroundPreview(url) {
+            const preview = document.getElementById('heroBgPreview');
+            if (!preview || !url) {
+                if (preview) preview.style.display = 'none';
+                return;
+            }
+            preview.style.display = 'block';
+            preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('${url}')`;
+        }
+
+        async function saveHeroBackgroundSetting() {
+            const uploadInput = document.getElementById('heroBackgroundUpload');
+            const productSelect = document.getElementById('heroBackgroundProduct');
+            const urlInput = document.getElementById('hero_background_url');
+            const activeSource = document.querySelector('[data-bg-source].active')?.dataset.bgSource || 'upload';
+
+            try {
+                if (activeSource === 'upload') {
+                    const file = uploadInput?.files?.[0];
+                    if (!file) {
+                        window.app.showNotification('Pilih file gambar terlebih dahulu', 'info');
+                        return;
+                    }
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const res = await apiCall('/cms/settings/hero-background', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (res.success) {
+                        updateHeroBackgroundPreview(res.data.hero_background_url);
+                        document.getElementById('hero_background_url').value = res.data.hero_background_url;
+                        document.getElementById('text-hero_background_url').textContent = res.data.hero_background_url;
+                        window.app.showNotification('Background hero berhasil diunggah', 'success');
+                        cancelInlineEdit('hero_background_url');
+                    }
+                    return;
+                }
+
+                if (activeSource === 'product') {
+                    const productUrl = productSelect?.value?.trim();
+                    if (!productUrl) {
+                        window.app.showNotification('Pilih salah satu gambar produk', 'info');
+                        return;
+                    }
+                    updateHeroBackgroundPreview(productUrl);
+                    document.getElementById('hero_background_url').value = productUrl;
+                    document.getElementById('text-hero_background_url').textContent = productUrl;
+                    await saveIndividualSetting('hero_background_url');
+                    return;
+                }
+
+                const urlValue = urlInput?.value?.trim();
+                if (!urlValue) {
+                    window.app.showNotification('Masukkan URL gambar yang valid', 'info');
+                    return;
+                }
+                updateHeroBackgroundPreview(urlValue);
+                document.getElementById('hero_background_url').value = urlValue;
+                document.getElementById('text-hero_background_url').textContent = urlValue;
+                await saveIndividualSetting('hero_background_url');
+            } catch (error) {
+                console.error(error);
+                window.app.showNotification('Gagal menyimpan background hero', 'error');
+            }
         }
 
         // AI Enhancement is now handled globally in app.js

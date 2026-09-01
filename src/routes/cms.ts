@@ -713,6 +713,35 @@ export const cmsRoutes = (db: Sql, aiService: AIService) =>
 
             return { success: true, data: settings };
         })
+        .post('/settings/hero-background', async ({ body }: { body: any }) => {
+            const { image, image_url } = body;
+            let value = typeof image_url === 'string' ? image_url.trim() : '';
+
+            if (image && image instanceof File) {
+                value = await uploadToCloudinary(image, 'baitybites/hero');
+            }
+
+            if (!value) {
+                throw new Error('Gambar background hero wajib diisi');
+            }
+
+            await db`
+                INSERT INTO settings (key, value)
+                VALUES ('hero_background_url', ${value})
+                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
+            `;
+
+            return {
+                success: true,
+                data: { hero_background_url: value },
+                message: 'Background hero berhasil diperbarui'
+            };
+        }, {
+            body: t.Object({
+                image: t.Optional(t.File()),
+                image_url: t.Optional(t.String())
+            })
+        })
         .put('/settings', async ({ body }: { body: any }) => {
             const keys = [
                 'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address',

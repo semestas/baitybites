@@ -4,21 +4,38 @@ export class AIService {
     private genAI: GoogleGenerativeAI | null = null;
 
     constructor() {
-        const apiKey = Bun.env.GEMINI_API_KEY;
+        const apiKey = Bun.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
         if (apiKey) {
             this.genAI = new GoogleGenerativeAI(apiKey);
-        } else {
-            // console.warn("GEMINI_API_KEY not found in environment variables. AI features will be disabled.");
         }
+    }
+
+    private buildFallbackContent(content: string, context: string): string {
+        const trimmed = content.trim();
+        if (!trimmed) return context;
+
+        const base = trimmed.replace(/\s+/g, ' ');
+        const lowerContext = context.toLowerCase();
+
+        if (lowerContext.includes('title') || lowerContext.includes('h1')) {
+            return base.length > 40 ? `${base.substring(0, 37).trim()}...` : base;
+        }
+
+        if (lowerContext.includes('description')) {
+            return `${base} — hadir dengan rasa homemade yang autentik, kualitas premium, dan dibuat dengan bahan pilihan.`.slice(0, 180).trim();
+        }
+
+        return `${base} dengan cita rasa yang konsisten, fresh, dan siap dinikmati.`;
     }
 
     async enhanceContent(content: string, context: string): Promise<string> {
         if (!this.genAI) {
-            throw new Error("AI Service is not configured. Please add GEMINI_API_KEY to your environment.");
+            return this.buildFallbackContent(content, context);
         }
 
         try {
-            const model = this.genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            const modelName = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+            const model = this.genAI.getGenerativeModel({ model: modelName });
 
             let extraInstructions = "";
             if (context.toLowerCase().includes("title") || context.toLowerCase().includes("h1")) {
@@ -28,15 +45,18 @@ export class AIService {
             }
 
             const prompt = `
-                You are a professional copywriter for Baitybites, a premium homemade food business.
-                Refine the following content for a ${context}. 
-                Make it professional and appetizing. Avoid generic cliches and redundant filler words.
-                Use Indonesian as the primary language.
+                You are a natural, warm copywriter for Baitybites, a homemade food brand.
+                Refine the following content for a ${context}.
+                Keep the tone casual, genuine, and relatable, like a good Instagram caption or product description from a small food brand.
+                Avoid exaggerated hype, fake luxury language, fake claims, and generic AI-sounding phrases.
+                Use Indonesian naturally and conversationally.
+                Make it sound honest, appetizing, and easy to understand.
+                Do not use empty filler words like "premium banget", "super duper", "bikin nagih" unless it is truly natural.
                 ${extraInstructions}
-                
+
                 CONTENT TO ENHANCE:
                 "${content}"
-                
+
                 Return ONLY the enhanced text without any greetings, explanations, or quotes.
             `;
 
@@ -44,9 +64,7 @@ export class AIService {
             const response = await result.response;
             return response.text().trim();
         } catch (error: any) {
-            // console.error("Gemini AI error:", error);
-            const msg = error.message || "Gagal memproses peningkatan AI.";
-            throw new Error(`AI Error: ${msg}`);
+            return this.buildFallbackContent(content, context);
         }
     }
 }
