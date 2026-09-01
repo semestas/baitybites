@@ -75,6 +75,53 @@ function hideTestimonyForm() {
     }
 }
 
+function estimateHeroAccentColor(imageUrl, fallback = '#f59638') {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const maxSize = 80;
+                const scale = Math.min(maxSize / img.width, maxSize / img.height);
+                canvas.width = Math.max(1, Math.round(img.width * scale));
+                canvas.height = Math.max(1, Math.round(img.height * scale));
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                let r = 0;
+                let g = 0;
+                let b = 0;
+                let count = 0;
+
+                for (let i = 0; i < data.length; i += 16) {
+                    const alpha = data[i + 3];
+                    if (alpha < 128) continue;
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
+                    count += 1;
+                }
+
+                if (!count) {
+                    resolve(fallback);
+                    return;
+                }
+
+                const avgR = Math.round(r / count);
+                const avgG = Math.round(g / count);
+                const avgB = Math.round(b / count);
+                resolve(`rgb(${avgR}, ${avgG}, ${avgB})`);
+            } catch (error) {
+                resolve(fallback);
+            }
+        };
+        img.onerror = () => resolve(fallback);
+        img.src = imageUrl;
+    });
+}
+
 async function loadContent() {
     const { apiCall, renderRatingStars, formatRelativeDate } = window.app;
 
@@ -174,7 +221,13 @@ async function loadContent() {
             const s = settingsRes.data;
             if (s.hero_background_url) {
                 const heroBg = document.querySelector('.hero-bg');
-                if (heroBg) heroBg.style.setProperty('--hero-img', `url(${s.hero_background_url})`);
+                if (heroBg) {
+                    heroBg.style.setProperty('--hero-img', `url(${s.hero_background_url})`);
+                    const accent = await estimateHeroAccentColor(s.hero_background_url);
+                    heroBg.style.setProperty('--hero-accent', accent);
+                    const heroTitle = document.querySelector('.hero-title');
+                    if (heroTitle) heroTitle.style.setProperty('--hero-accent', accent);
+                }
             }
             if (s.hero_title) {
                 const heroTitle = document.querySelector('.hero-title');
