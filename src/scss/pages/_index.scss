@@ -43,7 +43,7 @@
     text-decoration: none;
     border-radius: 50px;
     transition: all 0.3s ease;
-    background: $primary;
+    background: var(--hero-accent, $primary);
     color: white;
     border: 2px solid transparent;
     cursor: pointer;
@@ -75,7 +75,7 @@
 
     &:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(245, 150, 56, 0.4);
+        box-shadow: 0 10px 20px color-mix(in srgb, var(--hero-accent, $primary) 45%, transparent);
 
         &::after {
             left: 100%;

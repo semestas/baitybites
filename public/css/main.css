@@ -401,7 +401,7 @@ h4 {
   text-decoration: none;
   border-radius: 50px;
   transition: all 0.3s ease;
-  background: var(--primary-500);
+  background: var(--hero-accent, var(--primary-500));
   color: white;
   border: 2px solid transparent;
   cursor: pointer;
@@ -429,7 +429,7 @@ h4 {
 }
 .cta-button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(245, 150, 56, 0.4);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--hero-accent, var(--primary-500)) 45%, transparent);
 }
 .cta-button:hover::after {
   left: 100%;

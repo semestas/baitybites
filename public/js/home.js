@@ -220,10 +220,12 @@ async function loadContent() {
         if (settingsRes.success) {
             const s = settingsRes.data;
             if (s.hero_background_url) {
+                const heroSection = document.querySelector('.hero-section');
                 const heroBg = document.querySelector('.hero-bg');
                 if (heroBg) {
                     heroBg.style.setProperty('--hero-img', `url(${s.hero_background_url})`);
                     const accent = await estimateHeroAccentColor(s.hero_background_url);
+                    if (heroSection) heroSection.style.setProperty('--hero-accent', accent);
                     heroBg.style.setProperty('--hero-accent', accent);
                     const heroTitle = document.querySelector('.hero-title');
                     if (heroTitle) heroTitle.style.setProperty('--hero-accent', accent);
