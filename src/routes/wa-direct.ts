@@ -60,28 +60,30 @@ async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailS
 export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
-            const { name, phone, items, discount = 0, notes = '' } = body as any;
+            const { name, phone, address = '-', items, discount = 0, notes = '', payment_status = 'pending' } = body as any;
             const placeholderEmail = `${phone}@baitybites.id`;
+            const normalizedPaymentStatus = payment_status === 'partial' ? 'partial' : payment_status === 'paid' ? 'paid' : 'pending';
 
             let orderResult: any = null;
             try {
-                console.log("[WADirect] incoming order:", { name, phone, itemsCount: items?.length });
+                console.log("[WADirect] incoming order:", { name, phone, address, payment_status: normalizedPaymentStatus, itemsCount: items?.length });
                 orderResult = await db.begin(async (sql: any) => {
                     // 1. Create or Find Customer
-                    let [customer] = await sql`SELECT id FROM customers WHERE phone = ${phone} OR email = ${placeholderEmail}`;
+                    let [customer] = await sql`SELECT id, address FROM customers WHERE phone = ${phone} OR email = ${placeholderEmail}`;
 
                     if (!customer) {
                         console.log("[WADirect] Creating new customer");
                         [customer] = await sql`
                             INSERT INTO customers (name, email, phone, address) 
-                            VALUES (${name}, ${placeholderEmail}, ${phone}, '-') 
+                            VALUES (${name}, ${placeholderEmail}, ${phone}, ${address || '-'}) 
                             RETURNING id
                         `;
                     } else {
                         console.log("[WADirect] Updating existing customer:", customer.id);
                         await sql`
                             UPDATE customers 
-                            SET name = ${name}
+                            SET name = ${name},
+                                address = ${address || customer.address || '-'}
                             WHERE id = ${customer.id}
                         `;
                     }
@@ -91,10 +93,11 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
                     const safeDiscount = Number(discount) || 0;
                     const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
                     const totalAmount = subtotal - safeDiscount;
+                    const orderStatus = normalizedPaymentStatus === 'paid' ? 'paid' : normalizedPaymentStatus === 'partial' ? 'confirmed' : 'pending';
 
                     const [order] = await sql`
                         INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)
-                        VALUES (${customer.id}, ${orderNumber}, CURRENT_TIMESTAMP, ${totalAmount}, 'paid', ${notes + ' (WA Direct Order)'})
+                        VALUES (${customer.id}, ${orderNumber}, CURRENT_TIMESTAMP, ${totalAmount}, ${orderStatus}, ${notes + ' (WA Direct Order)'} )
                         RETURNING id
                     `;
 
@@ -122,9 +125,12 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
 
                     // 4. Generate Invoice
                     const invoiceNumber = generateInvoiceNumber();
+                    const invoiceStatus = normalizedPaymentStatus === 'paid' ? 'paid' : normalizedPaymentStatus === 'partial' ? 'partial' : 'unpaid';
+                    const paidAmount = normalizedPaymentStatus === 'paid' ? totalAmount : normalizedPaymentStatus === 'partial' ? (totalAmount / 2) : 0;
+
                     await sql`
-                        INSERT INTO invoices (order_id, invoice_number, invoice_date, due_date, total_amount, status)
-                        VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${totalAmount}, 'paid')
+                        INSERT INTO invoices (order_id, invoice_number, invoice_date, due_date, total_amount, paid_amount, status)
+                        VALUES (${order.id}, ${invoiceNumber}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ${totalAmount}, ${paidAmount}, ${invoiceStatus})
                     `;
 
                     return {
@@ -167,6 +173,8 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
             body: t.Object({
                 name: t.String(),
                 phone: t.String(),
+                address: t.Optional(t.String()),
+                payment_status: t.Optional(t.String()),
                 discount: t.Optional(t.Number()),
                 notes: t.Optional(t.String()),
                 items: t.Array(t.Object({

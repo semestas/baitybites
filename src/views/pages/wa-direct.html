@@ -92,6 +92,12 @@
 
         <input type="text" id="custName" class="customer-input" placeholder="Nama Pelanggan">
         <input type="tel" id="custPhone" class="customer-input" placeholder="Nomor WhatsApp (Cth: 0812...)">
+        <input type="text" id="custAddress" class="customer-input" placeholder="Alamat pengiriman (opsional)">
+        <select id="paymentStatus" class="customer-input customer-select" aria-label="Status pembayaran">
+            <option value="pending">Belum bayar</option>
+            <option value="partial">DP / sebagian</option>
+            <option value="paid">Lunas</option>
+        </select>
 
         <div id="categoryFilters" class="wa-category-filters" aria-label="Filter kategori produk"></div>
 
@@ -123,7 +129,7 @@
         </div>
 
         <button id="btnSubmitOrder" class="btn-order-wa" disabled>
-            <span>⎙</span> Print & Send Invoice
+            <span>📱</span> Kirim ke WhatsApp
         </button>
     </div>
 

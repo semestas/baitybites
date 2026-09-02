@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const discountValInput = document.getElementById('discountVal');
     const custNameInput = document.getElementById('custName');
     const custPhoneInput = document.getElementById('custPhone');
+    const custAddressInput = document.getElementById('custAddress');
+    const paymentStatusSelect = document.getElementById('paymentStatus');
     const btnSubmit = document.getElementById('btnSubmitOrder');
 
     // Load Products
@@ -170,6 +172,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnSubmit.addEventListener('click', async () => {
         const name = custNameInput.value.trim();
         const phone = custPhoneInput.value.trim();
+        const address = custAddressInput.value.trim();
+        const paymentStatus = paymentStatusSelect.value;
         const discount = Number(discountValInput.value) || 0;
 
         // Visual Validation
@@ -208,6 +212,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     name,
                     phone,
+                    address,
+                    payment_status: paymentStatus,
                     discount,
                     items,
                     notes: 'Order via Direct WA App'
@@ -221,6 +227,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     invoiceNumber: res.data.invoice_number,
                     customerName: name,
                     customerPhone: phone,
+                    customerAddress: address,
+                    paymentStatus,
                     items: items,
                     discount: discount,
                     totalAmount: res.data.total_amount
@@ -230,6 +238,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 cart = {};
                 custNameInput.value = '';
                 custPhoneInput.value = '';
+                custAddressInput.value = '';
+                paymentStatusSelect.value = 'pending';
                 discountValInput.value = '';
                 updateUI();
 
@@ -246,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showNotification('Gagal memproses pesanan', 'error');
         } finally {
             btnSubmit.disabled = false;
-            btnSubmit.innerHTML = '<span>⎙</span> Buat & Kirim Invoice';
+            btnSubmit.innerHTML = '<span>📱</span> Kirim ke WhatsApp';
         }
     });
 
@@ -257,7 +267,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Show Order Summary Modal
     function showOrderSummaryModal(orderData) {
-        const { orderNumber, invoiceNumber, customerName, customerPhone, items, discount, totalAmount } = orderData;
+        const { orderNumber, invoiceNumber, customerName, customerPhone, customerAddress, paymentStatus, items, discount, totalAmount } = orderData;
+
+        const paymentLabel = paymentStatus === 'paid' ? 'Lunas' : paymentStatus === 'partial' ? 'DP / Sebagian' : 'Belum bayar';
 
         // Generate order summary text
         const itemsList = items.map(item =>
@@ -273,6 +285,8 @@ Invoice: ${invoiceNumber}
 
 👤 Pelanggan: ${customerName}
 📱 WhatsApp: ${customerPhone}
+📍 Alamat: ${customerAddress || '-'}
+💳 Status Bayar: ${paymentLabel}
 
 🛒 ITEM PESANAN:
 ${itemsList}

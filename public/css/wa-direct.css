@@ -276,17 +276,26 @@ body.wa-direct-page {
   box-shadow: 0 4px 10px rgba(245, 150, 56, 0.2);
 }
 
-.customer-input {
+.customer-input,
+.customer-select {
   width: 100%;
   padding: 12px 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 0.9rem;
   margin-bottom: 10px;
+  background: #fff;
 }
-.customer-input.input-error {
+.customer-input.input-error,
+.customer-select.input-error {
   border-color: #e74c3c !important;
   background: #fff5f5;
+}
+
+.customer-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 .discount-input {
