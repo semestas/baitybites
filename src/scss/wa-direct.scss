@@ -257,6 +257,40 @@ body.wa-direct-page {
 }
 
 .discount-input,
+.wa-category-filters {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.25rem 0 0.75rem;
+    margin-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.wa-filter-chip {
+    white-space: nowrap;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+    border-radius: 999px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+        background: #f59638;
+        color: #fff;
+        border-color: #f59638;
+        box-shadow: 0 4px 10px rgba(245, 150, 56, 0.2);
+    }
+}
+
 .customer-input {
     width: 100%;
     padding: 12px 10px;

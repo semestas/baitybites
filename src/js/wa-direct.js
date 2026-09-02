@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let products = [];
     let cart = {}; // product_id -> quantity
+    let selectedCategory = 'all';
 
     const productListEl = document.getElementById('productList');
+    const categoryFiltersEl = document.getElementById('categoryFilters');
     const cartReceiptEl = document.getElementById('cartReceipt');
     const labelSubtotal = document.getElementById('labelSubtotal');
     const labelGrandTotal = document.getElementById('labelGrandTotal');
@@ -16,14 +18,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await apiCall('/public/products');
         if (res.success) {
             products = res.data;
+            renderCategoryFilters();
             renderProducts();
         }
     } catch (e) {
         productListEl.innerHTML = '<p style="color: red; text-align:center;">Gagal memuat produk</p>';
     }
 
+    function renderCategoryFilters() {
+        if (!categoryFiltersEl) return;
+
+        const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+        if (!categories.length) {
+            categoryFiltersEl.innerHTML = '';
+            return;
+        }
+
+        const filters = ['all', ...categories];
+        categoryFiltersEl.innerHTML = filters.map(cat => {
+            const label = cat === 'all' ? 'Semua' : cat;
+            const active = selectedCategory === cat ? 'active' : '';
+            return `<button type="button" class="wa-filter-chip ${active}" data-category="${cat}" aria-pressed="${selectedCategory === cat}">${label}</button>`;
+        }).join('');
+
+        categoryFiltersEl.querySelectorAll('.wa-filter-chip').forEach(button => {
+            button.addEventListener('click', () => {
+                selectedCategory = button.dataset.category;
+                renderCategoryFilters();
+                renderProducts();
+            });
+        });
+    }
+
     function renderProducts() {
-        productListEl.innerHTML = products.map(p => {
+        let visibleProducts = products;
+        if (selectedCategory !== 'all') {
+            visibleProducts = products.filter(p => p.category === selectedCategory);
+        }
+
+        productListEl.innerHTML = visibleProducts.map(p => {
             const qty = cart[p.id] || 0;
             const sub = qty * p.price;
             const isSelected = qty > 0;
