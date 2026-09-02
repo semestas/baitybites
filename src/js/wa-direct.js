@@ -2,9 +2,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let products = [];
     let cart = {}; // product_id -> quantity
     let selectedCategory = 'all';
+    let searchQuery = '';
+    let selectedProductId = null;
+    let highlightedSuggestion = -1;
+    const savedCustomersKey = 'baitybites-wa-customers';
 
     const productListEl = document.getElementById('productList');
     const categoryFiltersEl = document.getElementById('categoryFilters');
+    const productSearchInput = document.getElementById('productSearch');
+    const productSuggestionsEl = document.getElementById('productSuggestions');
     const cartReceiptEl = document.getElementById('cartReceipt');
     const labelSubtotal = document.getElementById('labelSubtotal');
     const labelGrandTotal = document.getElementById('labelGrandTotal');
@@ -12,8 +18,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     const custNameInput = document.getElementById('custName');
     const custPhoneInput = document.getElementById('custPhone');
     const custAddressInput = document.getElementById('custAddress');
-    const paymentStatusSelect = document.getElementById('paymentStatus');
+    const savedCustomerPhonesEl = document.getElementById('savedCustomerPhones');
     const btnSubmit = document.getElementById('btnSubmitOrder');
+
+    function normalizePhone(phone) {
+        return phone.replace(/\D/g, '');
+    }
+
+    function getSavedCustomers() {
+        try {
+            return JSON.parse(localStorage.getItem(savedCustomersKey) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function renderSavedCustomerPhones() {
+        if (!savedCustomerPhonesEl) return;
+
+        savedCustomerPhonesEl.innerHTML = '';
+        Object.values(getSavedCustomers()).forEach(customer => {
+            const option = document.createElement('option');
+            option.value = customer.phone;
+            option.label = `${customer.name} - ${customer.phone}`;
+            savedCustomerPhonesEl.appendChild(option);
+        });
+    }
+
+    function prefillSavedCustomer() {
+        const customer = getSavedCustomers()[normalizePhone(custPhoneInput.value)];
+        if (!customer) return;
+
+        custPhoneInput.value = customer.phone;
+        custNameInput.value = customer.name;
+        custAddressInput.value = customer.address || '';
+        custNameInput.classList.remove('input-error');
+    }
+
+    function rememberCustomer(customer) {
+        const phone = normalizePhone(customer.phone);
+        if (!phone) return;
+
+        const customers = getSavedCustomers();
+        customers[phone] = { name: customer.name, phone: customer.phone, address: customer.address || '' };
+        try {
+            localStorage.setItem(savedCustomersKey, JSON.stringify(customers));
+            renderSavedCustomerPhones();
+        } catch (error) {
+            console.warn('[WADirect] Unable to save customer locally', error);
+        }
+    }
+
+    renderSavedCustomerPhones();
+    custPhoneInput.addEventListener('change', prefillSavedCustomer);
+    custPhoneInput.addEventListener('blur', prefillSavedCustomer);
 
     // Load Products
     try {
@@ -22,6 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             products = res.data;
             renderCategoryFilters();
             renderProducts();
+            renderProductSuggestions();
         }
     } catch (e) {
         productListEl.innerHTML = '<p style="color: red; text-align:center;">Gagal memuat produk</p>';
@@ -46,7 +105,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         categoryFiltersEl.querySelectorAll('.wa-filter-chip').forEach(button => {
             button.addEventListener('click', () => {
                 selectedCategory = button.dataset.category;
+                selectedProductId = null;
+                searchQuery = '';
+                productSearchInput.value = '';
                 renderCategoryFilters();
+                renderProductSuggestions();
                 renderProducts();
             });
         });
@@ -56,6 +119,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         let visibleProducts = products;
         if (selectedCategory !== 'all') {
             visibleProducts = products.filter(p => p.category === selectedCategory);
+        }
+
+        if (selectedProductId !== null) {
+            visibleProducts = visibleProducts.filter(p => p.id == selectedProductId);
+        }
+
+        if (searchQuery.trim() && selectedProductId === null) {
+            const term = searchQuery.trim().toLowerCase();
+            visibleProducts = visibleProducts.filter(p =>
+                p.name.toLowerCase().includes(term) ||
+                (p.category && p.category.toLowerCase().includes(term))
+            );
+        }
+
+        if (!visibleProducts.length) {
+            productListEl.innerHTML = `
+                <div class="wa-empty-state">
+                    <p>Produk yang Anda cari belum tersedia.</p>
+                    <small>Coba kata kunci lain atau pilih kategori lain.</small>
+                </div>
+            `;
+            return;
         }
 
         productListEl.innerHTML = visibleProducts.map(p => {
@@ -89,6 +174,83 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             `;
         }).join('');
+    }
+
+    function renderProductSuggestions() {
+        if (!productSuggestionsEl) return;
+
+        const term = searchQuery.trim().toLowerCase();
+        const matches = products
+            .filter(product => selectedCategory === 'all' || product.category === selectedCategory)
+            .filter(product => !term || product.name.toLowerCase().includes(term) || (product.category && product.category.toLowerCase().includes(term)))
+            .slice(0, 8);
+
+        if (!term || !matches.length || document.activeElement !== productSearchInput) {
+            productSuggestionsEl.innerHTML = '';
+            productSuggestionsEl.classList.remove('is-open');
+            return;
+        }
+
+        productSuggestionsEl.innerHTML = matches.map((product, index) => `
+            <button type="button" class="wa-product-suggestion ${index === highlightedSuggestion ? 'is-highlighted' : ''}" data-product-id="${product.id}" role="option" aria-selected="${index === highlightedSuggestion}">
+                <span class="wa-suggestion-name">${product.name}</span>
+                <span class="wa-suggestion-meta">${product.category || 'Produk'} · Rp ${Number(product.price).toLocaleString('id-ID')}</span>
+            </button>
+        `).join('');
+        productSuggestionsEl.classList.add('is-open');
+
+        productSuggestionsEl.querySelectorAll('.wa-product-suggestion').forEach(button => {
+            button.addEventListener('mousedown', event => event.preventDefault());
+            button.addEventListener('click', () => selectProduct(button.dataset.productId));
+        });
+    }
+
+    function selectProduct(productId) {
+        const product = products.find(item => item.id == productId);
+        if (!product) return;
+
+        selectedProductId = product.id;
+        searchQuery = product.name;
+        productSearchInput.value = product.name;
+        highlightedSuggestion = -1;
+        productSuggestionsEl.innerHTML = '';
+        productSuggestionsEl.classList.remove('is-open');
+        renderProducts();
+    }
+
+    if (productSearchInput) {
+        productSearchInput.addEventListener('input', event => {
+            searchQuery = event.target.value;
+            selectedProductId = null;
+            highlightedSuggestion = -1;
+            renderProductSuggestions();
+            renderProducts();
+        });
+
+        productSearchInput.addEventListener('focus', renderProductSuggestions);
+        productSearchInput.addEventListener('keydown', event => {
+            const suggestions = productSuggestionsEl.querySelectorAll('.wa-product-suggestion');
+            if (!suggestions.length) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                highlightedSuggestion = (highlightedSuggestion + 1) % suggestions.length;
+                renderProductSuggestions();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                highlightedSuggestion = (highlightedSuggestion - 1 + suggestions.length) % suggestions.length;
+                renderProductSuggestions();
+            } else if (event.key === 'Enter' && highlightedSuggestion >= 0) {
+                event.preventDefault();
+                selectProduct(suggestions[highlightedSuggestion].dataset.productId);
+            } else if (event.key === 'Escape') {
+                productSuggestionsEl.classList.remove('is-open');
+            }
+        });
+
+        productSearchInput.addEventListener('blur', () => {
+            window.setTimeout(() => productSuggestionsEl.classList.remove('is-open'), 120);
+        });
     }
 
     window.updateQty = (pid, delta) => {
@@ -173,7 +335,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = custNameInput.value.trim();
         const phone = custPhoneInput.value.trim();
         const address = custAddressInput.value.trim();
-        const paymentStatus = paymentStatusSelect.value;
         const discount = Number(discountValInput.value) || 0;
 
         // Visual Validation
@@ -213,7 +374,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     name,
                     phone,
                     address,
-                    payment_status: paymentStatus,
                     discount,
                     items,
                     notes: 'Order via Direct WA App'
@@ -228,18 +388,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     customerName: name,
                     customerPhone: phone,
                     customerAddress: address,
-                    paymentStatus,
+                    paymentStatus: 'pending',
                     items: items,
                     discount: discount,
                     totalAmount: res.data.total_amount
                 };
+
+                rememberCustomer({ name, phone, address });
 
                 // Clear form
                 cart = {};
                 custNameInput.value = '';
                 custPhoneInput.value = '';
                 custAddressInput.value = '';
-                paymentStatusSelect.value = 'pending';
                 discountValInput.value = '';
                 updateUI();
 

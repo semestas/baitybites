@@ -60,9 +60,9 @@ async function runWADirectBackgroundTasks(invoiceNumber: string, db: Sql, emailS
 export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
     new Elysia({ prefix: '/wa-direct' })
         .post('/order', async ({ body, set }) => {
-            const { name, phone, address = '-', items, discount = 0, notes = '', payment_status = 'pending' } = body as any;
+            const { name, phone, address = '-', items, discount = 0, notes = '' } = body as any;
             const placeholderEmail = `${phone}@baitybites.id`;
-            const normalizedPaymentStatus = payment_status === 'partial' ? 'partial' : payment_status === 'paid' ? 'paid' : 'pending';
+            const normalizedPaymentStatus = 'pending';
 
             let orderResult: any = null;
             try {
@@ -93,7 +93,7 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
                     const safeDiscount = Number(discount) || 0;
                     const subtotal = items.reduce((acc: number, item: any) => acc + (Number(item.price) * Number(item.quantity)), 0);
                     const totalAmount = subtotal - safeDiscount;
-                    const orderStatus = normalizedPaymentStatus === 'paid' ? 'paid' : normalizedPaymentStatus === 'partial' ? 'confirmed' : 'pending';
+                    const orderStatus = 'pending';
 
                     const [order] = await sql`
                         INSERT INTO orders (customer_id, order_number, order_date, total_amount, status, notes)
@@ -125,8 +125,8 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
 
                     // 4. Generate Invoice
                     const invoiceNumber = generateInvoiceNumber();
-                    const invoiceStatus = normalizedPaymentStatus === 'paid' ? 'paid' : normalizedPaymentStatus === 'partial' ? 'partial' : 'unpaid';
-                    const paidAmount = normalizedPaymentStatus === 'paid' ? totalAmount : normalizedPaymentStatus === 'partial' ? (totalAmount / 2) : 0;
+                    const invoiceStatus = 'unpaid';
+                    const paidAmount = 0;
 
                     await sql`
                         INSERT INTO invoices (order_id, invoice_number, invoice_date, due_date, total_amount, paid_amount, status)
@@ -174,7 +174,6 @@ export const waDirectRoutes = (db: Sql, emailService: EmailService) =>
                 name: t.String(),
                 phone: t.String(),
                 address: t.Optional(t.String()),
-                payment_status: t.Optional(t.String()),
                 discount: t.Optional(t.Number()),
                 notes: t.Optional(t.String()),
                 items: t.Array(t.Object({

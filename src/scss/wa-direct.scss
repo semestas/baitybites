@@ -1,8 +1,9 @@
 /* WhatsApp Direct Quick Order Styles */
 
 body.wa-direct-page {
-    background: #f8f9fa;
+    background: linear-gradient(180deg, #fffaf4 0%, #f8f9fa 16%, #f8f9fa 100%);
     padding-bottom: 300px;
+    color: #1f2937;
     /* Space for the floating cart */
 }
 
@@ -29,10 +30,10 @@ body.wa-direct-page {
 .header-wa {
     background: linear-gradient(135deg, #f59638 0%, #d35400 100%);
     color: white;
-    padding: 1rem;
+    padding: 0.85rem 1rem 1rem;
     text-align: center;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 8px 22px rgba(213, 84, 0, 0.2);
 
     .wa-icon {
         display: flex;
@@ -51,33 +52,34 @@ body.wa-direct-page {
     h2 {
         margin: 0;
         color: white;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
+        letter-spacing: 0.02em;
     }
 
     p {
         margin: 5px 0 0;
         opacity: 0.9;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 }
 
 .product-card-wa {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     flex-wrap: wrap;
-    background: white;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    margin-bottom: 12px;
+    padding: 12px 12px 10px;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
     gap: 12px;
     position: relative;
-    border: 2px solid transparent;
+    border: 1px solid rgba(15, 23, 42, 0.06);
     transition: all 0.2s ease;
 
     &.selected {
-        border-color: #27ae60;
-        background: #f0fff4;
+        border-color: rgba(39, 174, 96, 0.45);
+        background: linear-gradient(180deg, #f5fff8 0%, #ffffff 100%);
 
         .selected-badge {
             display: block;
@@ -99,11 +101,12 @@ body.wa-direct-page {
 }
 
 .product-thumb {
-    width: 70px;
-    height: 70px;
-    border-radius: 8px;
+    width: 76px;
+    height: 76px;
+    border-radius: 14px;
     object-fit: cover;
     background: #eee;
+    box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.04);
 }
 
 .product-info,
@@ -113,10 +116,11 @@ body.wa-direct-page {
     .product-name {
         flex: none;
         width: 100%;
-        font-weight: 700;
-        color: #2d3436;
-        font-size: 0.95rem;
-        margin-bottom: 2px;
+        font-weight: 800;
+        color: #1f2937;
+        font-size: 0.96rem;
+        margin-bottom: 6px;
+        line-height: 1.35;
     }
 
     .product-price-stock {
@@ -127,9 +131,9 @@ body.wa-direct-page {
     }
 
     .product-price {
-        color: #f59638;
-        font-weight: 600;
-        font-size: 0.85rem;
+        color: #d35400;
+        font-weight: 800;
+        font-size: 0.9rem;
     }
 }
 
@@ -137,12 +141,12 @@ body.wa-direct-page {
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    background: #dcfce7;
-    color: #15803d;
-    border-radius: 20px;
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    font-weight: 600;
+    background: #e7f9ee;
+    color: #14804c;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 0.69rem;
+    font-weight: 700;
     transition: background 0.3s, color 0.3s;
 
     strong {
@@ -150,12 +154,12 @@ body.wa-direct-page {
     }
 
     &.stock-low {
-        background: #fef9c3;
+        background: #fff4d6;
         color: #a16207;
     }
 
     &.stock-out {
-        background: #fee2e2;
+        background: #ffe4e6;
         color: #b91c1c;
     }
 }
@@ -164,7 +168,7 @@ body.wa-direct-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
+    gap: 12px;
     margin-top: 8px;
 }
 
@@ -175,28 +179,32 @@ body.wa-direct-page {
 }
 
 .btn-qty {
-    width: 48px;
-    height: 48px;
-    border-radius: 25%;
-    border: 1px solid #ddd;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
     color: #d35400;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .qty-val {
-    font-weight: bold;
-    min-width: 20px;
+    font-weight: 800;
+    min-width: 24px;
     text-align: center;
+    color: #111827;
 }
 
 .subtotal-preview {
-    font-size: 0.75rem;
-    color: #7f8c8d;
-    margin-top: 4px;
+    font-size: 0.74rem;
+    color: #6b7280;
+    margin-top: 6px;
+    font-weight: 600;
 }
 
 .cart-footer {
@@ -204,18 +212,20 @@ body.wa-direct-page {
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
-    border-radius: 25px 25px 0 0;
-    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1);
-    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.12);
+    padding: 12px 16px 18px;
     z-index: 1000;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .receipt-list {
-    max-height: 150px;
+    max-height: 140px;
     overflow-y: auto;
-    margin-bottom: 15px;
-    border-bottom: 1px dashed #eee;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #e5e7eb;
     padding-bottom: 8px;
 
     >p {
@@ -232,37 +242,40 @@ body.wa-direct-page {
 .receipt-item {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
-    margin-bottom: 5px;
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+    color: #374151;
 }
 
 .total-box {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    font-size: 0.85rem;
 }
 
 .total-row {
     display: flex;
     justify-content: space-between;
-    font-weight: bold;
+    align-items: center;
+    font-weight: 700;
+    color: #374151;
 
     &.grand-total {
-        font-size: 1.2rem;
+        font-size: 1.18rem;
         color: #d35400;
         margin-top: 10px;
-        border-top: 2px solid #eee;
+        border-top: 1px solid #e5e7eb;
         padding-top: 10px;
     }
 }
 
-.discount-input,
 .wa-category-filters {
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
-    padding: 0.25rem 0 0.75rem;
-    margin-bottom: 0.5rem;
+    padding: 0.2rem 0 0.75rem;
+    margin-bottom: 0.55rem;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 
@@ -273,33 +286,35 @@ body.wa-direct-page {
 
 .wa-filter-chip {
     white-space: nowrap;
-    border: 1px solid #d1d5db;
-    background: #fff;
+    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.8);
     color: #374151;
     border-radius: 999px;
-    padding: 0.55rem 0.9rem;
-    font-size: 0.75rem;
-    font-weight: 700;
+    padding: 0.6rem 0.95rem;
+    font-size: 0.74rem;
+    font-weight: 800;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &.active {
-        background: #f59638;
+        background: linear-gradient(135deg, #f59638 0%, #d35400 100%);
         color: #fff;
-        border-color: #f59638;
-        box-shadow: 0 4px 10px rgba(245, 150, 56, 0.2);
+        border-color: transparent;
+        box-shadow: 0 8px 18px rgba(211, 84, 0, 0.2);
     }
 }
 
 .customer-input,
 .customer-select {
     width: 100%;
-    padding: 12px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
     font-size: 0.9rem;
     margin-bottom: 10px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.78);
+    color: #111827;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
 
     &.input-error {
         border-color: #e74c3c !important;
@@ -317,27 +332,32 @@ body.wa-direct-page {
     width: 120px;
     margin: 0;
     padding: 4px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    background: #fff;
 }
 
 .btn-order-wa {
-    background: #27ae60;
+    background: linear-gradient(135deg, #f59638 0%, #d35400 100%);
     color: white;
     border: none;
     width: 100%;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: bold;
+    padding: 15px 18px;
+    border-radius: 16px;
+    font-weight: 800;
     font-size: 1rem;
     margin-top: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    box-shadow: 0 12px 22px rgba(211, 84, 0, 0.24);
 
     &:disabled {
         background: #bdc3c7;
         cursor: not-allowed;
         opacity: 0.7;
+        box-shadow: none;
     }
 }
 
@@ -463,5 +483,90 @@ body.wa-direct-page {
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+.wa-search-wrap {
+    position: relative;
+    margin: 0 0 0.7rem;
+}
+
+.wa-search-input {
+    padding-left: 44px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23737680' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 14px center;
+    background-size: 18px;
+    border-radius: 14px;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.wa-product-suggestions {
+    position: absolute;
+    top: calc(100% - 8px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: none;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14);
+
+    &.is-open {
+        display: block;
+    }
+}
+
+.wa-product-suggestion {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    color: #1f2937;
+    text-align: left;
+    cursor: pointer;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover,
+    &.is-highlighted {
+        background: #fff7ed;
+    }
+}
+
+.wa-suggestion-name {
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.wa-suggestion-meta {
+    color: #6b7280;
+    font-size: 0.7rem;
+}
+
+.wa-empty-state {
+    text-align: center;
+    padding: 24px 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px dashed #d1d5db;
+    border-radius: 16px;
+    color: #4b5563;
+
+    p {
+        margin: 0 0 4px;
+        font-weight: 700;
+    }
+
+    small {
+        color: #6b7280;
     }
 }

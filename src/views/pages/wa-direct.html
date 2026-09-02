@@ -91,13 +91,14 @@
         </div>
 
         <input type="text" id="custName" class="customer-input" placeholder="Nama Pelanggan">
-        <input type="tel" id="custPhone" class="customer-input" placeholder="Nomor WhatsApp (Cth: 0812...)">
+        <input type="tel" id="custPhone" class="customer-input" list="savedCustomerPhones" placeholder="Nomor WhatsApp (Cth: 0812...)">
+        <datalist id="savedCustomerPhones"></datalist>
         <input type="text" id="custAddress" class="customer-input" placeholder="Alamat pengiriman (opsional)">
-        <select id="paymentStatus" class="customer-input customer-select" aria-label="Status pembayaran">
-            <option value="pending">Belum bayar</option>
-            <option value="partial">DP / sebagian</option>
-            <option value="paid">Lunas</option>
-        </select>
+
+        <div class="wa-search-wrap">
+            <input type="search" id="productSearch" class="customer-input wa-search-input" placeholder="Cari produk favorit Anda..." aria-label="Cari produk">
+            <div id="productSuggestions" class="wa-product-suggestions" role="listbox" aria-label="Pilihan produk"></div>
+        </div>
 
         <div id="categoryFilters" class="wa-category-filters" aria-label="Filter kategori produk"></div>
 
