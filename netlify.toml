@@ -1,6 +1,6 @@
 [build]
-  # Build static styles before publishing using bun for consistency
-  command = "bun install && bun run style:build"
+  # Generate static HTML, JavaScript, and styles before publishing
+  command = "bun install && bun run build:html && bun run style:build"
   publish = "public"
   
 [build.environment]

@@ -8,12 +8,13 @@ Baitybites adalah full-stack application yang memerlukan:
 
 ## 📦 Deployment Options
 
-### Option 1: Hybrid Deployment (Recommended)
+### Option 1: Dual Frontend Deployment (Recommended)
 
-#### Frontend → Netlify
-- Domain: `https://baitybites.netlify.app`
-- Serves static files only
-- Proxies API calls to backend
+#### Frontend → Netlify dan Vercel
+- Keduanya menyajikan folder `public` sebagai frontend static.
+- Keduanya mem-proxy `/api/*` dan `/uploads/*` ke backend yang sama.
+- Netlify menggunakan `netlify.toml`.
+- Vercel menggunakan `vercel.json`.
 
 #### Backend → Railway/Render
 - Runs Bun runtime
@@ -54,6 +55,38 @@ File `netlify.toml` sudah dibuat. **EDIT baris berikut**:
   from = "/api/*"
   to = "https://baitybites-api.railway.app/api/:splat"  # ← Ganti dengan URL backend Anda
 ```
+
+---
+
+## ▲ Vercel Setup (Frontend Only)
+
+### 1. Connect Repository
+1. Login ke [Vercel](https://vercel.com)
+2. Import repository Baitybites
+3. Biarkan Vercel membaca konfigurasi dari `vercel.json`
+4. Pastikan Root Directory adalah root repository
+
+Konfigurasi Vercel yang digunakan:
+- **Install command**: `bun install --frozen-lockfile`
+- **Build command**: `bun run build:html && bun run style:build`
+- **Output directory**: `public`
+
+`vercel.json` mempertahankan proxy API dan upload ke backend Render, sehingga frontend Netlify dan Vercel menggunakan database serta API yang sama.
+
+### 2. Domain dan Environment
+1. Tambahkan domain Vercel atau gunakan domain preview Vercel untuk pengujian.
+2. Tambahkan domain frontend Vercel ke konfigurasi `FRONTEND_URL` pada backend.
+3. Jika Google OAuth digunakan, callback backend tetap menggunakan domain backend Render.
+
+### 3. Verifikasi
+Uji kedua URL frontend untuk:
+- `/api/health`
+- login admin
+- CMS dan upload gambar
+- order biasa dan WA Direct
+- tracking order
+
+Jangan menghapus Netlify sebelum seluruh pengujian di Vercel selesai.
 
 ---
 
