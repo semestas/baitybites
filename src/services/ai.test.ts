@@ -19,4 +19,16 @@ describe('AIService', () => {
       }
     }
   });
+
+  it('creates product-specific fallback descriptions instead of one repeated sentence', () => {
+    const service = new AIService() as any;
+    service.genAI = null;
+
+    const chocolate = service.buildFallbackContent('Brownies Cokelat', 'Product Description');
+    const spicy = service.buildFallbackContent('Sambal Pedas', 'Product Description');
+
+    expect(chocolate).not.toBe(spicy);
+    expect(chocolate.toLowerCase()).toContain('cokelat');
+    expect(spicy.toLowerCase()).toContain('pedas');
+  });
 });
