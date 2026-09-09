@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .filter(product => !term || product.name.toLowerCase().includes(term) || (product.category && product.category.toLowerCase().includes(term)))
             .slice(0, 8);
 
-        if (!term || !matches.length || document.activeElement !== productSearchInput) {
+        if (!term || !matches.length) {
             productSuggestionsEl.innerHTML = '';
             productSuggestionsEl.classList.remove('is-open');
             return;
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         productSuggestionsEl.classList.add('is-open');
 
         productSuggestionsEl.querySelectorAll('.wa-product-suggestion').forEach(button => {
-            button.addEventListener('mousedown', event => event.preventDefault());
+            button.addEventListener('pointerdown', event => event.preventDefault());
             button.addEventListener('click', () => selectProduct(button.dataset.productId));
         });
     }
