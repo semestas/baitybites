@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const productListEl = document.getElementById('productList');
     const categoryFiltersEl = document.getElementById('categoryFilters');
+    const productSearchForm = document.getElementById('productSearchForm');
     const productSearchInput = document.getElementById('productSearch');
     const productSuggestionsEl = document.getElementById('productSuggestions');
     const cartReceiptEl = document.getElementById('cartReceipt');
@@ -180,9 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!productSuggestionsEl) return;
 
         const term = searchQuery.trim().toLowerCase();
-        const matches = products
-            .filter(product => selectedCategory === 'all' || product.category === selectedCategory)
-            .filter(product => !term || product.name.toLowerCase().includes(term) || (product.category && product.category.toLowerCase().includes(term)))
+        const matches = getProductMatches(term)
             .slice(0, 8);
 
         if (!term || !matches.length) {
@@ -203,6 +202,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.addEventListener('pointerdown', event => event.preventDefault());
             button.addEventListener('click', () => selectProduct(button.dataset.productId));
         });
+    }
+
+    function getProductMatches(term) {
+        return products
+            .filter(product => selectedCategory === 'all' || product.category === selectedCategory)
+            .filter(product => product.name.toLowerCase().includes(term) || (product.category && product.category.toLowerCase().includes(term)));
+    }
+
+    function submitProductSearch() {
+        const matches = getProductMatches(searchQuery.trim().toLowerCase());
+        if (!matches.length) return;
+
+        selectProduct(matches[0].id);
     }
 
     function selectProduct(productId) {
@@ -230,19 +242,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         productSearchInput.addEventListener('focus', renderProductSuggestions);
         productSearchInput.addEventListener('keydown', event => {
             const suggestions = productSuggestionsEl.querySelectorAll('.wa-product-suggestion');
-            if (!suggestions.length) return;
 
             if (event.key === 'ArrowDown') {
+                if (!suggestions.length) return;
                 event.preventDefault();
                 highlightedSuggestion = (highlightedSuggestion + 1) % suggestions.length;
                 renderProductSuggestions();
             } else if (event.key === 'ArrowUp') {
+                if (!suggestions.length) return;
                 event.preventDefault();
                 highlightedSuggestion = (highlightedSuggestion - 1 + suggestions.length) % suggestions.length;
                 renderProductSuggestions();
-            } else if (event.key === 'Enter' && highlightedSuggestion >= 0) {
+            } else if (event.key === 'Enter') {
                 event.preventDefault();
-                selectProduct(suggestions[highlightedSuggestion].dataset.productId);
+                if (highlightedSuggestion >= 0 && suggestions[highlightedSuggestion]) {
+                    selectProduct(suggestions[highlightedSuggestion].dataset.productId);
+                } else {
+                    submitProductSearch();
+                }
             } else if (event.key === 'Escape') {
                 productSuggestionsEl.classList.remove('is-open');
             }
@@ -250,6 +267,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         productSearchInput.addEventListener('blur', () => {
             window.setTimeout(() => productSuggestionsEl.classList.remove('is-open'), 120);
+        });
+    }
+
+    if (productSearchForm) {
+        productSearchForm.addEventListener('submit', event => {
+            event.preventDefault();
+            submitProductSearch();
         });
     }
 

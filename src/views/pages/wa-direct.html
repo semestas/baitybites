@@ -95,10 +95,11 @@
         <datalist id="savedCustomerPhones"></datalist>
         <input type="text" id="custAddress" class="customer-input" placeholder="Alamat pengiriman (opsional)">
 
-        <div class="wa-search-wrap">
+        <form id="productSearchForm" class="wa-search-wrap" role="search">
             <input type="search" id="productSearch" class="customer-input wa-search-input" placeholder="Cari produk favorit Anda..." aria-label="Cari produk">
+            <button type="submit" class="wa-search-button" aria-label="Cari produk">⌕</button>
             <div id="productSuggestions" class="wa-product-suggestions" role="listbox" aria-label="Pilihan produk"></div>
-        </div>
+        </form>
 
         <div id="categoryFilters" class="wa-category-filters" aria-label="Filter kategori produk"></div>
 
